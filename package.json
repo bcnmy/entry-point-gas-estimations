@@ -1,0 +1,28 @@
+{
+  "name": "4337-gas-estimations",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/bcnmy/4337-gas-estimations.git",
+  "author": "Yashasvi Chaudhary <yashasvichaudhry98@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "format": "eslint 'src' --ext .ts --fix"
+  },
+  "dependencies": {
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "viem": "^1.20.3",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.1.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
+    "eslint": "^8.25.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^5.1.0"
+  }
+}
