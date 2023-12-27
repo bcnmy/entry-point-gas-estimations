@@ -187,7 +187,7 @@ export type FailedOp = z.infer<typeof failedOpSchema>
 export type SignatureValidationFailed = z.infer<typeof signatureValidationFailedSchema>
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>
 
-export type GasEstimatorParamsType = {
+export type GasEstimatorArgsType = {
   rpcUrl: string,
   entryPointAddress?: Address,
   executeSimulatorByteCode?: HexData
@@ -207,20 +207,20 @@ export type UserOperation = {
   signature: HexData
 }
 
-export type EstimateUserOperationGasParamsType = {
-  supportsEthCallStateOverride: boolean,
+export type EstimateUserOperationGasArgsType = {
+  supportsEthCallStateOverride?: boolean,
   userOperation: UserOperation
 }
 
-export type EstimateVerificationGasLimitParamsType = {
+export type EstimateVerificationGasLimitArgsType = {
   userOperation: UserOperation
 }
 
-export type EstimateCallGasLimitParamsType = {
+export type EstimateCallGasLimitArgsType = {
   userOperation: UserOperation
 }
 
-export type SimulateHandleOpParamsType = {
+export type SimulateHandleOpArgsType = {
   userOperation: UserOperation, 
   replacedEntryPoint: boolean, 
   targetAddress: Address, 

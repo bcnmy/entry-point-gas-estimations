@@ -18,16 +18,16 @@ import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 import { 
   Address, 
-  EstimateCallGasLimitParamsType, 
+  EstimateCallGasLimitArgsType, 
   EstimateCallGasLimitReturnType, 
-  EstimateUserOperationGasParamsType, 
+  EstimateUserOperationGasArgsType, 
   EstimateUserOperationGasReturnType, 
-  EstimateVerificationGasLimitParamsType, 
+  EstimateVerificationGasLimitArgsType, 
   EstimateVerificationGasLimitReturnType, 
   ExecutionResult, 
-  GasEstimatorParamsType, 
+  GasEstimatorArgsType, 
   HexData, 
-  SimulateHandleOpParamsType, 
+  SimulateHandleOpArgsType, 
   SimulateHandleOpReturnType,
   ValidationErrors,
   entryPointExecutionErrorSchema,
@@ -48,25 +48,25 @@ export class GasEstimator {
 
   executeSimulatorByteCode: HexData;
 
-  constructor(params: GasEstimatorParamsType) {
-    this.rpcUrl = params.rpcUrl;
-    this.entryPointAddress = params.entryPointAddress ? params.entryPointAddress : DEFAULT_ENTRY_POINT_ADDRESS;
-    this.executeSimulatorByteCode = params.executeSimulatorByteCode ? params.executeSimulatorByteCode : DEFAULT_EXECUTE_SIMULATOR_BYTE_CODE;
+  constructor(args: GasEstimatorArgsType) {
+    this.rpcUrl = args.rpcUrl;
+    this.entryPointAddress = args.entryPointAddress ? args.entryPointAddress : DEFAULT_ENTRY_POINT_ADDRESS;
+    this.executeSimulatorByteCode = args.executeSimulatorByteCode ? args.executeSimulatorByteCode : DEFAULT_EXECUTE_SIMULATOR_BYTE_CODE;
     this.publicClient = createPublicClient({ 
       transport: http(this.rpcUrl)
     });
   }
 
   async estimateUserOperationGas(
-    params: EstimateUserOperationGasParamsType
+    args: EstimateUserOperationGasArgsType
   ): Promise<EstimateUserOperationGasReturnType> {
     const {
       userOperation,
-      supportsEthCallStateOverride,
-    } = params;
+      supportsEthCallStateOverride = true,
+    } = args;
 
     if(!supportsEthCallStateOverride) {
-      return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(params);
+      return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(args);
     }
 
     const verificationGasLimitPromise = this.estimateVerificationGasLimit({
@@ -89,12 +89,14 @@ export class GasEstimator {
   }
 
   async estimateVerificationGasLimit(
-    params: EstimateVerificationGasLimitParamsType
+    args: EstimateVerificationGasLimitArgsType
   ): Promise<EstimateVerificationGasLimitReturnType> {
     const {
       userOperation
-    } = params;
+    } = args;
 
+    userOperation.maxFeePerGas = 0n;
+    userOperation.maxPriorityFeePerGas = 0n;
     userOperation.callGasLimit = 0n;
 
     let lower = 0n;
@@ -142,7 +144,7 @@ export class GasEstimator {
         } else if (typeof error.data === 'string' && tooLow(error.data)) {
             lower = mid;
         } else {
-            throw new Error("Unexpected error");
+            throw new Error("Unexpected error in estimating verificationGasLimit");
         }
     }
 
@@ -160,11 +162,16 @@ export class GasEstimator {
   }
 
   async estimateCallGasLimit(
-    params: EstimateCallGasLimitParamsType
+    args: EstimateCallGasLimitArgsType
   ): Promise<EstimateCallGasLimitReturnType> {
     const {
       userOperation
-    } = params;
+    } = args;
+
+    userOperation.maxFeePerGas = 0n;
+    userOperation.maxPriorityFeePerGas = 0n;
+    userOperation.callGasLimit = 0n;
+    userOperation.verificationGasLimit = 10_000_000n;
 
     const targetCallData = encodeFunctionData({
       abi: EXECUTE_SIMULATOR_ABI,
@@ -172,43 +179,41 @@ export class GasEstimator {
       args: [userOperation.sender, userOperation.callData, 25_000_000n]
     });
 
-  userOperation.callGasLimit = 0n;
+    const error = await this.simulateHandleOp({ 
+      userOperation, 
+      replacedEntryPoint: true, 
+      targetAddress: this.entryPointAddress, 
+      targetCallData
+    });
 
-  const error = await this.simulateHandleOp({ 
-    userOperation, 
-    replacedEntryPoint: true, 
-    targetAddress: this.entryPointAddress, 
-    targetCallData
-  });
+    if (error.result === "failed") {
+        throw new RpcError(
+            `UserOperation reverted during simulation with reason: ${error.data}`,
+            ValidationErrors.SimulateValidation
+        );
+    }
 
-  if (error.result === "failed") {
-      throw new RpcError(
-          `UserOperation reverted during simulation with reason: ${error.data}`,
-          ValidationErrors.SimulateValidation
-      );
-  }
+    const result = getCallExecuteResult(error.data as ExecutionResult);
 
-  const result = getCallExecuteResult(error.data as ExecutionResult);
+    let lower = 0n;
+    let upper: bigint;
+    let final: bigint | null = null;
 
-  let lower = 0n;
-  let upper: bigint;
-  let final: bigint | null = null;
+    const cutoff = 10_000n;
 
-  const cutoff = 10_000n;
-
-  if (result.success) {
+    if (result.success) {
       upper = 6n * result.gasUsed;
       final = 6n * result.gasUsed;
-  } else {
+    } else {
       throw new RpcError(
           "UserOperation reverted during execution phase",
           ValidationErrors.SimulateValidation,
           result.revertData
       );
-  }
+    }
 
-  // binary search
-  while (upper - lower > cutoff) {
+    // binary search
+    while (upper - lower > cutoff) {
       const mid = (upper + lower) / 2n;
 
       userOperation.callGasLimit = 0n;
@@ -224,23 +229,23 @@ export class GasEstimator {
         targetAddress: this.entryPointAddress, 
         targetCallData
       });
-
+      
       if (error.result !== "execution") {
-          throw new Error("Unexpected error");
+          throw new Error(`Unexpected error in estimating callGasLimit: ${error.data}`);
       }
 
       const result = getCallExecuteResult(error.data as ExecutionResult);
 
       if (result.success) {
-          upper = mid;
-          final = mid;
+        upper = mid;
+        final = mid;
       } else {
-          lower = mid;
+        lower = mid;
       }
     }
 
     if (final === null) {
-        throw new RpcError("Failed to estimate call gas limit");
+      throw new RpcError("Failed to estimate call gas limit");
     }
 
     return {
@@ -248,13 +253,13 @@ export class GasEstimator {
     };
   }
 
-  async simulateHandleOp(params: SimulateHandleOpParamsType): Promise<SimulateHandleOpReturnType> {
+  async simulateHandleOp(args: SimulateHandleOpArgsType): Promise<SimulateHandleOpReturnType> {
     const {
       userOperation,
       replacedEntryPoint,
       targetAddress,
       targetCallData
-    } = params;
+    } = args;
 
     const ethCallFinalParam = replacedEntryPoint
     ? {
@@ -290,17 +295,17 @@ export class GasEstimator {
       });
     } catch (error) {
       const err = error as RpcRequestErrorType;
-
       const causeParseResult = z
           .object({
               code: z.literal(3),
               message: z.string().regex(/execution reverted.*/),
               data: hexDataSchema
           })
+          // @ts-ignore
           .safeParse(err.cause);
-
       if (!causeParseResult.success) {
-          throw new Error(JSON.stringify(err.cause));
+        // @ts-ignore
+        throw new Error(JSON.stringify(err.cause));
       }
 
       const cause = causeParseResult.data;
@@ -321,11 +326,11 @@ export class GasEstimator {
   }
 
   async esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-    params: EstimateUserOperationGasParamsType
+    args: EstimateUserOperationGasArgsType
   ): Promise<EstimateUserOperationGasReturnType> {
     const {
       userOperation
-    } = params;
+    } = args;
 
     userOperation.preVerificationGas = 1_000_000n;
     userOperation.verificationGasLimit = 10_000_000n;
@@ -381,8 +386,9 @@ export class GasEstimator {
             if (errorResult instanceof BaseError) {
                 const revertError = errorResult.walk((err: any) => err instanceof ContractFunctionExecutionError);
                 throw new RpcError(
-                    `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
-                    ValidationErrors.SimulateValidation
+                  // @ts-ignore
+                  `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
+                  ValidationErrors.SimulateValidation
                 );
             }
             throw new Error(`User Operation simulation returned unexpected invalid response: ${errorResult}`);
