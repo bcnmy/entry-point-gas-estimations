@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { decodeErrorResult } from "viem";
-import { EXECUTE_SIMULATOR_ABI } from "./abi";
-import { ExecutionResult } from "./types";
+import { CALL_GAS_ESTIMATION_SIMULATOR } from "./abi";
+import { ExecutionResult, ValidationErrors } from "./types";
 
 export class RpcError extends Error {
   code?: number;
@@ -31,19 +31,22 @@ export function tooLow(error: string) {
   );
 }
 
-export function getCallExecuteResult(data: ExecutionResult) {
-  const callExecuteResult = decodeErrorResult({
-    abi: EXECUTE_SIMULATOR_ABI,
+export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
+  const result = decodeErrorResult({
+    abi: CALL_GAS_ESTIMATION_SIMULATOR,
     data: data.targetResult,
   });
 
-  const success = callExecuteResult.args[0];
-  const revertData = callExecuteResult.args[1];
-  const gasUsed = callExecuteResult.args[2];
+  if (result.errorName === "EstimateCallGasRevertAtMax") {
+    throw new RpcError(
+      "UserOperation reverted during execution phase",
+      ValidationErrors.SimulateValidation,
+    );
+  }
 
-  return {
-    success,
-    revertData,
-    gasUsed,
-  };
+  if (result.errorName === "EstimateCallGasResult") {
+    return result.args[0];
+  }
+
+  return null;
 }

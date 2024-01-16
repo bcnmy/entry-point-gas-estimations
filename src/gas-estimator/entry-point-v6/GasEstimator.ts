@@ -1,7 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable @typescript-eslint/return-await */
-/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/return-await */
 import {
   BaseError,
   ContractFunctionExecutionError,
@@ -18,28 +16,28 @@ import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import {
   Address,
-  EstimateCallGasLimitArgsType,
-  EstimateCallGasLimitReturnType,
-  EstimateUserOperationGasArgsType,
-  EstimateUserOperationGasReturnType,
-  EstimateVerificationGasLimitArgsType,
-  EstimateVerificationGasLimitReturnType,
+  EstimateCallGasLimitArgs,
+  EstimateCallGasLimitReturn,
+  EstimateUserOperationGasArgs,
+  EstimateUserOperationGasReturn,
+  EstimateVerificationGasLimitArgs,
+  EstimateVerificationGasLimitReturn,
   ExecutionResult,
-  GasEstimatorArgsType,
+  GasEstimatorArgs,
   HexData,
-  SimulateHandleOpArgsType,
-  SimulateHandleOpReturnType,
+  SimulateHandleOpArgs,
+  SimulateHandleOpReturn,
   ValidationErrors,
   entryPointExecutionErrorSchema,
   executionResultSchema,
   hexDataSchema,
 } from "./types";
 import {
+  DEFAULT_CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
   DEFAULT_ENTRY_POINT_ADDRESS,
-  DEFAULT_EXECUTE_SIMULATOR_BYTE_CODE,
 } from "./constants";
-import { ENTRY_POINT_ABI, EXECUTE_SIMULATOR_ABI } from "./abi";
-import { RpcError, getCallExecuteResult, tooLow } from "./utils";
+import { CALL_GAS_ESTIMATION_SIMULATOR, ENTRY_POINT_ABI } from "./abi";
+import { RpcError, getCallGasEstimationSimulatorResult, tooLow } from "./utils";
 
 export class GasEstimator {
   publicClient: PublicClient;
@@ -48,24 +46,25 @@ export class GasEstimator {
 
   entryPointAddress: Address;
 
-  executeSimulatorByteCode: HexData;
+  callGasEstimationSimulatorByteCode: HexData;
 
-  constructor(args: GasEstimatorArgsType) {
+  constructor(args: GasEstimatorArgs) {
     this.rpcUrl = args.rpcUrl;
     this.entryPointAddress = args.entryPointAddress
       ? args.entryPointAddress
       : DEFAULT_ENTRY_POINT_ADDRESS;
-    this.executeSimulatorByteCode = args.executeSimulatorByteCode
-      ? args.executeSimulatorByteCode
-      : DEFAULT_EXECUTE_SIMULATOR_BYTE_CODE;
+    this.callGasEstimationSimulatorByteCode =
+      args.callGasEstimationSimulatorByteCode
+        ? args.callGasEstimationSimulatorByteCode
+        : DEFAULT_CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE;
     this.publicClient = createPublicClient({
       transport: http(this.rpcUrl),
     });
   }
 
   async estimateUserOperationGas(
-    args: EstimateUserOperationGasArgsType,
-  ): Promise<EstimateUserOperationGasReturnType> {
+    args: EstimateUserOperationGasArgs,
+  ): Promise<EstimateUserOperationGasReturn> {
     const { userOperation, supportsEthCallStateOverride = true } = args;
 
     if (!supportsEthCallStateOverride) {
@@ -92,8 +91,9 @@ export class GasEstimator {
   }
 
   async estimateVerificationGasLimit(
-    args: EstimateVerificationGasLimitArgsType,
-  ): Promise<EstimateVerificationGasLimitReturnType> {
+    this: GasEstimator,
+    args: EstimateVerificationGasLimitArgs,
+  ): Promise<EstimateVerificationGasLimitReturn> {
     const { userOperation } = args;
 
     userOperation.maxFeePerGas = 0n;
@@ -163,19 +163,26 @@ export class GasEstimator {
   }
 
   async estimateCallGasLimit(
-    args: EstimateCallGasLimitArgsType,
-  ): Promise<EstimateCallGasLimitReturnType> {
+    args: EstimateCallGasLimitArgs,
+  ): Promise<EstimateCallGasLimitReturn> {
     const { userOperation } = args;
 
-    userOperation.maxFeePerGas = 0n;
-    userOperation.maxPriorityFeePerGas = 0n;
     userOperation.callGasLimit = 0n;
     userOperation.verificationGasLimit = 10_000_000n;
 
     const targetCallData = encodeFunctionData({
-      abi: EXECUTE_SIMULATOR_ABI,
-      functionName: "callExecute",
-      args: [userOperation.sender, userOperation.callData, 25_000_000n],
+      abi: CALL_GAS_ESTIMATION_SIMULATOR,
+      functionName: "estimateCallGas",
+      args: [
+        {
+          sender: userOperation.sender,
+          callData: userOperation.callData,
+          minGas: 0n,
+          maxGas: 30_000_000n,
+          rounding: 1n,
+          isContinuation: false,
+        },
+      ],
     });
 
     const error = await this.simulateHandleOp({
@@ -192,71 +199,22 @@ export class GasEstimator {
       );
     }
 
-    const result = getCallExecuteResult(error.data as ExecutionResult);
+    const result = getCallGasEstimationSimulatorResult(
+      error.data as ExecutionResult,
+    );
 
-    let lower = 0n;
-    let upper: bigint;
-    let final: bigint | null = null;
-
-    const cutoff = 10_000n;
-
-    if (result.success) {
-      upper = 6n * result.gasUsed;
-      final = 6n * result.gasUsed;
-    } else {
-      throw new RpcError(
-        "UserOperation reverted during execution phase",
-        ValidationErrors.SimulateValidation,
-        result.revertData,
-      );
-    }
-
-    // binary search
-    while (upper - lower > cutoff) {
-      const mid = (upper + lower) / 2n;
-
-      userOperation.callGasLimit = 0n;
-      const targetCallData = encodeFunctionData({
-        abi: EXECUTE_SIMULATOR_ABI,
-        functionName: "callExecute",
-        args: [userOperation.sender, userOperation.callData, mid],
-      });
-
-      const error = await this.simulateHandleOp({
-        userOperation,
-        replacedEntryPoint: true,
-        targetAddress: this.entryPointAddress,
-        targetCallData,
-      });
-
-      if (error.result !== "execution") {
-        throw new Error(
-          `Unexpected error in estimating callGasLimit: ${error.data}`,
-        );
-      }
-
-      const result = getCallExecuteResult(error.data as ExecutionResult);
-
-      if (result.success) {
-        upper = mid;
-        final = mid;
-      } else {
-        lower = mid;
-      }
-    }
-
-    if (final === null) {
+    if (result === null) {
       throw new RpcError("Failed to estimate call gas limit");
     }
 
     return {
-      callGasLimit: final,
+      callGasLimit: result,
     };
   }
 
   async simulateHandleOp(
-    args: SimulateHandleOpArgsType,
-  ): Promise<SimulateHandleOpReturnType> {
+    args: SimulateHandleOpArgs,
+  ): Promise<SimulateHandleOpReturn> {
     const { userOperation, replacedEntryPoint, targetAddress, targetCallData } =
       args;
 
@@ -266,7 +224,7 @@ export class GasEstimator {
             balance: toHex(100000_000000000000000000n),
           },
           [this.entryPointAddress]: {
-            code: this.executeSimulatorByteCode,
+            code: this.callGasEstimationSimulatorByteCode,
           },
         }
       : {
@@ -330,8 +288,8 @@ export class GasEstimator {
   }
 
   async esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-    args: EstimateUserOperationGasArgsType,
-  ): Promise<EstimateUserOperationGasReturnType> {
+    args: EstimateUserOperationGasArgs,
+  ): Promise<EstimateUserOperationGasReturn> {
     const { userOperation } = args;
 
     userOperation.preVerificationGas = 1_000_000n;

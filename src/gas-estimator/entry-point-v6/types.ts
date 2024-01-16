@@ -206,10 +206,10 @@ export type SignatureValidationFailed = z.infer<
 >;
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 
-export type GasEstimatorArgsType = {
+export type GasEstimatorArgs = {
   rpcUrl: string;
   entryPointAddress?: Address;
-  executeSimulatorByteCode?: HexData;
+  callGasEstimationSimulatorByteCode?: HexData;
 };
 
 export type UserOperation = {
@@ -226,41 +226,41 @@ export type UserOperation = {
   signature: HexData;
 };
 
-export type EstimateUserOperationGasArgsType = {
+export type EstimateUserOperationGasArgs = {
   supportsEthCallStateOverride?: boolean;
   userOperation: UserOperation;
 };
 
-export type EstimateVerificationGasLimitArgsType = {
+export type EstimateVerificationGasLimitArgs = {
   userOperation: UserOperation;
 };
 
-export type EstimateCallGasLimitArgsType = {
+export type EstimateCallGasLimitArgs = {
   userOperation: UserOperation;
 };
 
-export type SimulateHandleOpArgsType = {
+export type SimulateHandleOpArgs = {
   userOperation: UserOperation;
   replacedEntryPoint: boolean;
   targetAddress: Address;
   targetCallData: HexData;
 };
 
-export type SimulateHandleOpReturnType = {
+export type SimulateHandleOpReturn = {
   result: "failed" | "execution";
   data: string | ExecutionResult;
 };
 
-export type EstimateUserOperationGasReturnType = {
+export type EstimateUserOperationGasReturn = {
   callGasLimit: bigint;
   verificationGasLimit: bigint;
 };
 
-export type EstimateVerificationGasLimitReturnType = {
+export type EstimateVerificationGasLimitReturn = {
   verificationGasLimit: bigint;
 };
 
-export type EstimateCallGasLimitReturnType = {
+export type EstimateCallGasLimitReturn = {
   callGasLimit: bigint;
 };
 
