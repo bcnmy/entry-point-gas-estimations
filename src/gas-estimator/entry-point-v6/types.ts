@@ -229,14 +229,30 @@ export type UserOperation = {
 export type EstimateUserOperationGasArgs = {
   supportsEthCallStateOverride?: boolean;
   userOperation: UserOperation;
+  initialVglLowerBound?: bigint;
+  initialVglUpperBound?: bigint; 
+  vglCutOff?: bigint;
+  vglUpperBoundMultiplier?: bigint;
+  initalCglLowerBound?: bigint;
+  initialCglUpperBound?: bigint;
+  cglRounding?: bigint;
+  cglIsContinuation?: boolean;
 };
 
 export type EstimateVerificationGasLimitArgs = {
   userOperation: UserOperation;
+  initialVglLowerBound?: bigint;
+  initialVglUpperBound?: bigint; 
+  vglCutOff?: bigint;
+  vglUpperBoundMultiplier?: bigint;
 };
 
 export type EstimateCallGasLimitArgs = {
   userOperation: UserOperation;
+  initalCglLowerBound?: bigint;
+  initialCglUpperBound?: bigint;
+  cglRounding?: bigint;
+  cglIsContinuation?: boolean;
 };
 
 export type SimulateHandleOpArgs = {

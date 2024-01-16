@@ -65,7 +65,18 @@ export class GasEstimator {
   async estimateUserOperationGas(
     args: EstimateUserOperationGasArgs,
   ): Promise<EstimateUserOperationGasReturn> {
-    const { userOperation, supportsEthCallStateOverride = true } = args;
+    const {
+      userOperation,
+      supportsEthCallStateOverride = true,
+      initialVglLowerBound,
+      initialVglUpperBound,
+      vglCutOff,
+      vglUpperBoundMultiplier,
+      initalCglLowerBound,
+      initialCglUpperBound,
+      cglRounding,
+      cglIsContinuation,
+    } = args;
 
     if (!supportsEthCallStateOverride) {
       return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
@@ -75,10 +86,18 @@ export class GasEstimator {
 
     const verificationGasLimitPromise = this.estimateVerificationGasLimit({
       userOperation,
+      initialVglLowerBound,
+      initialVglUpperBound,
+      vglCutOff,
+      vglUpperBoundMultiplier,
     });
 
     const callGasLimitPromise = this.estimateCallGasLimit({
       userOperation,
+      initalCglLowerBound,
+      initialCglUpperBound,
+      cglRounding,
+      cglIsContinuation,
     });
 
     const [verificationGasLimitResponse, callGasLimitResponse] =
@@ -94,30 +113,39 @@ export class GasEstimator {
     this: GasEstimator,
     args: EstimateVerificationGasLimitArgs,
   ): Promise<EstimateVerificationGasLimitReturn> {
-    const { userOperation } = args;
+    const {
+      userOperation,
+      initialVglLowerBound,
+      initialVglUpperBound,
+      vglCutOff,
+      vglUpperBoundMultiplier,
+    } = args;
 
-    userOperation.maxFeePerGas = 0n;
-    userOperation.maxPriorityFeePerGas = 0n;
-    userOperation.callGasLimit = 0n;
+    // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
+    const inMemoryUserOperation = userOperation;
 
-    let lower = 0n;
-    let upper = 10_000_000n;
+    inMemoryUserOperation.callGasLimit = 0n;
+
+    let lower = initialVglLowerBound || 0n;
+    let upper = initialVglUpperBound || 10_000_000n;
     let final: bigint | null = null;
 
-    const cutoff = 20_000n;
+    const cutoff = vglCutOff || 20_000n;
 
-    userOperation.verificationGasLimit = upper;
-    userOperation.callGasLimit = 0n;
+    inMemoryUserOperation.verificationGasLimit = upper;
+    inMemoryUserOperation.callGasLimit = 0n;
 
     const initial = await this.simulateHandleOp({
-      userOperation,
+      userOperation: inMemoryUserOperation,
       replacedEntryPoint: false,
       targetAddress: zeroAddress,
       targetCallData: "0x",
     });
 
     if (initial.result === "execution" && typeof initial.data !== "string") {
-      upper = 6n * (initial.data.preOpGas - userOperation.preVerificationGas);
+      upper =
+        (vglUpperBoundMultiplier || 6n) *
+        (initial.data.preOpGas - inMemoryUserOperation.preVerificationGas);
     } else {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${initial.data}`,
@@ -129,11 +157,11 @@ export class GasEstimator {
     while (upper - lower > cutoff) {
       const mid = (upper + lower) / 2n;
 
-      userOperation.verificationGasLimit = mid;
-      userOperation.callGasLimit = 0n;
+      inMemoryUserOperation.verificationGasLimit = mid;
+      inMemoryUserOperation.callGasLimit = 0n;
 
       const error = await this.simulateHandleOp({
-        userOperation,
+        userOperation: inMemoryUserOperation,
         replacedEntryPoint: false,
         targetAddress: zeroAddress,
         targetCallData: "0x",
@@ -153,10 +181,6 @@ export class GasEstimator {
       throw new RpcError("Failed to estimate verification gas limit");
     }
 
-    if (userOperation.paymasterAndData === "0x") {
-      final += 30_000n;
-    }
-
     return {
       verificationGasLimit: final,
     };
@@ -165,28 +189,37 @@ export class GasEstimator {
   async estimateCallGasLimit(
     args: EstimateCallGasLimitArgs,
   ): Promise<EstimateCallGasLimitReturn> {
-    const { userOperation } = args;
+    const {
+      userOperation,
+      initalCglLowerBound,
+      initialCglUpperBound,
+      cglRounding,
+      cglIsContinuation,
+    } = args;
 
-    userOperation.callGasLimit = 0n;
-    userOperation.verificationGasLimit = 10_000_000n;
+    // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
+    const inMemoryUserOperation = userOperation;
+
+    inMemoryUserOperation.callGasLimit = 0n;
+    inMemoryUserOperation.verificationGasLimit = 10_000_000n;
 
     const targetCallData = encodeFunctionData({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
       functionName: "estimateCallGas",
       args: [
         {
-          sender: userOperation.sender,
-          callData: userOperation.callData,
-          minGas: 0n,
-          maxGas: 30_000_000n,
-          rounding: 1n,
-          isContinuation: false,
+          sender: inMemoryUserOperation.sender,
+          callData: inMemoryUserOperation.callData,
+          minGas: initalCglLowerBound || 0n,
+          maxGas: initialCglUpperBound || 30_000_000n,
+          rounding: cglRounding || 1n,
+          isContinuation: cglIsContinuation || false,
         },
       ],
     });
 
     const error = await this.simulateHandleOp({
-      userOperation,
+      userOperation: inMemoryUserOperation,
       replacedEntryPoint: true,
       targetAddress: this.entryPointAddress,
       targetCallData,
