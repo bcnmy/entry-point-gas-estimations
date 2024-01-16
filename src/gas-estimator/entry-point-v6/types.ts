@@ -209,7 +209,6 @@ export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 export type GasEstimatorArgs = {
   rpcUrl: string;
   entryPointAddress?: Address;
-  callGasEstimationSimulatorByteCode?: HexData;
 };
 
 export type UserOperation = {
@@ -230,20 +229,21 @@ export type EstimateUserOperationGasArgs = {
   supportsEthCallStateOverride?: boolean;
   userOperation: UserOperation;
   initialVglLowerBound?: bigint;
-  initialVglUpperBound?: bigint; 
+  initialVglUpperBound?: bigint;
   vglCutOff?: bigint;
   vglUpperBoundMultiplier?: bigint;
   initalCglLowerBound?: bigint;
   initialCglUpperBound?: bigint;
   cglRounding?: bigint;
-  cglIsContinuation?: boolean;
+  callDataExecutionAtMaxGas?: boolean;
   stateOverrideSet?: StateOverrideSet;
 };
 
 export type EstimateVerificationGasLimitArgs = {
   userOperation: UserOperation;
+  supportsEthCallStateOverride?: boolean;
   initialVglLowerBound?: bigint;
-  initialVglUpperBound?: bigint; 
+  initialVglUpperBound?: bigint;
   vglCutOff?: bigint;
   vglUpperBoundMultiplier?: bigint;
   stateOverrideSet?: StateOverrideSet;
@@ -251,10 +251,11 @@ export type EstimateVerificationGasLimitArgs = {
 
 export type EstimateCallGasLimitArgs = {
   userOperation: UserOperation;
+  supportsEthCallStateOverride?: boolean;
   initalCglLowerBound?: bigint;
   initialCglUpperBound?: bigint;
   cglRounding?: bigint;
-  cglIsContinuation?: boolean;
+  callDataExecutionAtMaxGas?: boolean;
   stateOverrideSet?: StateOverrideSet;
 };
 
@@ -266,31 +267,31 @@ export type SimulateHandleOpArgs = {
   stateOverrideSet?: StateOverrideSet;
 };
 
-export type SimulateHandleOpReturn = {
+export type SimulateHandleOp = {
   result: "failed" | "execution";
   data: string | ExecutionResult;
 };
 
-export type EstimateUserOperationGasReturn = {
+export type EstimateUserOperationGas = {
   callGasLimit: bigint;
   verificationGasLimit: bigint;
 };
 
-export type EstimateVerificationGasLimitReturn = {
+export type EstimateVerificationGasLimit = {
   verificationGasLimit: bigint;
 };
 
-export type EstimateCallGasLimitReturn = {
+export type EstimateCallGasLimit = {
   callGasLimit: bigint;
 };
 
 export type StateOverrideSet = {
-  balance: Hex,
-  nonce: Hex,
-  code: Hex,
-  state: object,
-  stateDiff: object,
-}
+  balance: Hex;
+  nonce: Hex;
+  code: Hex;
+  state: object;
+  stateDiff: object;
+};
 
 export enum ValidationErrors {
   InvalidFields = -32602,

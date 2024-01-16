@@ -15,7 +15,8 @@
   },
   "plugins": [
       "@typescript-eslint",
-      "prettier"
+      "prettier",
+      "tsdoc/syntax"
   ],
   "rules": {
       "import/prefer-default-export": "off",
