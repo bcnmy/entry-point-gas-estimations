@@ -76,6 +76,7 @@ export class GasEstimator {
       initialCglUpperBound,
       cglRounding,
       cglIsContinuation,
+      stateOverrideSet,
     } = args;
 
     if (!supportsEthCallStateOverride) {
@@ -90,6 +91,7 @@ export class GasEstimator {
       initialVglUpperBound,
       vglCutOff,
       vglUpperBoundMultiplier,
+      stateOverrideSet,
     });
 
     const callGasLimitPromise = this.estimateCallGasLimit({
@@ -98,6 +100,7 @@ export class GasEstimator {
       initialCglUpperBound,
       cglRounding,
       cglIsContinuation,
+      stateOverrideSet,
     });
 
     const [verificationGasLimitResponse, callGasLimitResponse] =
@@ -119,6 +122,7 @@ export class GasEstimator {
       initialVglUpperBound,
       vglCutOff,
       vglUpperBoundMultiplier,
+      stateOverrideSet,
     } = args;
 
     // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
@@ -140,6 +144,7 @@ export class GasEstimator {
       replacedEntryPoint: false,
       targetAddress: zeroAddress,
       targetCallData: "0x",
+      stateOverrideSet,
     });
 
     if (initial.result === "execution" && typeof initial.data !== "string") {
@@ -195,6 +200,7 @@ export class GasEstimator {
       initialCglUpperBound,
       cglRounding,
       cglIsContinuation,
+      stateOverrideSet,
     } = args;
 
     // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
@@ -223,6 +229,7 @@ export class GasEstimator {
       replacedEntryPoint: true,
       targetAddress: this.entryPointAddress,
       targetCallData,
+      stateOverrideSet,
     });
 
     if (error.result === "failed") {
@@ -248,8 +255,13 @@ export class GasEstimator {
   async simulateHandleOp(
     args: SimulateHandleOpArgs,
   ): Promise<SimulateHandleOpReturn> {
-    const { userOperation, replacedEntryPoint, targetAddress, targetCallData } =
-      args;
+    const {
+      userOperation,
+      replacedEntryPoint,
+      targetAddress,
+      targetCallData,
+      stateOverrideSet,
+    } = args;
 
     const ethCallFinalParam = replacedEntryPoint
       ? {
@@ -259,11 +271,13 @@ export class GasEstimator {
           [this.entryPointAddress]: {
             code: this.callGasEstimationSimulatorByteCode,
           },
+          ...stateOverrideSet,
         }
       : {
           [userOperation.sender]: {
             balance: toHex(100000_000000000000000000n),
           },
+          ...stateOverrideSet,
         };
 
     try {
@@ -325,9 +339,13 @@ export class GasEstimator {
   ): Promise<EstimateUserOperationGasReturn> {
     const { userOperation } = args;
 
-    userOperation.preVerificationGas = 1_000_000n;
-    userOperation.verificationGasLimit = 10_000_000n;
-    userOperation.callGasLimit = 20_000_000n;
+    const inMemoryUserOperation = userOperation;
+
+    inMemoryUserOperation.maxFeePerGas = 1_000_000n;
+    inMemoryUserOperation.maxPriorityFeePerGas = 1_000_000n;
+    inMemoryUserOperation.preVerificationGas = 1_000_000n;
+    inMemoryUserOperation.verificationGasLimit = 10_000_000n;
+    inMemoryUserOperation.callGasLimit = 30_000_000n;
 
     const ethCallResult = await this.publicClient.request({
       method: "eth_call",
@@ -355,15 +373,10 @@ export class GasEstimator {
     ) as ExecutionResult;
 
     const verificationGasLimit =
-      ((executionResult.preOpGas - userOperation.preVerificationGas) * 6n) / 5n;
-    const calculatedCallGasLimit =
-      executionResult.paid / userOperation.maxFeePerGas -
-      executionResult.preOpGas +
-      21000n +
-      50000n;
-
+      executionResult.preOpGas - userOperation.preVerificationGas;
     const callGasLimit =
-      calculatedCallGasLimit > 9000n ? calculatedCallGasLimit : 9000n;
+      executionResult.paid / userOperation.maxFeePerGas -
+      executionResult.preOpGas;
 
     return {
       callGasLimit,
