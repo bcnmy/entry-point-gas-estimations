@@ -206,8 +206,15 @@ export type SignatureValidationFailed = z.infer<
 >;
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 
-export type GasEstimatorArgs = {
+export type GasEstimatorParams = {
+  /**
+   * The URL of the RPC (Remote Procedure Call) endpoint.
+   */
   rpcUrl: string;
+  /**
+   * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   */
   entryPointAddress?: Address;
 };
 
@@ -225,45 +232,159 @@ export type UserOperation = {
   signature: HexData;
 };
 
-export type EstimateUserOperationGasArgs = {
+export type EstimateUserOperationGasParams = {
+  /**
+   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
+   * @defaultValue true
+   */
   supportsEthCallStateOverride?: boolean;
+  /**
+   * A full user operation
+   */
   userOperation: UserOperation;
+  /**
+   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 0
+   */
   initialVglLowerBound?: bigint;
+  /**
+   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 10_000_00
+   */
   initialVglUpperBound?: bigint;
+  /**
+   * The cutoff value which will determine when to terminate the binary search for verificationGasLimit
+   * (optional) - @defaultValue 20_000
+   */
   vglCutOff?: bigint;
+  /**
+   * The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
+   * (optional) - @defaultValue 6
+   */
   vglUpperBoundMultiplier?: bigint;
+  /**
+   * The initial lower bound that will be used in the first interation of binary search for call gas limit
+   * (optional) - @defaultValue 0
+   */
   initalCglLowerBound?: bigint;
+  /**
+   * The initial upper bound that will be used in the first interation of binary search for call gas limit
+   * (optional) - @defaultValue 30_000_000
+   */
   initialCglUpperBound?: bigint;
+  /**
+   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
+   * (optional) - @defaultValue 1
+   */
   cglRounding?: bigint;
+  /**
+   *  If true, contract will calculate a gas value to use in binary search
+   *  If false, contract makes a call to execute the callData and get the gas
+   * (optional) - @defaultValue false
+   */
   callDataExecutionAtMaxGas?: boolean;
+  /**
+   * state override set that needs to be passed in eth_call to simulateHandleOp
+   * (optional) = @defaultValue null
+   */
   stateOverrideSet?: StateOverrideSet;
 };
 
-export type EstimateVerificationGasLimitArgs = {
-  userOperation: UserOperation;
+export type EstimateVerificationGasLimitParams = {
+  /**
+   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
+   * @defaultValue true
+   */
   supportsEthCallStateOverride?: boolean;
+  /**
+   * A full user operation
+   */
+  userOperation: UserOperation;
+  /**
+   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 0
+   */
   initialVglLowerBound?: bigint;
+  /**
+   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 10_000_00
+   */
   initialVglUpperBound?: bigint;
+  /**
+   * The cutoff value which will determine when to terminate the binary search for verificationGasLimit
+   * (optional) - @defaultValue 20_000
+   */
   vglCutOff?: bigint;
+  /**
+   * The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
+   * (optional) - @defaultValue 6
+   */
   vglUpperBoundMultiplier?: bigint;
+  /**
+   * state override set that needs to be passed in eth_call to simulateHandleOp
+   * (optional) = @defaultValue null
+   */
   stateOverrideSet?: StateOverrideSet;
 };
 
-export type EstimateCallGasLimitArgs = {
-  userOperation: UserOperation;
+export type EstimateCallGasLimitParams = {
+  /**
+   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
+   * @defaultValue true
+   */
   supportsEthCallStateOverride?: boolean;
+  /**
+   * A full user operation
+   */
+  userOperation: UserOperation;
+  /**
+   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 0
+   */
   initalCglLowerBound?: bigint;
+  /**
+   * The initial upper bound that will be used in the first interation of binary search for call gas limit
+   * (optional) - @defaultValue 30_000_000
+   */
   initialCglUpperBound?: bigint;
+  /**
+   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
+   * (optional) - @defaultValue 1
+   */
   cglRounding?: bigint;
+  /**
+   *  If true, contract will calculate a gas value to use in binary search
+   *  If false, contract makes a call to execute the callData and get the gas
+   * (optional) - @defaultValue false
+   */
   callDataExecutionAtMaxGas?: boolean;
+  /**
+   * state override set that needs to be passed in eth_call to simulateHandleOp
+   * (optional) = @defaultValue null
+   */
   stateOverrideSet?: StateOverrideSet;
 };
 
-export type SimulateHandleOpArgs = {
+export type SimulateHandleOpParams = {
+  /**
+   * A full user operation
+   */
   userOperation: UserOperation;
+  /**
+   * A boolean value that decides if to state override the bytecode at the entry point address
+   */
   replacedEntryPoint: boolean;
+  /**
+   * target address to be passed in the simulateHandleOp call
+   */
   targetAddress: Address;
+  /**
+   * target call data to be passed in the simulateHandleOp call
+   */
   targetCallData: HexData;
+  /**
+   * A state override that might be required while making eth_call to simulateHandleOp
+   */
   stateOverrideSet?: StateOverrideSet;
 };
 

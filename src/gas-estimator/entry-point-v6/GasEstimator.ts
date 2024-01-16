@@ -13,16 +13,16 @@ import {
 import { z } from "zod";
 import {
   Address,
-  EstimateCallGasLimitArgs,
+  EstimateCallGasLimitParams,
   EstimateCallGasLimit,
-  EstimateUserOperationGasArgs,
+  EstimateUserOperationGasParams,
   EstimateUserOperationGas,
-  EstimateVerificationGasLimitArgs,
+  EstimateVerificationGasLimitParams,
   EstimateVerificationGasLimit,
   ExecutionResult,
-  GasEstimatorArgs,
+  GasEstimatorParams,
   HexData,
-  SimulateHandleOpArgs,
+  SimulateHandleOpParams,
   SimulateHandleOp,
   ValidationErrors,
   executionResultSchema,
@@ -71,14 +71,12 @@ export class GasEstimator {
 
   /**
    * Creates a new instance of GasEstimator
-   * @param {GasEstimatorArgs} args - Configuration options for the gas estimator.
-   * @param {string} args.rpcUrl  - The URL of the RPC (Remote Procedure Call) endpoint.
-   * @param {Address} args.entryPointAddress (optional) - v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * @param {GasEstimatorParams} params - Configuration options for the gas estimator.
    */
-  constructor(args: GasEstimatorArgs) {
-    this.rpcUrl = args.rpcUrl;
-    this.entryPointAddress = args.entryPointAddress
-      ? args.entryPointAddress
+  constructor(params: GasEstimatorParams) {
+    this.rpcUrl = params.rpcUrl;
+    this.entryPointAddress = params.entryPointAddress
+      ? params.entryPointAddress
       : DEFAULT_ENTRY_POINT_ADDRESS;
     this.publicClient = createPublicClient({
       transport: http(this.rpcUrl),
@@ -88,33 +86,13 @@ export class GasEstimator {
   /**
    * Estimates gas for a user operation.
    *
-   * @param {EstimateUserOperationGasArgs} args - Configuration options for gas estimation.
-   * @param {UserOperation} args.userOperation - A full user operation
-   * @param {boolean} args.supportsEthCallStateOverride (optional) - @defaultValue true
-   *    A boolean value that needs to be passed false if the RPC provider does not support state overrides.
-   * @param {bigint} args.initialVglLowerBound (optional) - @defaultValue 0
-   *    The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * @param {bigint} args.initialVglUpperBound (optional) - @defaultValue 10_000_00
-   *    The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
-   * @param {bigint} args.vglCutOff (optional) - @defaultValue 20_000
-   *    The cutoff value which will determine when to terminate the binary search for verificationGasLimit
-   * @param {bigint} args.vglUpperBoundMultiplier (optional) - @defaultValue 6
-   *    The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
-   * @param {bigint} args.initalCglLowerBound (optional) - @defaultValue 0
-   *    The initial lower bound that will be used in the first interation of binary search for call gas limit
-   * @param {bigint} args.initialCglUpperBound (optional) - @defaultValue 30_000_000
-   *    The initial upper bound that will be used in the first interation of binary search for call gas limit
-   * @param {bigint} args.cglRounding (optional) - @defaultValue 1
-   *    A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * @param {boolean} args.callDataExecutionAtMaxGas (optional) - @defaultValue false
-   *    If true, contract will calculate a gas value to use in binary search
-   *    If false, contract makes a call to execute the callData and get the gas
+   * @param {EstimateUserOperationGasArgs} params - Configuration options for gas estimation.
    * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated gas limits.
    *
-   * @throws {RpcError} If there is an issue during gas estimation.
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateUserOperationGas(
-    args: EstimateUserOperationGasArgs,
+    params: EstimateUserOperationGasParams,
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
@@ -128,11 +106,11 @@ export class GasEstimator {
       cglRounding,
       callDataExecutionAtMaxGas,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     if (!supportsEthCallStateOverride) {
       return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-        args,
+        params,
       );
     }
 
@@ -166,25 +144,13 @@ export class GasEstimator {
   /**
    * Estimates gas for a user operation.
    *
-   * @param {EstimateVerificationGasLimitArgs} args - Configuration options for verificationGasLimit gas estimation.
-   * @param {UserOperation} args.userOperation - A full user operation
-   * @param {boolean} args.supportsEthCallStateOverride (optional) - @defaultValue true
-   *    A boolean value that needs to be passed false if the RPC provider does not support state overrides.
-   * @param {bigint} args.initialVglLowerBound (optional) - @defaultValue 0
-   *    The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * @param {bigint} args.initialVglUpperBound (optional) - @defaultValue 10_000_00
-   *    The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
-   * @param {bigint} args.vglCutOff (optional) - @defaultValue 20_000
-   *    The cutoff value which will determine when to terminate the binary search for verificationGasLimit
-   * @param {bigint} args.vglUpperBoundMultiplier (optional) - @defaultValue 6
-   *    The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
+   * @param {EstimateVerificationGasLimitParams} params - Configuration options for verificationGasLimit gas estimation.
    * @returns {Promise<EstimateVerificationGasLimit>} A promise that resolves to an object containing the verificationGasLimit
    *
-   * @throws {RpcError} If there is an issue during gas estimation.
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateVerificationGasLimit(
-    this: GasEstimator,
-    args: EstimateVerificationGasLimitArgs,
+    params: EstimateVerificationGasLimitParams,
   ): Promise<EstimateVerificationGasLimit> {
     const {
       userOperation,
@@ -194,12 +160,12 @@ export class GasEstimator {
       vglCutOff,
       vglUpperBoundMultiplier,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     if (!supportsEthCallStateOverride) {
       const estimationResponse =
         await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-          args,
+          params,
         );
       return {
         verificationGasLimit: estimationResponse.verificationGasLimit,
@@ -275,25 +241,13 @@ export class GasEstimator {
   /**
    * Estimates gas for a user operation.
    *
-   * @param {EstimateCallGasLimitArgs} args - Configuration options for callGasLimit gas estimation.
-   * @param {UserOperation} args.userOperation - A full user operation
-   * @param {boolean} args.supportsEthCallStateOverride (optional) - @defaultValue true
-   *    A boolean value that needs to be passed false if the RPC provider does not support state overrides.
-   * @param {bigint} args.initalCglLowerBound (optional) - @defaultValue 0
-   *    The initial lower bound that will be used in the first interation of binary search for callGasLimit
-   * @param {bigint} args.initialCglUpperBound (optional) - @defaultValue 30_000_000
-   *    The initial upper bound that will be used in the first interation of binary search for callGasLimit
-   * @param {bigint} args.cglRounding (optional) - @defaultValue 1
-   *    A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * @param {boolean} args.callDataExecutionAtMaxGas (optional) - @defaultValue false
-   *    If true, contract will calculate a gas value to use in binary search
-   *    If false, contract makes a call to execute the callData and get the gas
+   * @param {EstimateCallGasLimitParams} params - Configuration options for callGasLimit gas estimation.
    * @returns {Promise<EstimateCallGasLimit>} A promise that resolves to the estimated gas limits.
    *
-   * @throws {RpcError} If there is an issue during gas estimation.
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateCallGasLimit(
-    args: EstimateCallGasLimitArgs,
+    params: EstimateCallGasLimitParams,
   ): Promise<EstimateCallGasLimit> {
     const {
       userOperation,
@@ -303,12 +257,12 @@ export class GasEstimator {
       cglRounding,
       callDataExecutionAtMaxGas,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     if (!supportsEthCallStateOverride) {
       const estimationResponse =
         await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-          args,
+          params,
         );
       return {
         callGasLimit: estimationResponse.callGasLimit,
@@ -367,22 +321,13 @@ export class GasEstimator {
   /**
    * Makes eth_call to simulateHandleOp
    *
-   * @param {SimulateHandleOpArgs} args - Configuration options for simulateHandleOp execution.
-   * @param {UserOperation} args.userOperation - A full user operation
-   * @param {boolean} args.replacedEntryPoint
-   *    A boolean value that decides if to state override the bytecode at the entry point address
-   * @param {Address} args.targetAddress
-   *    target address to be passed in the simulateHandleOp call
-   * @param {HexData} args.targetCallData
-   *    target call data to be passed in the simulateHandleOp call
-   * @param {StateOverrideSet} args.stateOverrideSet (optional)
-   *    A state override that might be required while making eth_call to simulateHandleOp
+   * @param {SimulateHandleOpArgs} params - Configuration options for simulateHandleOp execution.
    * @returns {Promise<SimulateHandleOp>} A promise that resolves to the result of eth_call to simulateHandleOp
    *
    * @throws {Error} If there is an making eth_call to simulateHandleOp
    */
   private async simulateHandleOp(
-    args: SimulateHandleOpArgs,
+    params: SimulateHandleOpParams,
   ): Promise<SimulateHandleOp> {
     const {
       userOperation,
@@ -390,7 +335,7 @@ export class GasEstimator {
       targetAddress,
       targetCallData,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     const ethCallFinalParam = replacedEntryPoint
       ? {
@@ -466,16 +411,15 @@ export class GasEstimator {
   /**
    * Estimates gas for a user operation for a blockchain whose RPC does not support state overrides.
    *
-   * @param {EstimateUserOperationGasArgs} args - Configuration options for gas estimation.
-   * @param {UserOperation} args.userOperation - A full user operation
+   * @param {EstimateUserOperationGasParams} params - Configuration options for gas estimation.
    * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated gas limits.
    *
    * @throws {Error} If there is an issue during gas estimation.
    */
   private async esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-    args: EstimateUserOperationGasArgs,
+    params: EstimateUserOperationGasParams,
   ): Promise<EstimateUserOperationGas> {
-    const { userOperation } = args;
+    const { userOperation } = params;
 
     const inMemoryUserOperation = userOperation;
 
