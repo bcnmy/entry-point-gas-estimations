@@ -229,14 +229,33 @@ export type UserOperation = {
 export type EstimateUserOperationGasArgs = {
   supportsEthCallStateOverride?: boolean;
   userOperation: UserOperation;
+  initialVglLowerBound?: bigint;
+  initialVglUpperBound?: bigint; 
+  vglCutOff?: bigint;
+  vglUpperBoundMultiplier?: bigint;
+  initalCglLowerBound?: bigint;
+  initialCglUpperBound?: bigint;
+  cglRounding?: bigint;
+  cglIsContinuation?: boolean;
+  stateOverrideSet?: StateOverrideSet;
 };
 
 export type EstimateVerificationGasLimitArgs = {
   userOperation: UserOperation;
+  initialVglLowerBound?: bigint;
+  initialVglUpperBound?: bigint; 
+  vglCutOff?: bigint;
+  vglUpperBoundMultiplier?: bigint;
+  stateOverrideSet?: StateOverrideSet;
 };
 
 export type EstimateCallGasLimitArgs = {
   userOperation: UserOperation;
+  initalCglLowerBound?: bigint;
+  initialCglUpperBound?: bigint;
+  cglRounding?: bigint;
+  cglIsContinuation?: boolean;
+  stateOverrideSet?: StateOverrideSet;
 };
 
 export type SimulateHandleOpArgs = {
@@ -244,6 +263,7 @@ export type SimulateHandleOpArgs = {
   replacedEntryPoint: boolean;
   targetAddress: Address;
   targetCallData: HexData;
+  stateOverrideSet?: StateOverrideSet;
 };
 
 export type SimulateHandleOpReturn = {
@@ -263,6 +283,14 @@ export type EstimateVerificationGasLimitReturn = {
 export type EstimateCallGasLimitReturn = {
   callGasLimit: bigint;
 };
+
+export type StateOverrideSet = {
+  balance: Hex,
+  nonce: Hex,
+  code: Hex,
+  state: object,
+  stateDiff: object,
+}
 
 export enum ValidationErrors {
   InvalidFields = -32602,
