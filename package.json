@@ -7,10 +7,12 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "format": "eslint 'src' --ext .ts --fix"
+    "format": "eslint 'src' --ext .ts --fix",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@types/node": "^20.10.5",
+    "husky": "^8.0.3",
     "typescript": "^5.3.3",
     "viem": "^1.20.3",
     "zod": "^3.22.4",
