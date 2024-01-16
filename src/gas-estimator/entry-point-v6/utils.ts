@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { decodeErrorResult } from "viem";
-import { EXECUTE_SIMULATOR_ABI } from "./abi";
-import { ExecutionResult } from "./types";
+import { CALL_GAS_ESTIMATION_SIMULATOR } from "./abi";
+import { ExecutionResult, ValidationErrors } from "./types";
 
 export class RpcError extends Error {
   code?: number;
@@ -10,40 +10,43 @@ export class RpcError extends Error {
 
   // error codes from: https://eips.ethereum.org/EIPS/eip-1474
   constructor(msg: string, code?: number, data: any = undefined) {
-      super(msg);
+    super(msg);
 
-      this.code = code;
-      this.data = data;
+    this.code = code;
+    this.data = data;
   }
 }
 
 export function tooLow(error: string) {
   return (
-      error === "AA40 over verificationGasLimit" ||
-      error === "AA41 too little verificationGas" ||
-      error === "AA51 prefund below actualGasCost" ||
-      error === "AA13 initCode failed or OOG" ||
-      error === "AA21 didn't pay prefund" ||
-      error === "AA23 reverted (or OOG)" ||
-      error === "AA33 reverted (or OOG)" ||
-      error === "return data out of bounds" ||
-      error === "validation OOG"
+    error === "AA40 over verificationGasLimit" ||
+    error === "AA41 too little verificationGas" ||
+    error === "AA51 prefund below actualGasCost" ||
+    error === "AA13 initCode failed or OOG" ||
+    error === "AA21 didn't pay prefund" ||
+    error === "AA23 reverted (or OOG)" ||
+    error === "AA33 reverted (or OOG)" ||
+    error === "return data out of bounds" ||
+    error === "validation OOG"
   );
 }
 
-export function getCallExecuteResult(data: ExecutionResult) {
-  const callExecuteResult = decodeErrorResult({
-    abi: EXECUTE_SIMULATOR_ABI,
-    data: data.targetResult
+export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
+  const result = decodeErrorResult({
+    abi: CALL_GAS_ESTIMATION_SIMULATOR,
+    data: data.targetResult,
   });
 
-  const success = callExecuteResult.args[0];
-  const revertData = callExecuteResult.args[1];
-  const gasUsed = callExecuteResult.args[2];
+  if (result.errorName === "EstimateCallGasRevertAtMax") {
+    throw new RpcError(
+      "UserOperation reverted during execution phase",
+      ValidationErrors.SimulateValidation,
+    );
+  }
 
-  return {
-    success,
-    revertData,
-    gasUsed
-  };
+  if (result.errorName === "EstimateCallGasResult") {
+    return result.args[0];
+  }
+
+  return null;
 }
