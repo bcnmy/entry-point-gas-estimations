@@ -1,0 +1,11 @@
+{
+  "out": "./docs",
+  "includes": "src",
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "readme": "./README.md",
+  "theme": "default",
+  "name": "4337 Gas Estimator Documentation"
+}

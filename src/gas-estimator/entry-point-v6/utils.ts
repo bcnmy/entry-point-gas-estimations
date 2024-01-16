@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { decodeErrorResult } from "viem";
+import {
+  BaseError,
+  ContractFunctionExecutionError,
+  decodeErrorResult,
+} from "viem";
 import { CALL_GAS_ESTIMATION_SIMULATOR } from "./abi";
-import { ExecutionResult, ValidationErrors } from "./types";
+import {
+  ExecutionResult,
+  ValidationErrors,
+  entryPointExecutionErrorSchema,
+} from "./types";
+import { fromZodError } from "zod-validation-error";
 
 export class RpcError extends Error {
   code?: number;
@@ -49,4 +58,61 @@ export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
   }
 
   return null;
+}
+
+export function getSimulationResult(
+  errorResult: unknown,
+  simulationType: "validation" | "execution",
+) {
+  const entryPointErrorSchemaParsing =
+    entryPointExecutionErrorSchema.safeParse(errorResult);
+
+  if (!entryPointErrorSchemaParsing.success) {
+    try {
+      const err = fromZodError(entryPointErrorSchemaParsing.error);
+      err.message = `User Operation simulation returned unexpected invalid response: ${err.message}`;
+      throw err;
+    } catch {
+      if (errorResult instanceof BaseError) {
+        const revertError = errorResult.walk(
+          (err: any) => err instanceof ContractFunctionExecutionError,
+        );
+        throw new RpcError(
+          // @ts-ignore
+          `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
+          ValidationErrors.SimulateValidation,
+        );
+      }
+      throw new Error(
+        `User Operation simulation returned unexpected invalid response: ${errorResult}`,
+      );
+    }
+  }
+
+  const errorData = entryPointErrorSchemaParsing.data;
+
+  if (errorData.errorName === "FailedOp") {
+    const { reason } = errorData.args;
+    throw new RpcError(
+      `UserOperation reverted during simulation with reason: ${reason}`,
+      ValidationErrors.SimulateValidation,
+    );
+  }
+
+  if (simulationType === "validation") {
+    if (
+      errorData.errorName !== "ValidationResult" &&
+      errorData.errorName !== "ValidationResultWithAggregation"
+    ) {
+      throw new Error(
+        "Unexpected error - errorName is not ValidationResult or ValidationResultWithAggregation",
+      );
+    }
+  } else if (errorData.errorName !== "ExecutionResult") {
+    throw new Error("Unexpected error - errorName is not ExecutionResult");
+  }
+
+  const simulationResult = errorData.args;
+
+  return simulationResult;
 }

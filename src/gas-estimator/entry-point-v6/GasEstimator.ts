@@ -1,8 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/return-await */
 import {
-  BaseError,
-  ContractFunctionExecutionError,
   PublicClient,
   RpcRequestErrorType,
   createPublicClient,
@@ -13,58 +11,89 @@ import {
   zeroAddress,
 } from "viem";
 import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
 import {
   Address,
-  EstimateCallGasLimitArgs,
-  EstimateCallGasLimitReturn,
-  EstimateUserOperationGasArgs,
-  EstimateUserOperationGasReturn,
-  EstimateVerificationGasLimitArgs,
-  EstimateVerificationGasLimitReturn,
+  EstimateCallGasLimitParams,
+  EstimateCallGasLimit,
+  EstimateUserOperationGasParams,
+  EstimateUserOperationGas,
+  EstimateVerificationGasLimitParams,
+  EstimateVerificationGasLimit,
   ExecutionResult,
-  GasEstimatorArgs,
+  GasEstimatorParams,
   HexData,
-  SimulateHandleOpArgs,
-  SimulateHandleOpReturn,
+  SimulateHandleOpParams,
+  SimulateHandleOp,
   ValidationErrors,
-  entryPointExecutionErrorSchema,
   executionResultSchema,
   hexDataSchema,
 } from "./types";
 import {
-  DEFAULT_CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
+  CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
   DEFAULT_ENTRY_POINT_ADDRESS,
 } from "./constants";
 import { CALL_GAS_ESTIMATION_SIMULATOR, ENTRY_POINT_ABI } from "./abi";
-import { RpcError, getCallGasEstimationSimulatorResult, tooLow } from "./utils";
+import {
+  RpcError,
+  getCallGasEstimationSimulatorResult,
+  getSimulationResult,
+  tooLow,
+} from "./utils";
 
+/**
+ * @remarks
+ * GasEstimator class exposes methods to calculate gas limits for EntryPoint v0.6 compatible userOps
+ */
 export class GasEstimator {
-  publicClient: PublicClient;
+  /**
+   * The publicClient created using viem
+   */
+  private publicClient: PublicClient;
 
-  rpcUrl: string;
+  /**
+   * The URL of the RPC (Remote Procedure Call) endpoint.
+   */
+  private rpcUrl: string;
 
-  entryPointAddress: Address;
+  /**
+   * v0.6 entry point address
+   * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   */
+  private entryPointAddress: Address;
 
-  callGasEstimationSimulatorByteCode: HexData;
+  /**
+   * the bytecode of the contract that extends the Entry Point contract and
+   * implements the binary search logic
+   * @defaultValue is stored in constants.ts
+   */
+  private callGasEstimationSimulatorByteCode: HexData =
+    CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE;
 
-  constructor(args: GasEstimatorArgs) {
-    this.rpcUrl = args.rpcUrl;
-    this.entryPointAddress = args.entryPointAddress
-      ? args.entryPointAddress
+  /**
+   * Creates a new instance of GasEstimator
+   * @param {GasEstimatorParams} params - Configuration options for the gas estimator.
+   */
+  constructor(params: GasEstimatorParams) {
+    this.rpcUrl = params.rpcUrl;
+    this.entryPointAddress = params.entryPointAddress
+      ? params.entryPointAddress
       : DEFAULT_ENTRY_POINT_ADDRESS;
-    this.callGasEstimationSimulatorByteCode =
-      args.callGasEstimationSimulatorByteCode
-        ? args.callGasEstimationSimulatorByteCode
-        : DEFAULT_CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE;
     this.publicClient = createPublicClient({
       transport: http(this.rpcUrl),
     });
   }
 
+  /**
+   * Estimates gas for a user operation.
+   *
+   * @param {EstimateUserOperationGasArgs} params - Configuration options for gas estimation.
+   * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated gas limits.
+   *
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
+   */
   async estimateUserOperationGas(
-    args: EstimateUserOperationGasArgs,
-  ): Promise<EstimateUserOperationGasReturn> {
+    params: EstimateUserOperationGasParams,
+  ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
       supportsEthCallStateOverride = true,
@@ -75,13 +104,13 @@ export class GasEstimator {
       initalCglLowerBound,
       initialCglUpperBound,
       cglRounding,
-      cglIsContinuation,
+      callDataExecutionAtMaxGas,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     if (!supportsEthCallStateOverride) {
       return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-        args,
+        params,
       );
     }
 
@@ -99,7 +128,7 @@ export class GasEstimator {
       initalCglLowerBound,
       initialCglUpperBound,
       cglRounding,
-      cglIsContinuation,
+      callDataExecutionAtMaxGas,
       stateOverrideSet,
     });
 
@@ -112,18 +141,36 @@ export class GasEstimator {
     };
   }
 
+  /**
+   * Estimates gas for a user operation.
+   *
+   * @param {EstimateVerificationGasLimitParams} params - Configuration options for verificationGasLimit gas estimation.
+   * @returns {Promise<EstimateVerificationGasLimit>} A promise that resolves to an object containing the verificationGasLimit
+   *
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
+   */
   async estimateVerificationGasLimit(
-    this: GasEstimator,
-    args: EstimateVerificationGasLimitArgs,
-  ): Promise<EstimateVerificationGasLimitReturn> {
+    params: EstimateVerificationGasLimitParams,
+  ): Promise<EstimateVerificationGasLimit> {
     const {
       userOperation,
+      supportsEthCallStateOverride,
       initialVglLowerBound,
       initialVglUpperBound,
       vglCutOff,
       vglUpperBoundMultiplier,
       stateOverrideSet,
-    } = args;
+    } = params;
+
+    if (!supportsEthCallStateOverride) {
+      const estimationResponse =
+        await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
+          params,
+        );
+      return {
+        verificationGasLimit: estimationResponse.verificationGasLimit,
+      };
+    }
 
     // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
     const inMemoryUserOperation = userOperation;
@@ -183,7 +230,7 @@ export class GasEstimator {
     }
 
     if (final === null) {
-      throw new RpcError("Failed to estimate verification gas limit");
+      throw new RpcError("Failed to estimate verificationGasLimit");
     }
 
     return {
@@ -191,17 +238,36 @@ export class GasEstimator {
     };
   }
 
+  /**
+   * Estimates gas for a user operation.
+   *
+   * @param {EstimateCallGasLimitParams} params - Configuration options for callGasLimit gas estimation.
+   * @returns {Promise<EstimateCallGasLimit>} A promise that resolves to the estimated gas limits.
+   *
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
+   */
   async estimateCallGasLimit(
-    args: EstimateCallGasLimitArgs,
-  ): Promise<EstimateCallGasLimitReturn> {
+    params: EstimateCallGasLimitParams,
+  ): Promise<EstimateCallGasLimit> {
     const {
       userOperation,
+      supportsEthCallStateOverride,
       initalCglLowerBound,
       initialCglUpperBound,
       cglRounding,
-      cglIsContinuation,
+      callDataExecutionAtMaxGas,
       stateOverrideSet,
-    } = args;
+    } = params;
+
+    if (!supportsEthCallStateOverride) {
+      const estimationResponse =
+        await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
+          params,
+        );
+      return {
+        callGasLimit: estimationResponse.callGasLimit,
+      };
+    }
 
     // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
     const inMemoryUserOperation = userOperation;
@@ -219,7 +285,7 @@ export class GasEstimator {
           minGas: initalCglLowerBound || 0n,
           maxGas: initialCglUpperBound || 30_000_000n,
           rounding: cglRounding || 1n,
-          isContinuation: cglIsContinuation || false,
+          isContinuation: callDataExecutionAtMaxGas || false,
         },
       ],
     });
@@ -252,16 +318,24 @@ export class GasEstimator {
     };
   }
 
-  async simulateHandleOp(
-    args: SimulateHandleOpArgs,
-  ): Promise<SimulateHandleOpReturn> {
+  /**
+   * Makes eth_call to simulateHandleOp
+   *
+   * @param {SimulateHandleOpArgs} params - Configuration options for simulateHandleOp execution.
+   * @returns {Promise<SimulateHandleOp>} A promise that resolves to the result of eth_call to simulateHandleOp
+   *
+   * @throws {Error} If there is an making eth_call to simulateHandleOp
+   */
+  private async simulateHandleOp(
+    params: SimulateHandleOpParams,
+  ): Promise<SimulateHandleOp> {
     const {
       userOperation,
       replacedEntryPoint,
       targetAddress,
       targetCallData,
       stateOverrideSet,
-    } = args;
+    } = params;
 
     const ethCallFinalParam = replacedEntryPoint
       ? {
@@ -334,10 +408,18 @@ export class GasEstimator {
     throw new Error("Unexpected error while calling simulateHandleOp");
   }
 
-  async esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
-    args: EstimateUserOperationGasArgs,
-  ): Promise<EstimateUserOperationGasReturn> {
-    const { userOperation } = args;
+  /**
+   * Estimates gas for a user operation for a blockchain whose RPC does not support state overrides.
+   *
+   * @param {EstimateUserOperationGasParams} params - Configuration options for gas estimation.
+   * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated gas limits.
+   *
+   * @throws {Error} If there is an issue during gas estimation.
+   */
+  private async esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
+    params: EstimateUserOperationGasParams,
+  ): Promise<EstimateUserOperationGas> {
+    const { userOperation } = params;
 
     const inMemoryUserOperation = userOperation;
 
@@ -367,7 +449,7 @@ export class GasEstimator {
       data: ethCallResult,
     });
 
-    const executionResult = this.getSimulationResult(
+    const executionResult = getSimulationResult(
       errorResult,
       "execution",
     ) as ExecutionResult;
@@ -382,63 +464,5 @@ export class GasEstimator {
       callGasLimit,
       verificationGasLimit,
     };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getSimulationResult(
-    errorResult: unknown,
-    simulationType: "validation" | "execution",
-  ) {
-    const entryPointErrorSchemaParsing =
-      entryPointExecutionErrorSchema.safeParse(errorResult);
-
-    if (!entryPointErrorSchemaParsing.success) {
-      try {
-        const err = fromZodError(entryPointErrorSchemaParsing.error);
-        err.message = `User Operation simulation returned unexpected invalid response: ${err.message}`;
-        throw err;
-      } catch {
-        if (errorResult instanceof BaseError) {
-          const revertError = errorResult.walk(
-            (err: any) => err instanceof ContractFunctionExecutionError,
-          );
-          throw new RpcError(
-            // @ts-ignore
-            `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
-            ValidationErrors.SimulateValidation,
-          );
-        }
-        throw new Error(
-          `User Operation simulation returned unexpected invalid response: ${errorResult}`,
-        );
-      }
-    }
-
-    const errorData = entryPointErrorSchemaParsing.data;
-
-    if (errorData.errorName === "FailedOp") {
-      const { reason } = errorData.args;
-      throw new RpcError(
-        `UserOperation reverted during simulation with reason: ${reason}`,
-        ValidationErrors.SimulateValidation,
-      );
-    }
-
-    if (simulationType === "validation") {
-      if (
-        errorData.errorName !== "ValidationResult" &&
-        errorData.errorName !== "ValidationResultWithAggregation"
-      ) {
-        throw new Error(
-          "Unexpected error - errorName is not ValidationResult or ValidationResultWithAggregation",
-        );
-      }
-    } else if (errorData.errorName !== "ExecutionResult") {
-      throw new Error("Unexpected error - errorName is not ExecutionResult");
-    }
-
-    const simulationResult = errorData.args;
-
-    return simulationResult;
   }
 }
