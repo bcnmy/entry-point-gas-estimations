@@ -288,6 +288,11 @@ export type EstimateUserOperationGasParams = {
    * (optional) = @defaultValue null
    */
   stateOverrideSet?: StateOverrideSet;
+  /**
+   * (optional)
+   * baseFeePerGas required in case of Optimism Networks
+   */
+  baseFeePerGas?: bigint;
 };
 
 export type EstimateVerificationGasLimitParams = {
@@ -325,6 +330,11 @@ export type EstimateVerificationGasLimitParams = {
    * (optional) = @defaultValue null
    */
   stateOverrideSet?: StateOverrideSet;
+  /**
+   * (optional)
+   * baseFeePerGas required in case of Optimism Networks
+   */
+  baseFeePerGas?: bigint;
 };
 
 export type EstimateCallGasLimitParams = {
@@ -363,6 +373,11 @@ export type EstimateCallGasLimitParams = {
    * (optional) = @defaultValue null
    */
   stateOverrideSet?: StateOverrideSet;
+  /**
+   * (optional)
+   * baseFeePerGas required in case of Optimism Networks
+   */
+  baseFeePerGas?: bigint;
 };
 
 export type SimulateHandleOpParams = {
@@ -388,6 +403,18 @@ export type SimulateHandleOpParams = {
   stateOverrideSet?: StateOverrideSet;
 };
 
+export type CalculatePreVerificationGasParams = {
+  /**
+   * A full user operation
+   */
+  userOperation: UserOperation;
+  /**
+   * (optional)
+   * baseFeePerGas required in case of Optimism Networks
+   */
+  baseFeePerGas?: bigint;
+};
+
 export type SimulateHandleOp = {
   result: "failed" | "execution";
   data: string | ExecutionResult;
@@ -396,6 +423,7 @@ export type SimulateHandleOp = {
 export type EstimateUserOperationGas = {
   callGasLimit: bigint;
   verificationGasLimit: bigint;
+  preVerificationGas: bigint;
 };
 
 export type EstimateVerificationGasLimit = {
@@ -404,6 +432,10 @@ export type EstimateVerificationGasLimit = {
 
 export type EstimateCallGasLimit = {
   callGasLimit: bigint;
+};
+
+export type CalculatePreVerificationGas = {
+  preVerificationGas: bigint;
 };
 
 export type StateOverrideSet = {
