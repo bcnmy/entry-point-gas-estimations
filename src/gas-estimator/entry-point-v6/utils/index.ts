@@ -7,13 +7,13 @@ import {
   keccak256,
   parseAbiParameters,
 } from "viem";
-import { CALL_GAS_ESTIMATION_SIMULATOR } from "./abi";
+import { CALL_GAS_ESTIMATION_SIMULATOR } from "../abis";
 import {
   ExecutionResult,
   UserOperation,
   ValidationErrors,
   entryPointExecutionErrorSchema,
-} from "./types";
+} from "../types";
 import { fromZodError } from "zod-validation-error";
 
 export class RpcError extends Error {

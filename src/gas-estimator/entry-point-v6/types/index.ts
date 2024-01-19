@@ -1,6 +1,6 @@
 import { Hex, decodeErrorResult, getAddress } from "viem";
 import { z } from "zod";
-import { ENTRY_POINT_ABI } from "./abi";
+import { ENTRY_POINT_ABI } from "../abis";
 
 const hexDataPattern = /^0x[0-9A-Fa-f]*$/;
 const hexPattern = /^0x[0-9a-f]*$/;
