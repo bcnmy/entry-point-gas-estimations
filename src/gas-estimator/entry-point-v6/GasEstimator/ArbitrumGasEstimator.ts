@@ -12,6 +12,10 @@ import {
 import { packUserOp } from "../utils";
 import { GasEstimator } from "./GasEstimator";
 
+/**
+ * @remarks
+ * ArbitrumGasEstimator class that extends GasEstimator and has estimation logic specefic to Arbitrum
+ */
 export class ArbitrumGasEstimator
   extends GasEstimator
   implements IGasEstimator

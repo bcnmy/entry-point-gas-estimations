@@ -12,6 +12,10 @@ import {
 import { RpcError, packUserOp } from "../utils";
 import { GasEstimator } from "./GasEstimator";
 
+/**
+ * @remarks
+ * OptimismGasEstimator class that extends GasEstimator and has estimation logic specefic to Optimism
+ */
 export class OptimismGasEstimator
   extends GasEstimator
   implements IGasEstimator
