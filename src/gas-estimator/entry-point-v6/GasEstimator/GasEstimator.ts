@@ -30,39 +30,31 @@ import {
   hexDataSchema,
   CalculatePreVerificationGas,
   CalculatePreVerificationGasParams,
-} from "./types";
+} from "../types";
 import {
-  ArbitrumNetworks,
   CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
   DEFAULT_ENTRY_POINT_ADDRESS,
-  NODE_INTERFACE_ARBITRUM_ADDRESS,
-  OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
-  OptimismNetworks,
   defaultGasOverheads,
-} from "./constants";
-import {
-  ARBITRUM_L1_FEE_GAS_PRICE_ORACLE_ABI,
-  CALL_GAS_ESTIMATION_SIMULATOR,
-  ENTRY_POINT_ABI,
-  OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
-} from "./abi";
+} from "../constants";
+import { CALL_GAS_ESTIMATION_SIMULATOR, ENTRY_POINT_ABI } from "../abis";
 import {
   RpcError,
   getCallGasEstimationSimulatorResult,
   getSimulationResult,
   packUserOp,
   tooLow,
-} from "./utils";
+} from "../utils";
+import { IGasEstimator } from "../interface";
 
 /**
  * @remarks
  * GasEstimator class exposes methods to calculate gas limits for EntryPoint v0.6 compatible userOps
  */
-export class GasEstimator {
+export class GasEstimator implements IGasEstimator {
   /**
    * The publicClient created using viem
    */
-  private publicClient: PublicClient;
+  protected publicClient: PublicClient;
 
   /**
    * The URL of the RPC (Remote Procedure Call) endpoint.
@@ -73,7 +65,7 @@ export class GasEstimator {
    * v0.6 entry point address
    * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
    */
-  private entryPointAddress: Address;
+  protected entryPointAddress: Address;
 
   /**
    * the bytecode of the contract that extends the Entry Point contract and
@@ -204,7 +196,7 @@ export class GasEstimator {
     inMemoryUserOperation.callGasLimit = 0n;
 
     let lower = initialVglLowerBound || 0n;
-    let upper = initialVglUpperBound || 10_000_000n;
+    let upper = initialVglUpperBound || 10_000_000n; // TODO move constants to constants.ts
     let final: bigint | null = null;
 
     const cutoff = vglCutOff || 20_000n;
@@ -345,6 +337,38 @@ export class GasEstimator {
   }
 
   /**
+   * Calculates preVerificationGas
+   * @param {CalculatePreVerificationGas} params - Configuration options for preVerificationGas
+   * @returns {Promise<CalculatePreVerificationGas>} A promise that resolves to an object having the preVerificationGas
+   *
+   * @throws {Error} If there is an issue during calculating preVerificationGas
+   */
+  async calculatePreVerificationGas(
+    params: CalculatePreVerificationGasParams,
+  ): Promise<CalculatePreVerificationGas> {
+    const { userOperation, baseFeePerGas } = params;
+    const packed = toBytes(packUserOp(userOperation, false));
+    const callDataCost = packed
+      .map((x: number) =>
+        x === 0
+          ? defaultGasOverheads.zeroByte
+          : defaultGasOverheads.nonZeroByte,
+      )
+      .reduce((sum: any, x: any) => sum + x);
+    let preVerificationGas = BigInt(
+      Math.round(
+        callDataCost +
+          defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
+          defaultGasOverheads.perUserOp +
+          defaultGasOverheads.perUserOpWord * packed.length,
+      ),
+    );
+    return {
+      preVerificationGas,
+    };
+  }
+
+  /**
    * Makes eth_call to simulateHandleOp
    *
    * @param {SimulateHandleOpArgs} params - Configuration options for simulateHandleOp execution.
@@ -432,77 +456,6 @@ export class GasEstimator {
     }
 
     throw new Error("Unexpected error while calling simulateHandleOp");
-  }
-
-  /**
-   * Calculates preVerificationGas
-   * @param {CalculatePreVerificationGas} params - Configuration options for preVerificationGas
-   * @returns {Promise<CalculatePreVerificationGas>} A promise that resolves to an object having the preVerificationGas
-   *
-   * @throws {Error} If there is an issue during calculating preVerificationGas
-   */
-  async calculatePreVerificationGas(
-    params: CalculatePreVerificationGasParams,
-  ): Promise<CalculatePreVerificationGas> {
-    const { userOperation, baseFeePerGas } = params;
-    const packed = toBytes(packUserOp(userOperation, false));
-    const callDataCost = packed
-      .map((x: number) =>
-        x === 0
-          ? defaultGasOverheads.zeroByte
-          : defaultGasOverheads.nonZeroByte,
-      )
-      .reduce((sum: any, x: any) => sum + x);
-    let preVerificationGas = BigInt(
-      Math.round(
-        callDataCost +
-          defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
-          defaultGasOverheads.perUserOp +
-          defaultGasOverheads.perUserOpWord * packed.length,
-      ),
-    );
-
-    if (ArbitrumNetworks.includes(this.publicClient.chain?.id as number)) {
-      const handleOpsData = encodeFunctionData({
-        abi: ENTRY_POINT_ABI,
-        functionName: "handleOps",
-        args: [[userOperation], userOperation.sender],
-      });
-      const gasEstimateForL1 = await this.publicClient.readContract({
-        address: NODE_INTERFACE_ARBITRUM_ADDRESS,
-        abi: ARBITRUM_L1_FEE_GAS_PRICE_ORACLE_ABI,
-        functionName: "gasEstimateL1Component" as never,
-        args: [this.entryPointAddress, false, handleOpsData],
-      });
-      preVerificationGas += BigInt((gasEstimateForL1 as any)[0].toString());
-    } else if (
-      OptimismNetworks.includes(this.publicClient.chain?.id as number)
-    ) {
-      if (!baseFeePerGas) {
-        throw new RpcError(`baseFeePerGas not available`);
-      }
-      const handleOpsData = encodeFunctionData({
-        abi: ENTRY_POINT_ABI,
-        functionName: "handleOps",
-        args: [[userOperation], userOperation.sender],
-      });
-
-      const l1Fee = await this.publicClient.readContract({
-        address: OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
-        abi: OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
-        functionName: "getL1Fee",
-        args: [handleOpsData],
-      });
-      // extraPvg = l1Cost / l2Price
-      const l2MaxFee = BigInt(userOperation.maxFeePerGas);
-      const l2PriorityFee =
-        baseFeePerGas + BigInt(userOperation.maxPriorityFeePerGas);
-      const l2Price = l2MaxFee < l2PriorityFee ? l2MaxFee : l2PriorityFee;
-      preVerificationGas += l1Fee / l2Price;
-    }
-    return {
-      preVerificationGas,
-    };
   }
 
   /**
