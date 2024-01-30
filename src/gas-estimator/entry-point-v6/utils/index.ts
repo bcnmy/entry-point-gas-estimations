@@ -7,11 +7,14 @@ import {
   keccak256,
   parseAbiParameters,
 } from "viem";
-import { CALL_GAS_ESTIMATION_SIMULATOR } from "../abis";
+import {
+  CALL_GAS_ESTIMATION_SIMULATOR,
+  VERIFICATION_GAS_ESTIMATION_SIMULATOR,
+} from "../abis";
 import {
   ExecutionResult,
   UserOperation,
-  ValidationErrors,
+  VALIDATION_ERRORS,
   entryPointExecutionErrorSchema,
 } from "../types";
 import { fromZodError } from "zod-validation-error";
@@ -53,12 +56,74 @@ export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
   if (result.errorName === "EstimateCallGasRevertAtMax") {
     throw new RpcError(
       "UserOperation reverted during execution phase",
-      ValidationErrors.SimulateValidation,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
     );
   }
 
   if (result.errorName === "EstimateCallGasResult") {
     return result.args[0];
+  }
+
+  return null;
+}
+
+export function getVerificationGasEstimationSimulatorResult(
+  data: `0x${string}`,
+) {
+  const result = decodeErrorResult({
+    abi: VERIFICATION_GAS_ESTIMATION_SIMULATOR,
+    data,
+  });
+
+  if (result.errorName === "FailedOp") {
+    const { args } = result;
+    const revertReason = args[1];
+    if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
+      throw new RpcError(
+        revertReason,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      );
+    } else if (revertReason.includes("AA3")) {
+      throw new RpcError(
+        revertReason,
+        VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
+      );
+    } else if (revertReason.includes("AA9")) {
+      throw new RpcError(
+        revertReason,
+        VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
+      );
+    } else if (revertReason.includes("AA4")) {
+      throw new RpcError(
+        revertReason,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      );
+    } else if (revertReason.includes("AA")) {
+      throw new RpcError(
+        revertReason,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      );
+    }
+    throw new RpcError(
+      "UserOperation reverted during execution phase",
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  }
+
+  if (result.errorName === "EstimateVerificationGasResult") {
+    return {
+      verificationGasLimit: result.args[0],
+      validAfter: result.args[1],
+      validUntil: result.args[2],
+    };
+  }
+
+  if (result.errorName === "EstimateVerificationGasContinuation") {
+    return {
+      verificationGasLimit: (result.args[0] + result.args[1]) / 2n,
+      validAfter: result.args[2],
+      validUntil: result.args[3],
+    }
   }
 
   return null;
@@ -84,7 +149,7 @@ export function getSimulationResult(
         throw new RpcError(
           // @ts-ignore
           `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
-          ValidationErrors.SimulateValidation,
+          VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
         );
       }
       throw new Error(
@@ -99,7 +164,7 @@ export function getSimulationResult(
     const { reason } = errorData.args;
     throw new RpcError(
       `UserOperation reverted during simulation with reason: ${reason}`,
-      ValidationErrors.SimulateValidation,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
     );
   }
 

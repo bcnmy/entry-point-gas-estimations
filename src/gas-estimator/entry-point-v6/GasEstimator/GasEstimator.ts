@@ -25,24 +25,30 @@ import {
   HexData,
   SimulateHandleOpParams,
   SimulateHandleOp,
-  ValidationErrors,
   executionResultSchema,
   hexDataSchema,
   CalculatePreVerificationGas,
   CalculatePreVerificationGasParams,
+  VALIDATION_ERRORS,
+  EstimateVerificationGasParams,
 } from "../types";
 import {
   CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
   DEFAULT_ENTRY_POINT_ADDRESS,
+  VERIFICATION_GAS_ESTIMATION_SIMUATOR_BYTECODE,
   defaultGasOverheads,
 } from "../constants";
-import { CALL_GAS_ESTIMATION_SIMULATOR, ENTRY_POINT_ABI } from "../abis";
+import {
+  CALL_GAS_ESTIMATION_SIMULATOR,
+  ENTRY_POINT_ABI,
+  VERIFICATION_GAS_ESTIMATION_SIMULATOR,
+} from "../abis";
 import {
   RpcError,
   getCallGasEstimationSimulatorResult,
   getSimulationResult,
+  getVerificationGasEstimationSimulatorResult,
   packUserOp,
-  tooLow,
 } from "../utils";
 import { IGasEstimator } from "../interface";
 
@@ -69,11 +75,19 @@ export class GasEstimator implements IGasEstimator {
 
   /**
    * the bytecode of the contract that extends the Entry Point contract and
-   * implements the binary search logic
+   * implements the binary search logic for call gas estimation
    * @defaultValue is stored in constants.ts
    */
   private callGasEstimationSimulatorByteCode: HexData =
     CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE;
+
+  /**
+   * the bytecode of the contract that extends the Entry Point contract and
+   * implements the binary search logic for verification gas estimation
+   * @defaultValue is stored in constants.ts
+   */
+  private verificationGasEstimationSimulatorByteCode: HexData =
+    VERIFICATION_GAS_ESTIMATION_SIMUATOR_BYTECODE;
 
   /**
    * Creates a new instance of GasEstimator
@@ -105,8 +119,8 @@ export class GasEstimator implements IGasEstimator {
       supportsEthCallStateOverride = true,
       initialVglLowerBound,
       initialVglUpperBound,
-      vglCutOff,
-      vglUpperBoundMultiplier,
+      vglRounding,
+      verificationExecutionAtMaxGas,
       initalCglLowerBound,
       initialCglUpperBound,
       cglRounding,
@@ -124,8 +138,8 @@ export class GasEstimator implements IGasEstimator {
       userOperation,
       initialVglLowerBound,
       initialVglUpperBound,
-      vglCutOff,
-      vglUpperBoundMultiplier,
+      vglRounding,
+      verificationExecutionAtMaxGas,
       stateOverrideSet,
     });
 
@@ -156,6 +170,8 @@ export class GasEstimator implements IGasEstimator {
       verificationGasLimit: verificationGasLimitResponse.verificationGasLimit,
       callGasLimit: callGasLimitResponse.callGasLimit,
       preVerificationGas: preVerficationResponse.preVerificationGas,
+      validUntil: verificationGasLimitResponse.validUntil,
+      validAfter: verificationGasLimitResponse.validAfter,
     };
   }
 
@@ -172,11 +188,11 @@ export class GasEstimator implements IGasEstimator {
   ): Promise<EstimateVerificationGasLimit> {
     const {
       userOperation,
-      supportsEthCallStateOverride,
+      supportsEthCallStateOverride = true,
       initialVglLowerBound,
       initialVglUpperBound,
-      vglCutOff,
-      vglUpperBoundMultiplier,
+      vglRounding,
+      verificationExecutionAtMaxGas,
       stateOverrideSet,
     } = params;
 
@@ -187,6 +203,8 @@ export class GasEstimator implements IGasEstimator {
         );
       return {
         verificationGasLimit: estimationResponse.verificationGasLimit,
+        validAfter: estimationResponse.validAfter,
+        validUntil: estimationResponse.validUntil,
       };
     }
 
@@ -195,64 +213,33 @@ export class GasEstimator implements IGasEstimator {
 
     inMemoryUserOperation.callGasLimit = 0n;
 
-    let lower = initialVglLowerBound || 0n;
-    let upper = initialVglUpperBound || 10_000_000n; // TODO move constants to constants.ts
-    let final: bigint | null = null;
-
-    const cutoff = vglCutOff || 20_000n;
-
-    inMemoryUserOperation.verificationGasLimit = upper;
     inMemoryUserOperation.callGasLimit = 0n;
+    inMemoryUserOperation.verificationGasLimit = 15_000_000n;
 
-    const initial = await this.simulateHandleOp({
+    const error = await this.estimateVerificationGas({
       userOperation: inMemoryUserOperation,
-      replacedEntryPoint: false,
-      targetAddress: zeroAddress,
-      targetCallData: "0x",
-      stateOverrideSet,
+      initialVglLowerBound: initialVglLowerBound || 0n,
+      initialVglUpperBound: initialVglUpperBound || 30_000_000n,
+      vglRounding: vglRounding || 1n,
+      verificationExecutionAtMaxGas: verificationExecutionAtMaxGas || false,
+      stateOverrideSet
     });
 
-    if (initial.result === "execution" && typeof initial.data !== "string") {
-      upper =
-        (vglUpperBoundMultiplier || 6n) *
-        (initial.data.preOpGas - inMemoryUserOperation.preVerificationGas);
-    } else {
-      throw new RpcError(
-        `UserOperation reverted during simulation with reason: ${initial.data}`,
-        ValidationErrors.SimulateValidation,
-      );
-    }
 
-    // binary search
-    while (upper - lower > cutoff) {
-      const mid = (upper + lower) / 2n;
+    const result = getVerificationGasEstimationSimulatorResult(
+      error,
+    );
 
-      inMemoryUserOperation.verificationGasLimit = mid;
-      inMemoryUserOperation.callGasLimit = 0n;
-
-      const error = await this.simulateHandleOp({
-        userOperation: inMemoryUserOperation,
-        replacedEntryPoint: false,
-        targetAddress: zeroAddress,
-        targetCallData: "0x",
-      });
-
-      if (error.result === "execution") {
-        upper = mid;
-        final = mid;
-      } else if (typeof error.data === "string" && tooLow(error.data)) {
-        lower = mid;
-      } else {
-        throw new Error("Unexpected error in estimating verificationGasLimit");
-      }
-    }
-
-    if (final === null) {
+    if (result === null) {
       throw new RpcError("Failed to estimate verificationGasLimit");
     }
 
+    const { verificationGasLimit, validAfter, validUntil } = result;
+
     return {
-      verificationGasLimit: final,
+      verificationGasLimit,
+      validAfter,
+      validUntil,
     };
   }
 
@@ -269,7 +256,7 @@ export class GasEstimator implements IGasEstimator {
   ): Promise<EstimateCallGasLimit> {
     const {
       userOperation,
-      supportsEthCallStateOverride,
+      supportsEthCallStateOverride = true,
       initalCglLowerBound,
       initialCglUpperBound,
       cglRounding,
@@ -319,7 +306,7 @@ export class GasEstimator implements IGasEstimator {
     if (error.result === "failed") {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${error.data}`,
-        ValidationErrors.SimulateValidation,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
       );
     }
 
@@ -443,6 +430,8 @@ export class GasEstimator implements IGasEstimator {
         data: cause.data,
       });
 
+      console.log("decodedError", decodedError);
+
       if (decodedError.errorName === "FailedOp") {
         return { result: "failed", data: decodedError.args[1] } as const;
       }
@@ -456,6 +445,83 @@ export class GasEstimator implements IGasEstimator {
     }
 
     throw new Error("Unexpected error while calling simulateHandleOp");
+  }
+
+  /**
+   * Makes eth_call to estimateVerificationGas on the Verification Gas Simulation Executor contract
+   * @param {EstimateVerificationGasParams} params - Configuration options for estimateVerificationGas execution.
+   * @returns {Promise<EstimateVerificationGas>} A promise that resolves to the result of eth_call to estimateVerificationGas
+   *
+   * @throws {Error} If there is an making eth_call to estimateVerificationGas
+   */
+  private async estimateVerificationGas(
+    params: EstimateVerificationGasParams
+  ): Promise<`0x${string}`> {
+    const {
+      userOperation,
+      initialVglLowerBound,
+      initialVglUpperBound,
+      vglRounding,
+      verificationExecutionAtMaxGas,
+      stateOverrideSet,
+    } = params;
+
+    const ethCallFinalParam = {
+      [userOperation.sender]: {
+        balance: toHex(100000_000000000000000000n),
+      },
+      [this.entryPointAddress]: {
+        code: this.verificationGasEstimationSimulatorByteCode,
+      },
+      ...stateOverrideSet,
+    }
+
+    try {
+      const response = await this.publicClient.request({
+        method: "eth_call",
+        params: [
+          { 
+            to: this.entryPointAddress,
+            data: encodeFunctionData({
+              abi: VERIFICATION_GAS_ESTIMATION_SIMULATOR,
+              functionName: "estimateVerificationGas",
+              args: [{
+                op: userOperation,
+                minGas: initialVglLowerBound,
+                maxGas: initialVglUpperBound,
+                rounding: vglRounding,
+                isContinuation: verificationExecutionAtMaxGas,
+              }],
+            }),
+          },
+          "latest",
+          // @ts-ignore
+          ethCallFinalParam,
+        ],
+      });
+      console.log("RESPONSE", response);
+    } catch (error) {
+      const err = error as RpcRequestErrorType;
+      const causeParseResult = z
+        .object({
+          code: z.literal(3),
+          message: z.string().regex(/execution reverted.*/),
+          data: hexDataSchema,
+        })
+        // @ts-ignore
+        .safeParse(err.cause);
+      console.log("causeParseResult", causeParseResult);
+      if (!causeParseResult.success) {
+        // @ts-ignore
+        throw new Error(JSON.stringify(err.cause));
+      }
+
+      const cause = causeParseResult.data;
+
+      return cause.data;
+    }
+
+    throw new Error("Unexpected error while calling estimateVerificationGas");
   }
 
   /**
@@ -523,6 +589,8 @@ export class GasEstimator implements IGasEstimator {
       callGasLimit,
       verificationGasLimit,
       preVerificationGas: preVerficationResponse.preVerificationGas,
+      validUntil: executionResult.validUntil,
+      validAfter: executionResult.validAfter,
     };
   }
 }

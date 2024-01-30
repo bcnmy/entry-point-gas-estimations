@@ -253,15 +253,16 @@ export type EstimateUserOperationGasParams = {
    */
   initialVglUpperBound?: bigint;
   /**
-   * The cutoff value which will determine when to terminate the binary search for verificationGasLimit
-   * (optional) - @defaultValue 20_000
+   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
+   * (optional) - @defaultValue 1
    */
-  vglCutOff?: bigint;
+  vglRounding?: bigint;
   /**
-   * The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
-   * (optional) - @defaultValue 6
+   *  If true, contract will calculate a gas value to use in binary search
+   *  If false, contract makes a call to execute the callData and get the gas
+   * (optional) - @defaultValue false
    */
-  vglUpperBoundMultiplier?: bigint;
+  verificationExecutionAtMaxGas?: boolean;
   /**
    * The initial lower bound that will be used in the first interation of binary search for call gas limit
    * (optional) - @defaultValue 0
@@ -316,15 +317,16 @@ export type EstimateVerificationGasLimitParams = {
    */
   initialVglUpperBound?: bigint;
   /**
-   * The cutoff value which will determine when to terminate the binary search for verificationGasLimit
-   * (optional) - @defaultValue 20_000
+   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
+   * (optional) - @defaultValue 1
    */
-  vglCutOff?: bigint;
+  vglRounding?: bigint;
   /**
-   * The multipler that will be used to find the upper value after the first simulateHandleOp call for verificationGasLimit
-   * (optional) - @defaultValue 6
+   *  If true, contract will calculate a gas value to use in binary search
+   *  If false, contract makes a call to execute the callData and get the gas
+   * (optional) - @defaultValue false
    */
-  vglUpperBoundMultiplier?: bigint;
+  verificationExecutionAtMaxGas?: boolean;
   /**
    * state override set that needs to be passed in eth_call to simulateHandleOp
    * (optional) = @defaultValue null
@@ -403,6 +405,39 @@ export type SimulateHandleOpParams = {
   stateOverrideSet?: StateOverrideSet;
 };
 
+export type EstimateVerificationGasParams = {
+  /**
+   * A full user operation
+   */
+  userOperation: UserOperation;
+  /**
+   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 0
+   */
+  initialVglLowerBound: bigint;
+  /**
+   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
+   * (optional) - @defaultValue 10_000_00
+   */
+  initialVglUpperBound: bigint;
+  /**
+   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
+   * (optional) - @defaultValue 1
+   */
+  vglRounding: bigint;
+  /**
+   *  If true, contract will calculate a gas value to use in binary search
+   *  If false, contract makes a call to execute the callData and get the gas
+   * (optional) - @defaultValue false
+   */
+  verificationExecutionAtMaxGas: boolean;
+  /**
+   * state override set that needs to be passed in eth_call to simulateHandleOp
+   * (optional) = @defaultValue null
+   */
+  stateOverrideSet?: StateOverrideSet;
+}
+
 export type CalculatePreVerificationGasParams = {
   /**
    * A full user operation
@@ -424,10 +459,14 @@ export type EstimateUserOperationGas = {
   callGasLimit: bigint;
   verificationGasLimit: bigint;
   preVerificationGas: bigint;
+  validAfter: number;
+  validUntil: number;
 };
 
 export type EstimateVerificationGasLimit = {
   verificationGasLimit: bigint;
+  validAfter: number;
+  validUntil: number;
 };
 
 export type EstimateCallGasLimit = {
@@ -446,14 +485,21 @@ export type StateOverrideSet = {
   stateDiff: object;
 };
 
-export enum ValidationErrors {
-  InvalidFields = -32602,
-  SimulateValidation = -32500,
-  SimulatePaymasterValidation = -32501,
-  OpcodeValidation = -32502,
-  ExpiresShortly = -32503,
-  Reputation = -32504,
-  InsufficientStake = -32505,
-  UnsupportedSignatureAggregator = -32506,
-  InvalidSignature = -32507,
-}
+export const VALIDATION_ERRORS = {
+  INVALID_USER_OP_FIELDS: -32602,
+  SIMULATE_VALIDATION_FAILED: -32500,
+  SIMULATE_PAYMASTER_VALIDATION_FAILED: -32501,
+  OP_CODE_VALIDATION_FAILED: -32502,
+  USER_OP_EXPIRES_SHORTLY: -32503,
+  ENTITY_IS_THROTTLED: -32504,
+  ENTITY_INSUFFICIENT_STAKE: -32505,
+  UNSUPPORTED_AGGREGATOR: -32506,
+  INVALID_WALLET_SIGNATURE: -32507,
+  WALLET_TRANSACTION_REVERTED: -32000,
+  UNAUTHORIZED_REQUEST: -32001,
+  INTERNAL_SERVER_ERROR: -32002,
+  BAD_REQUEST: -32003,
+  USER_OP_HASH_NOT_FOUND: -32004,
+  UNABLE_TO_PROCESS_USER_OP: -32005,
+  METHOD_NOT_FOUND: -32601,
+};
