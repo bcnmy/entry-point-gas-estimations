@@ -243,48 +243,6 @@ export type EstimateUserOperationGasParams = {
    */
   userOperation: UserOperation;
   /**
-   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 0
-   */
-  initialVglLowerBound?: bigint;
-  /**
-   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 10_000_00
-   */
-  initialVglUpperBound?: bigint;
-  /**
-   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * (optional) - @defaultValue 1
-   */
-  vglRounding?: bigint;
-  /**
-   *  If true, contract will calculate a gas value to use in binary search
-   *  If false, contract makes a call to execute the callData and get the gas
-   * (optional) - @defaultValue false
-   */
-  verificationExecutionAtMaxGas?: boolean;
-  /**
-   * The initial lower bound that will be used in the first interation of binary search for call gas limit
-   * (optional) - @defaultValue 0
-   */
-  initalCglLowerBound?: bigint;
-  /**
-   * The initial upper bound that will be used in the first interation of binary search for call gas limit
-   * (optional) - @defaultValue 30_000_000
-   */
-  initialCglUpperBound?: bigint;
-  /**
-   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * (optional) - @defaultValue 1
-   */
-  cglRounding?: bigint;
-  /**
-   *  If true, contract will calculate a gas value to use in binary search
-   *  If false, contract makes a call to execute the callData and get the gas
-   * (optional) - @defaultValue false
-   */
-  callDataExecutionAtMaxGas?: boolean;
-  /**
    * state override set that needs to be passed in eth_call to simulateHandleOp
    * (optional) = @defaultValue null
    */
@@ -307,27 +265,6 @@ export type EstimateVerificationGasLimitParams = {
    */
   userOperation: UserOperation;
   /**
-   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 0
-   */
-  initialVglLowerBound?: bigint;
-  /**
-   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 10_000_00
-   */
-  initialVglUpperBound?: bigint;
-  /**
-   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * (optional) - @defaultValue 1
-   */
-  vglRounding?: bigint;
-  /**
-   *  If true, contract will calculate a gas value to use in binary search
-   *  If false, contract makes a call to execute the callData and get the gas
-   * (optional) - @defaultValue false
-   */
-  verificationExecutionAtMaxGas?: boolean;
-  /**
    * state override set that needs to be passed in eth_call to simulateHandleOp
    * (optional) = @defaultValue null
    */
@@ -349,27 +286,6 @@ export type EstimateCallGasLimitParams = {
    * A full user operation
    */
   userOperation: UserOperation;
-  /**
-   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 0
-   */
-  initalCglLowerBound?: bigint;
-  /**
-   * The initial upper bound that will be used in the first interation of binary search for call gas limit
-   * (optional) - @defaultValue 30_000_000
-   */
-  initialCglUpperBound?: bigint;
-  /**
-   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * (optional) - @defaultValue 1
-   */
-  cglRounding?: bigint;
-  /**
-   *  If true, contract will calculate a gas value to use in binary search
-   *  If false, contract makes a call to execute the callData and get the gas
-   * (optional) - @defaultValue false
-   */
-  callDataExecutionAtMaxGas?: boolean;
   /**
    * state override set that needs to be passed in eth_call to simulateHandleOp
    * (optional) = @defaultValue null
@@ -411,32 +327,11 @@ export type EstimateVerificationGasParams = {
    */
   userOperation: UserOperation;
   /**
-   * The initial lower bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 0
-   */
-  initialVglLowerBound: bigint;
-  /**
-   * The initial upper bound that will be used in the first iteration of binary search for verificationGasLimit
-   * (optional) - @defaultValue 10_000_00
-   */
-  initialVglUpperBound: bigint;
-  /**
-   * A rounding value which rounds all guesses and the final result to a multiple of that parameter
-   * (optional) - @defaultValue 1
-   */
-  vglRounding: bigint;
-  /**
-   *  If true, contract will calculate a gas value to use in binary search
-   *  If false, contract makes a call to execute the callData and get the gas
-   * (optional) - @defaultValue false
-   */
-  verificationExecutionAtMaxGas: boolean;
-  /**
    * state override set that needs to be passed in eth_call to simulateHandleOp
    * (optional) = @defaultValue null
    */
   stateOverrideSet?: StateOverrideSet;
-}
+};
 
 export type CalculatePreVerificationGasParams = {
   /**
