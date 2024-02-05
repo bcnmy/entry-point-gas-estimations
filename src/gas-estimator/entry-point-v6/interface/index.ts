@@ -22,5 +22,5 @@ export interface IGasEstimator {
   calculatePreVerificationGas(
     params: CalculatePreVerificationGasParams,
   ): Promise<CalculatePreVerificationGas>;
-  setEntryPointAddress(entryPointAddress: `0x${string}`): void
+  setEntryPointAddress(entryPointAddress: `0x${string}`): void;
 }

@@ -123,7 +123,7 @@ export function getVerificationGasEstimationSimulatorResult(
       verificationGasLimit: (result.args[0] + result.args[1]) / 2n,
       validAfter: result.args[2],
       validUntil: result.args[3],
-    }
+    };
   }
 
   return null;
