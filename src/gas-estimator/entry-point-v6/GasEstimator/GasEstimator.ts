@@ -333,7 +333,7 @@ export class GasEstimator implements IGasEstimator {
   async calculatePreVerificationGas(
     params: CalculatePreVerificationGasParams,
   ): Promise<CalculatePreVerificationGas> {
-    const { userOperation, baseFeePerGas } = params;
+    const { userOperation } = params;
     const packed = toBytes(packUserOp(userOperation, false));
     const callDataCost = packed
       .map((x: number) =>
@@ -353,6 +353,14 @@ export class GasEstimator implements IGasEstimator {
     return {
       preVerificationGas,
     };
+  }
+
+  /**
+   * Public method to allow overriding the current entry point address
+   * @param {`0x${string}`} entryPointAddress 
+   */
+  public setEntryPointAddress(entryPointAddress: `0x${string}`): void {
+    this.entryPointAddress = entryPointAddress;
   }
 
   /**
@@ -430,7 +438,6 @@ export class GasEstimator implements IGasEstimator {
         data: cause.data,
       });
 
-      console.log("decodedError", decodedError);
 
       if (decodedError.errorName === "FailedOp") {
         return { result: "failed", data: decodedError.args[1] } as const;
@@ -499,7 +506,6 @@ export class GasEstimator implements IGasEstimator {
           ethCallFinalParam,
         ],
       });
-      console.log("RESPONSE", response);
     } catch (error) {
       const err = error as RpcRequestErrorType;
       const causeParseResult = z
@@ -510,7 +516,6 @@ export class GasEstimator implements IGasEstimator {
         })
         // @ts-ignore
         .safeParse(err.cause);
-      console.log("causeParseResult", causeParseResult);
       if (!causeParseResult.success) {
         // @ts-ignore
         throw new Error(JSON.stringify(err.cause));

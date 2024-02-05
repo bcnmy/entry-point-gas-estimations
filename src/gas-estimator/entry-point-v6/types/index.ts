@@ -478,11 +478,13 @@ export type CalculatePreVerificationGas = {
 };
 
 export type StateOverrideSet = {
-  balance: Hex;
-  nonce: Hex;
-  code: Hex;
-  state: object;
-  stateDiff: object;
+  [key: string]: {
+    balance?: Hex;
+    nonce?: Hex;
+    code?: Hex;
+    state?: object;
+    stateDiff?: object;
+  };
 };
 
 export const VALIDATION_ERRORS = {
