@@ -35,14 +35,19 @@ import {
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
   CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
+  CALL_GAS_LIMIT_OVERRIDE_VALUE,
   CGL_ROUNDING,
   DEFAULT_ENTRY_POINT_ADDRESS,
   INITIAL_CGL_LOWER_BOUND,
   INITIAL_CGL_UPPER_BOUND,
   INITIAL_VGL_LOWER_BOUND,
   INITIAL_VGL_UPPER_BOUND,
+  MAX_FEE_PER_GAS_OVERRIDE_VALUE,
+  MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
+  PRE_VERIFICATION_GAS_OVERRIDE_VALUE,
   VERIFICATION_EXECUTION_AT_MAX_GAS,
   VERIFICATION_GAS_ESTIMATION_SIMUATOR_BYTECODE,
+  VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE,
   VGL_ROUNDING,
   defaultGasOverheads,
 } from "../constants";
@@ -196,16 +201,8 @@ export class GasEstimator implements IGasEstimator {
       };
     }
 
-    // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
-    const inMemoryUserOperation = userOperation;
-
-    inMemoryUserOperation.callGasLimit = 0n;
-
-    inMemoryUserOperation.callGasLimit = 0n;
-    inMemoryUserOperation.verificationGasLimit = 15_000_000n;
-
     const error = await this.estimateVerificationGas({
-      userOperation: inMemoryUserOperation,
+      userOperation,
       stateOverrideSet,
     });
 
@@ -251,19 +248,13 @@ export class GasEstimator implements IGasEstimator {
       };
     }
 
-    // Doing this as when calling both estimateVerificationGasLimit and estimateCallGasLimit somehow overrides each others userOperation
-    const inMemoryUserOperation = userOperation;
-
-    inMemoryUserOperation.callGasLimit = 0n;
-    inMemoryUserOperation.verificationGasLimit = 10_000_000n;
-
     const targetCallData = encodeFunctionData({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
       functionName: "estimateCallGas",
       args: [
         {
-          sender: inMemoryUserOperation.sender,
-          callData: inMemoryUserOperation.callData,
+          sender: userOperation.sender,
+          callData: userOperation.callData,
           minGas: INITIAL_CGL_LOWER_BOUND,
           maxGas: INITIAL_CGL_UPPER_BOUND,
           rounding: CGL_ROUNDING,
@@ -273,7 +264,7 @@ export class GasEstimator implements IGasEstimator {
     });
 
     const error = await this.simulateHandleOp({
-      userOperation: inMemoryUserOperation,
+      userOperation,
       replacedEntryPoint: true,
       targetAddress: this.entryPointAddress,
       targetCallData,
@@ -513,13 +504,12 @@ export class GasEstimator implements IGasEstimator {
   ): Promise<EstimateUserOperationGas> {
     const { userOperation } = params;
 
-    const inMemoryUserOperation = userOperation;
-
-    inMemoryUserOperation.maxFeePerGas = 1_000_000n;
-    inMemoryUserOperation.maxPriorityFeePerGas = 1_000_000n;
-    inMemoryUserOperation.preVerificationGas = 1_000_000n;
-    inMemoryUserOperation.verificationGasLimit = 10_000_000n;
-    inMemoryUserOperation.callGasLimit = 30_000_000n;
+    userOperation.maxFeePerGas = MAX_FEE_PER_GAS_OVERRIDE_VALUE;
+    userOperation.maxPriorityFeePerGas =
+      MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE;
+    userOperation.preVerificationGas = PRE_VERIFICATION_GAS_OVERRIDE_VALUE;
+    userOperation.verificationGasLimit = VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE;
+    userOperation.callGasLimit = CALL_GAS_LIMIT_OVERRIDE_VALUE;
 
     const ethCallPromise = this.publicClient.request({
       method: "eth_call",
