@@ -34,7 +34,7 @@ import {
 } from "../types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
-  CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE,
+  CALL_GAS_ESTIMATION_SIMULATOR_BYTECODE,
   CALL_GAS_LIMIT_OVERRIDE_VALUE,
   CGL_ROUNDING,
   DEFAULT_ENTRY_POINT_ADDRESS,
@@ -92,7 +92,7 @@ export class GasEstimator implements IGasEstimator {
    * @defaultValue is stored in constants.ts
    */
   private callGasEstimationSimulatorByteCode: HexData =
-    CALL_GAS_ESTIMATION_SIMULATOR_BYTE_CODE;
+  CALL_GAS_ESTIMATION_SIMULATOR_BYTECODE;
 
   /**
    * the bytecode of the contract that extends the Entry Point contract and
