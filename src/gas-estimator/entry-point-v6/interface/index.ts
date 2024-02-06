@@ -1,3 +1,4 @@
+import { RpcRequestErrorType } from "viem";
 import {
   EstimateUserOperationGasParams,
   EstimateUserOperationGas,
@@ -7,6 +8,7 @@ import {
   EstimateCallGasLimit,
   CalculatePreVerificationGasParams,
   CalculatePreVerificationGas,
+  RPCClientRequestParams,
 } from "../types";
 
 export interface IGasEstimator {
@@ -23,4 +25,8 @@ export interface IGasEstimator {
     params: CalculatePreVerificationGasParams,
   ): Promise<CalculatePreVerificationGas>;
   setEntryPointAddress(entryPointAddress: `0x${string}`): void;
+}
+
+export interface IRPCClient {
+  request(params: RPCClientRequestParams): Promise<RpcRequestErrorType>
 }

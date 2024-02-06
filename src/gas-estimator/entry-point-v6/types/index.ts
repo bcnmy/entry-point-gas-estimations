@@ -1,6 +1,7 @@
 import { Hex, decodeErrorResult, getAddress } from "viem";
 import { z } from "zod";
 import { ENTRY_POINT_ABI } from "../abis";
+import { IRPCClient } from "../interface";
 
 const hexDataPattern = /^0x[0-9A-Fa-f]*$/;
 const hexPattern = /^0x[0-9a-f]*$/;
@@ -206,11 +207,23 @@ export type SignatureValidationFailed = z.infer<
 >;
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 
-export type GasEstimatorParams = {
+export type CreateGasEstimatorParams = {
   /**
    * The URL of the RPC (Remote Procedure Call) endpoint.
    */
   rpcUrl: string;
+  /**
+   * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   */
+  entryPointAddress?: Address;
+};
+
+export type GasEstimatorParams = {
+  /**
+   * The public RPC client (viem or ethers) which is used to make calls to the blockchain
+   */
+  publicClient: IRPCClient;
   /**
    * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
    * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
@@ -400,3 +413,12 @@ export const VALIDATION_ERRORS = {
   UNABLE_TO_PROCESS_USER_OP: -32005,
   METHOD_NOT_FOUND: -32601,
 };
+
+export enum EthRPCMethod {
+  ETH_CALL = "eth_Call"
+}
+
+export type RPCClientRequestParams = {
+  method: EthRPCMethod,
+  params: any // An EthMethod type can have params of various types
+}

@@ -76,11 +76,6 @@ export class GasEstimator implements IGasEstimator {
   protected publicClient: PublicClient;
 
   /**
-   * The URL of the RPC (Remote Procedure Call) endpoint.
-   */
-  private rpcUrl: string;
-
-  /**
    * v0.6 entry point address
    * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
    */
@@ -107,13 +102,10 @@ export class GasEstimator implements IGasEstimator {
    * @param {GasEstimatorParams} params - Configuration options for the gas estimator.
    */
   constructor(params: GasEstimatorParams) {
-    this.rpcUrl = params.rpcUrl;
     this.entryPointAddress = params.entryPointAddress
       ? params.entryPointAddress
       : DEFAULT_ENTRY_POINT_ADDRESS;
-    this.publicClient = createPublicClient({
-      transport: http(this.rpcUrl),
-    });
+    this.publicClient = params.publicClient; 
   }
 
   /**
