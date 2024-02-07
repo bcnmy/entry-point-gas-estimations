@@ -4,10 +4,12 @@ import { ViemGasEstimatorClient } from "../clients";
 import { CreateGasEstimatorParams } from "../types";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
+import { MantleGasEstimator } from "./MantleGasEstimator";
 
 /**
  * factory method to create the general gas estimator instance
  * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the general gas estimator client
  */
 export function createGasEstimator(
   params: CreateGasEstimatorParams,
@@ -27,6 +29,7 @@ export function createGasEstimator(
 /**
  * factory method to create the optimism gas estimator instance
  * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the optimism gas estimator client
  */
 export function createOptimismGasEstimator(
   params: CreateGasEstimatorParams,
@@ -46,6 +49,7 @@ export function createOptimismGasEstimator(
 /**
  * factory method to create the arbitrum gas estimator instance
  * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the arbitrum gas estimator client
  */
 export function createArbitrumGasEstimator(
   params: CreateGasEstimatorParams,
@@ -57,6 +61,26 @@ export function createArbitrumGasEstimator(
     }),
   );
   return new ArbitrumGasEstimator({
+    publicClient,
+    ...rest,
+  });
+}
+
+/**
+ * factory method to create the mantle gas estimator instance
+ * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the mantle gas estimator client
+ */
+export function createMantleGasEstimator(
+  params: CreateGasEstimatorParams,
+): MantleGasEstimator {
+  const { rpcUrl, ...rest } = params;
+  const publicClient = new ViemGasEstimatorClient(
+    createPublicClient({
+      transport: http(rpcUrl),
+    }),
+  );
+  return new MantleGasEstimator({
     publicClient,
     ...rest,
   });
