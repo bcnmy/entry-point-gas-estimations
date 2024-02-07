@@ -1,4 +1,4 @@
-import { RpcRequestErrorType } from "viem";
+import { ReadContractParameters, ReadContractReturnType } from "viem";
 import {
   EstimateUserOperationGasParams,
   EstimateUserOperationGas,
@@ -8,7 +8,8 @@ import {
   EstimateCallGasLimit,
   CalculatePreVerificationGasParams,
   CalculatePreVerificationGas,
-  RPCClientRequestParams,
+  JSONRPCRequestParams,
+  JSONRPCResponse,
 } from "../types";
 
 export interface IGasEstimator {
@@ -28,5 +29,6 @@ export interface IGasEstimator {
 }
 
 export interface IRPCClient {
-  request(params: RPCClientRequestParams): Promise<RpcRequestErrorType>
+  request(params: JSONRPCRequestParams): Promise<JSONRPCResponse>;
+  readContract(params: ReadContractParameters): Promise<ReadContractReturnType>;
 }

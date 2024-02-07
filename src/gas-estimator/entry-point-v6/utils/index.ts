@@ -129,63 +129,6 @@ export function getVerificationGasEstimationSimulatorResult(
   return null;
 }
 
-export function getSimulationResult(
-  errorResult: unknown,
-  simulationType: "validation" | "execution",
-) {
-  const entryPointErrorSchemaParsing =
-    entryPointExecutionErrorSchema.safeParse(errorResult);
-
-  if (!entryPointErrorSchemaParsing.success) {
-    try {
-      const err = fromZodError(entryPointErrorSchemaParsing.error);
-      err.message = `User Operation simulation returned unexpected invalid response: ${err.message}`;
-      throw err;
-    } catch {
-      if (errorResult instanceof BaseError) {
-        const revertError = errorResult.walk(
-          (err: any) => err instanceof ContractFunctionExecutionError,
-        );
-        throw new RpcError(
-          // @ts-ignore
-          `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
-          VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-        );
-      }
-      throw new Error(
-        `User Operation simulation returned unexpected invalid response: ${errorResult}`,
-      );
-    }
-  }
-
-  const errorData = entryPointErrorSchemaParsing.data;
-
-  if (errorData.errorName === "FailedOp") {
-    const { reason } = errorData.args;
-    throw new RpcError(
-      `UserOperation reverted during simulation with reason: ${reason}`,
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-    );
-  }
-
-  if (simulationType === "validation") {
-    if (
-      errorData.errorName !== "ValidationResult" &&
-      errorData.errorName !== "ValidationResultWithAggregation"
-    ) {
-      throw new Error(
-        "Unexpected error - errorName is not ValidationResult or ValidationResultWithAggregation",
-      );
-    }
-  } else if (errorData.errorName !== "ExecutionResult") {
-    throw new Error("Unexpected error - errorName is not ExecutionResult");
-  }
-
-  const simulationResult = errorData.args;
-
-  return simulationResult;
-}
-
 function encode(
   typevalues: Array<{ type: string; val: any }>,
   forSignature: boolean,

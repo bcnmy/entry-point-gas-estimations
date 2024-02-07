@@ -329,6 +329,11 @@ export type SimulateHandleOpParams = {
    */
   targetCallData: HexData;
   /**
+   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
+   * @defaultValue true
+   */
+  supportsEthCallStateOverride?: boolean;
+  /**
    * A state override that might be required while making eth_call to simulateHandleOp
    */
   stateOverrideSet?: StateOverrideSet;
@@ -414,11 +419,37 @@ export const VALIDATION_ERRORS = {
   METHOD_NOT_FOUND: -32601,
 };
 
-export enum EthRPCMethod {
-  ETH_CALL = "eth_Call"
-}
+export type JSONRPCMethod = "eth_call";
 
-export type RPCClientRequestParams = {
-  method: EthRPCMethod,
-  params: any // An EthMethod type can have params of various types
-}
+export type EthCallParams = [
+  {
+    to: `0x${string}`;
+    data: `0x${string}`;
+  },
+  "latest" | "earliest" | "pending",
+  StateOverrideSet,
+];
+
+export type EthCallResponse =
+  | {
+      id: number;
+      jsonrpc: string;
+      data: `0x${string}`;
+    }
+  | {
+      id: number;
+      jsonrpc: string;
+      error: {
+        code: number;
+        message: string;
+        data: `0x${string}`;
+      };
+    };
+
+export type JSONRPCParams = EthCallParams;
+export type JSONRPCResponse = EthCallResponse;
+
+export type JSONRPCRequestParams = {
+  method: JSONRPCMethod;
+  params: JSONRPCParams;
+};
