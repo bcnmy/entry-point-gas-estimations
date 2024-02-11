@@ -1,6 +1,7 @@
 import { Hex, decodeErrorResult, getAddress } from "viem";
 import { z } from "zod";
 import { ENTRY_POINT_ABI } from "../abis";
+import { IRPCClient } from "../interface";
 
 const hexDataPattern = /^0x[0-9A-Fa-f]*$/;
 const hexPattern = /^0x[0-9a-f]*$/;
@@ -206,11 +207,23 @@ export type SignatureValidationFailed = z.infer<
 >;
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 
-export type GasEstimatorParams = {
+export type CreateGasEstimatorParams = {
   /**
    * The URL of the RPC (Remote Procedure Call) endpoint.
    */
   rpcUrl: string;
+  /**
+   * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   */
+  entryPointAddress?: Address;
+};
+
+export type GasEstimatorParams = {
+  /**
+   * The public RPC client (viem or ethers) which is used to make calls to the blockchain
+   */
+  publicClient: IRPCClient;
   /**
    * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
    * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
@@ -316,6 +329,11 @@ export type SimulateHandleOpParams = {
    */
   targetCallData: HexData;
   /**
+   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
+   * @defaultValue true
+   */
+  supportsEthCallStateOverride?: boolean;
+  /**
    * A state override that might be required while making eth_call to simulateHandleOp
    */
   stateOverrideSet?: StateOverrideSet;
@@ -399,4 +417,45 @@ export const VALIDATION_ERRORS = {
   USER_OP_HASH_NOT_FOUND: -32004,
   UNABLE_TO_PROCESS_USER_OP: -32005,
   METHOD_NOT_FOUND: -32601,
+};
+
+export type JSONRPCMethod = "eth_call";
+
+export enum BlockNumberTag {
+  LATEST = "latest",
+  EARLIEST = "earliest",
+  PENDING = "pending"
+}
+
+export type EthCallParams = [
+  {
+    to: `0x${string}`;
+    data: `0x${string}`;
+  },
+  BlockNumberTag,
+  StateOverrideSet,
+];
+
+export type EthCallResponse =
+  | {
+      id: number;
+      jsonrpc: string;
+      data: `0x${string}`;
+    }
+  | {
+      id: number;
+      jsonrpc: string;
+      error: {
+        code: number;
+        message: string;
+        data: `0x${string}`;
+      };
+    };
+
+export type JSONRPCParams = EthCallParams;
+export type JSONRPCResponse = EthCallResponse;
+
+export type JSONRPCRequestParams = {
+  method: JSONRPCMethod;
+  params: JSONRPCParams;
 };

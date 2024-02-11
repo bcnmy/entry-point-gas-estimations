@@ -58,12 +58,12 @@ export class OptimismGasEstimator
       args: [[userOperation], userOperation.sender],
     });
 
-    const l1Fee = await this.publicClient.readContract({
+    const l1Fee = (await this.publicClient.readContract({
       address: OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
       abi: OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
       functionName: "getL1Fee",
       args: [handleOpsData],
-    });
+    })) as bigint;
     // extraPvg = l1Cost / l2Price
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
     const l2PriorityFee =

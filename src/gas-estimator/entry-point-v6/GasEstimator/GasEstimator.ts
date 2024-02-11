@@ -1,12 +1,9 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/return-await */
 import {
-  PublicClient,
   RpcRequestErrorType,
-  createPublicClient,
   decodeErrorResult,
   encodeFunctionData,
-  http,
   toBytes,
   toHex,
   zeroAddress,
@@ -31,6 +28,7 @@ import {
   CalculatePreVerificationGasParams,
   VALIDATION_ERRORS,
   EstimateVerificationGasParams,
+  BlockNumberTag,
 } from "../types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
@@ -59,11 +57,10 @@ import {
 import {
   RpcError,
   getCallGasEstimationSimulatorResult,
-  getSimulationResult,
   getVerificationGasEstimationSimulatorResult,
   packUserOp,
 } from "../utils";
-import { IGasEstimator } from "../interface";
+import { IGasEstimator, IRPCClient } from "../interface";
 
 /**
  * @remarks
@@ -73,12 +70,7 @@ export class GasEstimator implements IGasEstimator {
   /**
    * The publicClient created using viem
    */
-  protected publicClient: PublicClient;
-
-  /**
-   * The URL of the RPC (Remote Procedure Call) endpoint.
-   */
-  private rpcUrl: string;
+  protected publicClient: IRPCClient;
 
   /**
    * v0.6 entry point address
@@ -92,7 +84,7 @@ export class GasEstimator implements IGasEstimator {
    * @defaultValue is stored in constants.ts
    */
   private callGasEstimationSimulatorByteCode: HexData =
-  CALL_GAS_ESTIMATION_SIMULATOR_BYTECODE;
+    CALL_GAS_ESTIMATION_SIMULATOR_BYTECODE;
 
   /**
    * the bytecode of the contract that extends the Entry Point contract and
@@ -107,13 +99,10 @@ export class GasEstimator implements IGasEstimator {
    * @param {GasEstimatorParams} params - Configuration options for the gas estimator.
    */
   constructor(params: GasEstimatorParams) {
-    this.rpcUrl = params.rpcUrl;
     this.entryPointAddress = params.entryPointAddress
       ? params.entryPointAddress
       : DEFAULT_ENTRY_POINT_ADDRESS;
-    this.publicClient = createPublicClient({
-      transport: http(this.rpcUrl),
-    });
+    this.publicClient = params.publicClient;
   }
 
   /**
@@ -353,42 +342,65 @@ export class GasEstimator implements IGasEstimator {
       replacedEntryPoint,
       targetAddress,
       targetCallData,
+      supportsEthCallStateOverride = true,
       stateOverrideSet,
     } = params;
 
-    const ethCallFinalParam = replacedEntryPoint
-      ? {
-          [userOperation.sender]: {
-            balance: toHex(100000_000000000000000000n),
-          },
-          [this.entryPointAddress]: {
-            code: this.callGasEstimationSimulatorByteCode,
-          },
-          ...stateOverrideSet,
-        }
-      : {
-          [userOperation.sender]: {
-            balance: toHex(100000_000000000000000000n),
-          },
-          ...stateOverrideSet,
-        };
+    let ethCallParmas;
+    if (supportsEthCallStateOverride) {
+      const replaceEntryPointByteCodeStateOverride = {
+        [userOperation.sender]: {
+          balance: toHex(100000_000000000000000000n),
+        },
+        [this.entryPointAddress]: {
+          code: this.callGasEstimationSimulatorByteCode,
+        },
+        ...stateOverrideSet,
+      };
+  
+      const unreplaceEntryPointByteCodeStateOverride = {
+        [userOperation.sender]: {
+          balance: toHex(100000_000000000000000000n),
+        },
+        ...stateOverrideSet,
+      };
+  
+      const ethCallFinalParam = replacedEntryPoint
+        ? replaceEntryPointByteCodeStateOverride
+        : unreplaceEntryPointByteCodeStateOverride;
+
+      ethCallParmas = [
+        {
+          to: this.entryPointAddress,
+          data: encodeFunctionData({
+            abi: ENTRY_POINT_ABI,
+            functionName: "simulateHandleOp",
+            args: [userOperation, targetAddress, targetCallData],
+          }),
+        },
+        BlockNumberTag.LATEST,
+        // @ts-ignore
+        ethCallFinalParam,
+      ];
+    } else {
+      ethCallParmas = [
+        {
+          to: this.entryPointAddress,
+          data: encodeFunctionData({
+            abi: ENTRY_POINT_ABI,
+            functionName: "simulateHandleOp",
+            args: [userOperation, targetAddress, targetCallData],
+          }),
+        },
+        BlockNumberTag.LATEST,
+      ];
+    }
 
     try {
       await this.publicClient.request({
         method: "eth_call",
-        params: [
-          {
-            to: this.entryPointAddress,
-            data: encodeFunctionData({
-              abi: ENTRY_POINT_ABI,
-              functionName: "simulateHandleOp",
-              args: [userOperation, targetAddress, targetCallData],
-            }),
-          },
-          "latest",
-          // @ts-ignore
-          ethCallFinalParam,
-        ],
+        // @ts-ignore // ignoring the types error as state overides are not allowed on all networks
+        params: ethCallParmas,
       });
     } catch (error) {
       const err = error as RpcRequestErrorType;
@@ -472,7 +484,7 @@ export class GasEstimator implements IGasEstimator {
               ],
             }),
           },
-          "latest",
+          BlockNumberTag.LATEST,
           // @ts-ignore
           ethCallFinalParam,
         ],
@@ -520,52 +532,40 @@ export class GasEstimator implements IGasEstimator {
     userOperation.verificationGasLimit = VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE;
     userOperation.callGasLimit = CALL_GAS_LIMIT_OVERRIDE_VALUE;
 
-    const ethCallPromise = this.publicClient.request({
-      method: "eth_call",
-      params: [
-        {
-          to: this.entryPointAddress,
-          data: encodeFunctionData({
-            abi: ENTRY_POINT_ABI,
-            functionName: "simulateHandleOp",
-            args: [userOperation, zeroAddress, "0x"],
-          }),
-        },
-        "latest",
-      ],
+    const simulateHandleOpResponse = await this.simulateHandleOp({
+      userOperation,
+      replacedEntryPoint: false,
+      targetAddress: zeroAddress,
+      targetCallData: "0x",
+      supportsEthCallStateOverride: false,
     });
 
-    const preVerificationGasPromise = this.calculatePreVerificationGas({
+    if (
+      simulateHandleOpResponse.result === "failed" ||
+      typeof simulateHandleOpResponse.data === "string"
+    ) {
+      throw new RpcError(
+        `UserOperation reverted during simulation with reason: ${simulateHandleOpResponse.data}`,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      );
+    }
+
+    const { preVerificationGas } = await this.calculatePreVerificationGas({
       userOperation,
     });
 
-    const [ethCallResponse, preVerficationResponse] = await Promise.all([
-      ethCallPromise,
-      preVerificationGasPromise,
-    ]);
+    const { preOpGas, paid, validAfter, validUntil } =
+      simulateHandleOpResponse.data;
 
-    const errorResult = decodeErrorResult({
-      abi: ENTRY_POINT_ABI,
-      data: ethCallResponse,
-    });
-
-    const executionResult = getSimulationResult(
-      errorResult,
-      "execution",
-    ) as ExecutionResult;
-
-    const verificationGasLimit =
-      executionResult.preOpGas - userOperation.preVerificationGas;
-    const callGasLimit =
-      executionResult.paid / userOperation.maxFeePerGas -
-      executionResult.preOpGas;
+    const verificationGasLimit = preOpGas - userOperation.preVerificationGas;
+    const callGasLimit = paid / userOperation.maxFeePerGas - preOpGas;
 
     return {
       callGasLimit,
       verificationGasLimit,
-      preVerificationGas: preVerficationResponse.preVerificationGas,
-      validUntil: executionResult.validUntil,
-      validAfter: executionResult.validAfter,
+      preVerificationGas,
+      validUntil,
+      validAfter,
     };
   }
 }
