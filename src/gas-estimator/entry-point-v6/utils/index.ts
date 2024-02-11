@@ -9,6 +9,7 @@ import {
 } from "viem";
 import {
   CALL_GAS_ESTIMATION_SIMULATOR,
+  ENTRY_POINT_ABI,
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
 } from "../abis";
 import {
@@ -60,6 +61,10 @@ export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
     );
   }
 
+  if (result.errorName === "EstimateCallGasContinuation") {
+    return (result.args[0] + result.args[1]) / 2n;
+  }
+
   if (result.errorName === "EstimateCallGasResult") {
     return result.args[0];
   }
@@ -75,39 +80,20 @@ export function getVerificationGasEstimationSimulatorResult(
     data,
   });
 
+
   if (result.errorName === "FailedOp") {
+    handleFailedOp(result.args)
+  }
+
+  if(result.errorName === "FailedOpError") {
     const { args } = result;
-    const revertReason = args[1];
-    if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA3")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA9")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
-      );
-    } else if (revertReason.includes("AA4")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
+    const errorResult = decodeErrorResult({
+      abi: ENTRY_POINT_ABI,
+      data: args[0],
+    });
+    if(errorResult.errorName === "FailedOp") {
+      handleFailedOp(errorResult.args)
     }
-    throw new RpcError(
-      "UserOperation reverted during execution phase",
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-    );
   }
 
   if (result.errorName === "EstimateVerificationGasResult") {
@@ -127,6 +113,97 @@ export function getVerificationGasEstimationSimulatorResult(
   }
 
   return null;
+}
+
+export function handleFailedOp(args: readonly [bigint, string]) {
+  const revertReason = args[1];
+  if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA3")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA9")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
+    );
+  } else if (revertReason.includes("AA4")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  }
+  throw new RpcError(
+    "UserOperation reverted during execution phase",
+    VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+  );
+}
+
+export function getSimulationResult(
+  errorResult: unknown,
+  simulationType: "validation" | "execution",
+) {
+  const entryPointErrorSchemaParsing =
+    entryPointExecutionErrorSchema.safeParse(errorResult);
+
+  if (!entryPointErrorSchemaParsing.success) {
+    try {
+      const err = fromZodError(entryPointErrorSchemaParsing.error);
+      err.message = `User Operation simulation returned unexpected invalid response: ${err.message}`;
+      throw err;
+    } catch {
+      if (errorResult instanceof BaseError) {
+        const revertError = errorResult.walk(
+          (err: any) => err instanceof ContractFunctionExecutionError,
+        );
+        throw new RpcError(
+          // @ts-ignore
+          `UserOperation reverted during simulation with reason: ${(revertError?.cause as any)?.reason}`,
+          VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+        );
+      }
+      throw new Error(
+        `User Operation simulation returned unexpected invalid response: ${errorResult}`,
+      );
+    }
+  }
+
+  const errorData = entryPointErrorSchemaParsing.data;
+
+  if (errorData.errorName === "FailedOp") {
+    const { reason } = errorData.args;
+    throw new RpcError(
+      `UserOperation reverted during simulation with reason: ${reason}`,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  }
+
+  if (simulationType === "validation") {
+    if (
+      errorData.errorName !== "ValidationResult" &&
+      errorData.errorName !== "ValidationResultWithAggregation"
+    ) {
+      throw new Error(
+        "Unexpected error - errorName is not ValidationResult or ValidationResultWithAggregation",
+      );
+    }
+  } else if (errorData.errorName !== "ExecutionResult") {
+    throw new Error("Unexpected error - errorName is not ExecutionResult");
+  }
+
+  const simulationResult = errorData.args;
+
+  return simulationResult;
 }
 
 function encode(

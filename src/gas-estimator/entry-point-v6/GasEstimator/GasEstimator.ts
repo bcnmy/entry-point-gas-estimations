@@ -120,6 +120,7 @@ export class GasEstimator implements IGasEstimator {
       userOperation,
       supportsEthCallStateOverride = true,
       stateOverrideSet,
+      baseFeePerGas
     } = params;
 
     if (!supportsEthCallStateOverride) {
@@ -140,6 +141,7 @@ export class GasEstimator implements IGasEstimator {
 
     const preVerificationGasPromise = this.calculatePreVerificationGas({
       userOperation,
+      baseFeePerGas
     });
 
     const [
@@ -236,6 +238,10 @@ export class GasEstimator implements IGasEstimator {
         callGasLimit: estimationResponse.callGasLimit,
       };
     }
+
+    // Setting callGasLimit to 0 to make sure call data is not executed by the Entry Point code and only
+    // done inside the CallGasSimulationExecutor contract
+    userOperation.callGasLimit = BigInt(0);
 
     const targetCallData = encodeFunctionData({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
@@ -454,6 +460,9 @@ export class GasEstimator implements IGasEstimator {
       },
       ...stateOverrideSet,
     };
+
+    // first iteration should run at max vgl
+    userOperation.verificationGasLimit = INITIAL_VGL_UPPER_BOUND;
 
     try {
       await this.publicClient.request({
