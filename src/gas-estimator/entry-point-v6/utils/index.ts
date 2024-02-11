@@ -9,6 +9,7 @@ import {
 } from "viem";
 import {
   CALL_GAS_ESTIMATION_SIMULATOR,
+  ENTRY_POINT_ABI,
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
 } from "../abis";
 import {
@@ -60,6 +61,10 @@ export function getCallGasEstimationSimulatorResult(data: ExecutionResult) {
     );
   }
 
+  if (result.errorName === "EstimateCallGasContinuation") {
+    return (result.args[0] + result.args[1]) / 2n;
+  }
+
   if (result.errorName === "EstimateCallGasResult") {
     return result.args[0];
   }
@@ -75,39 +80,20 @@ export function getVerificationGasEstimationSimulatorResult(
     data,
   });
 
+
   if (result.errorName === "FailedOp") {
+    handleFailedOp(result.args)
+  }
+
+  if(result.errorName === "FailedOpError") {
     const { args } = result;
-    const revertReason = args[1];
-    if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA3")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA9")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
-      );
-    } else if (revertReason.includes("AA4")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
-    } else if (revertReason.includes("AA")) {
-      throw new RpcError(
-        revertReason,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
+    const errorResult = decodeErrorResult({
+      abi: ENTRY_POINT_ABI,
+      data: args[0],
+    });
+    if(errorResult.errorName === "FailedOp") {
+      handleFailedOp(errorResult.args)
     }
-    throw new RpcError(
-      "UserOperation reverted during execution phase",
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-    );
   }
 
   if (result.errorName === "EstimateVerificationGasResult") {
@@ -127,6 +113,40 @@ export function getVerificationGasEstimationSimulatorResult(
   }
 
   return null;
+}
+
+export function handleFailedOp(args: readonly [bigint, string]) {
+  const revertReason = args[1];
+  if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA3")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA9")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
+    );
+  } else if (revertReason.includes("AA4")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  }
+  throw new RpcError(
+    "UserOperation reverted during execution phase",
+    VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+  );
 }
 
 export function getSimulationResult(
