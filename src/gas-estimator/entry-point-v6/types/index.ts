@@ -421,12 +421,18 @@ export const VALIDATION_ERRORS = {
 
 export type JSONRPCMethod = "eth_call";
 
+export enum BlockNumberTag {
+  LATEST = "latest",
+  EARLIEST = "earliest",
+  PENDING = "pending"
+}
+
 export type EthCallParams = [
   {
     to: `0x${string}`;
     data: `0x${string}`;
   },
-  "latest" | "earliest" | "pending",
+  BlockNumberTag,
   StateOverrideSet,
 ];
 

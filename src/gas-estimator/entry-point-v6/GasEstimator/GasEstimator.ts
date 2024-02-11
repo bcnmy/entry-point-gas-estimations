@@ -28,6 +28,7 @@ import {
   CalculatePreVerificationGasParams,
   VALIDATION_ERRORS,
   EstimateVerificationGasParams,
+  BlockNumberTag,
 } from "../types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
@@ -341,22 +342,26 @@ export class GasEstimator implements IGasEstimator {
 
     let ethCallParmas;
     if (supportsEthCallStateOverride) {
-      let ethCallFinalParam = replacedEntryPoint
-        ? {
-            [userOperation.sender]: {
-              balance: toHex(100000_000000000000000000n),
-            },
-            [this.entryPointAddress]: {
-              code: this.callGasEstimationSimulatorByteCode,
-            },
-            ...stateOverrideSet,
-          }
-        : {
-            [userOperation.sender]: {
-              balance: toHex(100000_000000000000000000n),
-            },
-            ...stateOverrideSet,
-          };
+      const replaceEntryPointByteCodeStateOverride = {
+        [userOperation.sender]: {
+          balance: toHex(100000_000000000000000000n),
+        },
+        [this.entryPointAddress]: {
+          code: this.callGasEstimationSimulatorByteCode,
+        },
+        ...stateOverrideSet,
+      };
+  
+      const unreplaceEntryPointByteCodeStateOverride = {
+        [userOperation.sender]: {
+          balance: toHex(100000_000000000000000000n),
+        },
+        ...stateOverrideSet,
+      };
+  
+      const ethCallFinalParam = replacedEntryPoint
+        ? replaceEntryPointByteCodeStateOverride
+        : unreplaceEntryPointByteCodeStateOverride;
 
       ethCallParmas = [
         {
@@ -367,7 +372,7 @@ export class GasEstimator implements IGasEstimator {
             args: [userOperation, targetAddress, targetCallData],
           }),
         },
-        "latest",
+        BlockNumberTag.LATEST,
         // @ts-ignore
         ethCallFinalParam,
       ];
@@ -381,7 +386,7 @@ export class GasEstimator implements IGasEstimator {
             args: [userOperation, targetAddress, targetCallData],
           }),
         },
-        "latest",
+        BlockNumberTag.LATEST,
       ];
     }
 
@@ -470,7 +475,7 @@ export class GasEstimator implements IGasEstimator {
               ],
             }),
           },
-          "latest",
+          BlockNumberTag.LATEST,
           // @ts-ignore
           ethCallFinalParam,
         ],
