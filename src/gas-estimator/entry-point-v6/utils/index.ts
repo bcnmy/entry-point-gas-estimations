@@ -80,19 +80,18 @@ export function getVerificationGasEstimationSimulatorResult(
     data,
   });
 
-
   if (result.errorName === "FailedOp") {
-    handleFailedOp(result.args)
+    handleFailedOp(result.args[1]);
   }
 
-  if(result.errorName === "FailedOpError") {
+  if (result.errorName === "FailedOpError") {
     const { args } = result;
     const errorResult = decodeErrorResult({
       abi: ENTRY_POINT_ABI,
       data: args[0],
     });
-    if(errorResult.errorName === "FailedOp") {
-      handleFailedOp(errorResult.args)
+    if (errorResult.errorName === "FailedOp") {
+      handleFailedOp(errorResult.args[1]);
     }
   }
 
@@ -115,8 +114,7 @@ export function getVerificationGasEstimationSimulatorResult(
   return null;
 }
 
-export function handleFailedOp(args: readonly [bigint, string]) {
-  const revertReason = args[1];
+export function handleFailedOp(revertReason: string) {
   if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
     throw new RpcError(
       revertReason,

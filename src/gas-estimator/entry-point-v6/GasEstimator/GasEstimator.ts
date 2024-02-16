@@ -58,6 +58,7 @@ import {
   RpcError,
   getCallGasEstimationSimulatorResult,
   getVerificationGasEstimationSimulatorResult,
+  handleFailedOp,
   packUserOp,
 } from "../utils";
 import { IGasEstimator, IRPCClient } from "../interface";
@@ -119,12 +120,19 @@ export class GasEstimator implements IGasEstimator {
     const {
       userOperation,
       supportsEthCallStateOverride = true,
+      supportsEthCallByteCodeOverride = true,
       stateOverrideSet,
-      baseFeePerGas
+      baseFeePerGas,
     } = params;
 
     if (!supportsEthCallStateOverride) {
       return await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
+        params,
+      );
+    }
+
+    if (!supportsEthCallByteCodeOverride) {
+      return await this.estimateUserOperationGasWithoutByteCodeOverrides(
         params,
       );
     }
@@ -141,7 +149,7 @@ export class GasEstimator implements IGasEstimator {
 
     const preVerificationGasPromise = this.calculatePreVerificationGas({
       userOperation,
-      baseFeePerGas
+      baseFeePerGas,
     });
 
     const [
@@ -177,6 +185,7 @@ export class GasEstimator implements IGasEstimator {
     const {
       userOperation,
       supportsEthCallStateOverride = true,
+      supportsEthCallByteCodeOverride = true,
       stateOverrideSet,
     } = params;
 
@@ -185,6 +194,16 @@ export class GasEstimator implements IGasEstimator {
         await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
           params,
         );
+      return {
+        verificationGasLimit: estimationResponse.verificationGasLimit,
+        validAfter: estimationResponse.validAfter,
+        validUntil: estimationResponse.validUntil,
+      };
+    }
+
+    if (!supportsEthCallByteCodeOverride) {
+      const estimationResponse =
+        await this.estimateUserOperationGasWithoutByteCodeOverrides(params);
       return {
         verificationGasLimit: estimationResponse.verificationGasLimit,
         validAfter: estimationResponse.validAfter,
@@ -226,6 +245,7 @@ export class GasEstimator implements IGasEstimator {
     const {
       userOperation,
       supportsEthCallStateOverride = true,
+      supportsEthCallByteCodeOverride = true,
       stateOverrideSet,
     } = params;
 
@@ -234,6 +254,14 @@ export class GasEstimator implements IGasEstimator {
         await this.esitmateUserOperationGasWithNoEthCallStateOverrideSupport(
           params,
         );
+      return {
+        callGasLimit: estimationResponse.callGasLimit,
+      };
+    }
+
+    if (!supportsEthCallByteCodeOverride) {
+      const estimationResponse =
+        await this.estimateUserOperationGasWithoutByteCodeOverrides(params);
       return {
         callGasLimit: estimationResponse.callGasLimit,
       };
@@ -343,11 +371,45 @@ export class GasEstimator implements IGasEstimator {
       targetAddress,
       targetCallData,
       supportsEthCallStateOverride = true,
+      supportsEthCallByteCodeOverride = true,
       stateOverrideSet,
     } = params;
 
     let ethCallParmas;
-    if (supportsEthCallStateOverride) {
+    if (!supportsEthCallStateOverride) {
+      ethCallParmas = [
+        {
+          to: this.entryPointAddress,
+          data: encodeFunctionData({
+            abi: ENTRY_POINT_ABI,
+            functionName: "simulateHandleOp",
+            args: [userOperation, targetAddress, targetCallData],
+          }),
+        },
+        BlockNumberTag.LATEST,
+      ];
+    } else if (!supportsEthCallByteCodeOverride) {
+      const ethCallFinalParam = {
+        [userOperation.sender]: {
+          balance: toHex(100000_000000000000000000n),
+        },
+        ...stateOverrideSet,
+      };
+
+      ethCallParmas = [
+        {
+          to: this.entryPointAddress,
+          data: encodeFunctionData({
+            abi: ENTRY_POINT_ABI,
+            functionName: "simulateHandleOp",
+            args: [userOperation, targetAddress, targetCallData],
+          }),
+        },
+        BlockNumberTag.LATEST,
+        // @ts-ignore
+        ethCallFinalParam,
+      ];
+    } else {
       const replaceEntryPointByteCodeStateOverride = {
         [userOperation.sender]: {
           balance: toHex(100000_000000000000000000n),
@@ -357,14 +419,14 @@ export class GasEstimator implements IGasEstimator {
         },
         ...stateOverrideSet,
       };
-  
+
       const unreplaceEntryPointByteCodeStateOverride = {
         [userOperation.sender]: {
           balance: toHex(100000_000000000000000000n),
         },
         ...stateOverrideSet,
       };
-  
+
       const ethCallFinalParam = replacedEntryPoint
         ? replaceEntryPointByteCodeStateOverride
         : unreplaceEntryPointByteCodeStateOverride;
@@ -381,18 +443,6 @@ export class GasEstimator implements IGasEstimator {
         BlockNumberTag.LATEST,
         // @ts-ignore
         ethCallFinalParam,
-      ];
-    } else {
-      ethCallParmas = [
-        {
-          to: this.entryPointAddress,
-          data: encodeFunctionData({
-            abi: ENTRY_POINT_ABI,
-            functionName: "simulateHandleOp",
-            args: [userOperation, targetAddress, targetCallData],
-          }),
-        },
-        BlockNumberTag.LATEST,
       ];
     }
 
@@ -544,16 +594,71 @@ export class GasEstimator implements IGasEstimator {
       simulateHandleOpResponse.result === "failed" ||
       typeof simulateHandleOpResponse.data === "string"
     ) {
-      throw new RpcError(
-        `UserOperation reverted during simulation with reason: ${simulateHandleOpResponse.data}`,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
+      handleFailedOp(simulateHandleOpResponse.data as `0x${string}`);
     }
 
     const { preVerificationGas } = await this.calculatePreVerificationGas({
       userOperation,
     });
 
+    // @ts-ignore
+    const { preOpGas, paid, validAfter, validUntil } =
+      simulateHandleOpResponse.data;
+
+    const verificationGasLimit = preOpGas - userOperation.preVerificationGas;
+    const callGasLimit = paid / userOperation.maxFeePerGas - preOpGas;
+
+    return {
+      callGasLimit,
+      verificationGasLimit,
+      preVerificationGas,
+      validUntil,
+      validAfter,
+    };
+  }
+
+  /**
+   * Estimates gas for a user operation for a blockchain whose RPC does not return correct response when
+   * state overring bytecode.
+   *
+   * @param {EstimateUserOperationGasParams} params - Configuration options for gas estimation.
+   * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated gas limits.
+   *
+   * @throws {Error} If there is an issue during gas estimation.
+   */
+  private async estimateUserOperationGasWithoutByteCodeOverrides(
+    params: EstimateUserOperationGasParams,
+  ): Promise<EstimateUserOperationGas> {
+    const { userOperation, stateOverrideSet } = params;
+
+    // creating fullUserOp in case of estimation
+    userOperation.callGasLimit = 2000000n;
+    userOperation.verificationGasLimit = 5000000n;
+    userOperation.preVerificationGas = 1000000n;
+    userOperation.maxPriorityFeePerGas = 100000000n;
+    userOperation.maxFeePerGas = 100000000n;
+
+    const simulateHandleOpResponse = await this.simulateHandleOp({
+      userOperation,
+      replacedEntryPoint: false,
+      targetAddress: zeroAddress,
+      targetCallData: "0x",
+      supportsEthCallByteCodeOverride: false,
+      stateOverrideSet,
+    });
+
+    if (
+      simulateHandleOpResponse.result === "failed" ||
+      typeof simulateHandleOpResponse.data === "string"
+    ) {
+      handleFailedOp(simulateHandleOpResponse.data as `0x${string}`);
+    }
+
+    const { preVerificationGas } = await this.calculatePreVerificationGas({
+      userOperation,
+    });
+
+    // @ts-ignore
     const { preOpGas, paid, validAfter, validUntil } =
       simulateHandleOpResponse.data;
 

@@ -252,6 +252,12 @@ export type EstimateUserOperationGasParams = {
    */
   supportsEthCallStateOverride?: boolean;
   /**
+   * A boolean values that needs to be passed false if the RPC provider is not consistent in responses when using
+   * bytecode overrides
+   * @defaultValue true
+   */
+  supportsEthCallByteCodeOverride?: boolean;
+  /**
    * A full user operation
    */
   userOperation: UserOperation;
@@ -274,6 +280,12 @@ export type EstimateVerificationGasLimitParams = {
    */
   supportsEthCallStateOverride?: boolean;
   /**
+   * A boolean values that needs to be passed false if the RPC provider is not consistent in responses when using
+   * bytecode overrides
+   * @defaultValue true
+   */
+  supportsEthCallByteCodeOverride?: boolean;
+  /**
    * A full user operation
    */
   userOperation: UserOperation;
@@ -295,6 +307,12 @@ export type EstimateCallGasLimitParams = {
    * @defaultValue true
    */
   supportsEthCallStateOverride?: boolean;
+  /**
+   * A boolean values that needs to be passed false if the RPC provider is not consistent in responses when using
+   * bytecode overrides
+   * @defaultValue true
+   */
+  supportsEthCallByteCodeOverride?: boolean;
   /**
    * A full user operation
    */
@@ -333,6 +351,12 @@ export type SimulateHandleOpParams = {
    * @defaultValue true
    */
   supportsEthCallStateOverride?: boolean;
+  /**
+   * A boolean values that needs to be passed false if the RPC provider is not consistent in responses when using
+   * bytecode overrides
+   * @defaultValue true
+   */
+  supportsEthCallByteCodeOverride?: boolean;
   /**
    * A state override that might be required while making eth_call to simulateHandleOp
    */
@@ -424,7 +448,7 @@ export type JSONRPCMethod = "eth_call";
 export enum BlockNumberTag {
   LATEST = "latest",
   EARLIEST = "earliest",
-  PENDING = "pending"
+  PENDING = "pending",
 }
 
 export type EthCallParams = [
