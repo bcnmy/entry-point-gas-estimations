@@ -29,6 +29,7 @@ import {
   VALIDATION_ERRORS,
   EstimateVerificationGasParams,
   BlockNumberTag,
+  StateOverrideSet,
 } from "../types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
@@ -115,7 +116,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateUserOperationGas(
-    params: EstimateUserOperationGasParams,
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
@@ -126,8 +127,8 @@ export class GasEstimator implements IGasEstimator {
     } = params;
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
-      return await this.esitmateUserOperationGasWithoutFullEthCallSupport(
-        params,
+      return await this.estimateUserOperationGasWithoutFullEthCallSupport(
+        params
       );
     }
 
@@ -174,7 +175,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateVerificationGasLimit(
-    params: EstimateVerificationGasLimitParams,
+    params: EstimateVerificationGasLimitParams
   ): Promise<EstimateVerificationGasLimit> {
     const {
       userOperation,
@@ -184,8 +185,8 @@ export class GasEstimator implements IGasEstimator {
     } = params;
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
-      return await this.esitmateUserOperationGasWithoutFullEthCallSupport(
-        params,
+      return await this.estimateUserOperationGasWithoutFullEthCallSupport(
+        params
       );
     }
 
@@ -218,7 +219,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateCallGasLimit(
-    params: EstimateCallGasLimitParams,
+    params: EstimateCallGasLimitParams
   ): Promise<EstimateCallGasLimit> {
     const {
       userOperation,
@@ -228,8 +229,8 @@ export class GasEstimator implements IGasEstimator {
     } = params;
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
-      return await this.esitmateUserOperationGasWithoutFullEthCallSupport(
-        params,
+      return await this.estimateUserOperationGasWithoutFullEthCallSupport(
+        params
       );
     }
 
@@ -263,12 +264,12 @@ export class GasEstimator implements IGasEstimator {
     if (error.result === "failed") {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${error.data}`,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
       );
     }
 
     const result = getCallGasEstimationSimulatorResult(
-      error.data as ExecutionResult,
+      error.data as ExecutionResult
     );
 
     if (result === null) {
@@ -288,15 +289,13 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during calculating preVerificationGas
    */
   async calculatePreVerificationGas(
-    params: CalculatePreVerificationGasParams,
+    params: CalculatePreVerificationGasParams
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
     const packed = toBytes(packUserOp(userOperation, false));
     const callDataCost = packed
       .map((x: number) =>
-        x === 0
-          ? defaultGasOverheads.zeroByte
-          : defaultGasOverheads.nonZeroByte,
+        x === 0 ? defaultGasOverheads.zeroByte : defaultGasOverheads.nonZeroByte
       )
       .reduce((sum: any, x: any) => sum + x);
     let preVerificationGas = BigInt(
@@ -304,8 +303,8 @@ export class GasEstimator implements IGasEstimator {
         callDataCost +
           defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
           defaultGasOverheads.perUserOp +
-          defaultGasOverheads.perUserOpWord * packed.length,
-      ),
+          defaultGasOverheads.perUserOpWord * packed.length
+      )
     );
     return {
       preVerificationGas,
@@ -329,7 +328,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an making eth_call to simulateHandleOp
    */
   private async simulateHandleOp(
-    params: SimulateHandleOpParams,
+    params: SimulateHandleOpParams
   ): Promise<SimulateHandleOp> {
     const {
       userOperation,
@@ -376,15 +375,34 @@ export class GasEstimator implements IGasEstimator {
         ethCallFinalParam,
       ];
     } else {
-      const replaceEntryPointByteCodeStateOverride = {
+      let replaceEntryPointByteCodeStateOverride: StateOverrideSet = {
         [userOperation.sender]: {
           balance: toHex(100000_000000000000000000n),
         },
         [this.entryPointAddress]: {
           code: this.callGasEstimationSimulatorByteCode,
         },
-        ...stateOverrideSet,
       };
+
+      for (const stateOverrideKey in stateOverrideSet) {
+        if (
+          stateOverrideKey.toLowerCase() ===
+          this.entryPointAddress.toLowerCase()
+        ) {
+          const { balance, state, stateDiff, nonce } =
+            stateOverrideSet[stateOverrideKey];
+          replaceEntryPointByteCodeStateOverride[this.entryPointAddress] = {
+            code: this.callGasEstimationSimulatorByteCode,
+            balance,
+            nonce,
+            state,
+            stateDiff,
+          };
+        } else {
+          replaceEntryPointByteCodeStateOverride[stateOverrideKey] =
+            stateOverrideSet[stateOverrideKey];
+        }
+      }
 
       const unreplaceEntryPointByteCodeStateOverride = {
         [userOperation.sender]: {
@@ -446,7 +464,7 @@ export class GasEstimator implements IGasEstimator {
 
       if (decodedError.errorName === "ExecutionResult") {
         const parsedExecutionResult = executionResultSchema.parse(
-          decodedError.args,
+          decodedError.args
         );
         return { result: "execution", data: parsedExecutionResult } as const;
       }
@@ -463,19 +481,37 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an making eth_call to estimateVerificationGas
    */
   private async estimateVerificationGas(
-    params: EstimateVerificationGasParams,
+    params: EstimateVerificationGasParams
   ): Promise<`0x${string}`> {
     const { userOperation, stateOverrideSet } = params;
 
-    const ethCallFinalParam = {
+    const ethCallFinalParam: StateOverrideSet = {
       [userOperation.sender]: {
         balance: toHex(100000_000000000000000000n),
       },
       [this.entryPointAddress]: {
         code: this.verificationGasEstimationSimulatorByteCode,
       },
-      ...stateOverrideSet,
     };
+
+    for (const stateOverrideKey in stateOverrideSet) {
+      if (
+        stateOverrideKey.toLowerCase() === this.entryPointAddress.toLowerCase()
+      ) {
+        const { balance, state, stateDiff, nonce } =
+          stateOverrideSet[stateOverrideKey];
+        ethCallFinalParam[this.entryPointAddress] = {
+          code: this.verificationGasEstimationSimulatorByteCode,
+          balance,
+          nonce,
+          state,
+          stateDiff,
+        };
+      } else {
+        ethCallFinalParam[stateOverrideKey] =
+          stateOverrideSet[stateOverrideKey];
+      }
+    }
 
     // first iteration should run at max vgl
     userOperation.verificationGasLimit = INITIAL_VGL_UPPER_BOUND;
@@ -537,8 +573,8 @@ export class GasEstimator implements IGasEstimator {
    *
    * @throws {Error} If there is an issue during gas estimation.
    */
-  private async esitmateUserOperationGasWithoutFullEthCallSupport(
-    params: EstimateUserOperationGasParams,
+  private async estimateUserOperationGasWithoutFullEthCallSupport(
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
