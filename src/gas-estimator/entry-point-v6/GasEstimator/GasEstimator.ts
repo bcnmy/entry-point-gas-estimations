@@ -580,6 +580,7 @@ export class GasEstimator implements IGasEstimator {
       userOperation,
       supportsEthCallByteCodeOverride,
       supportsEthCallStateOverride,
+      baseFeePerGas
     } = params;
 
     userOperation.maxFeePerGas = MAX_FEE_PER_GAS_OVERRIDE_VALUE;
@@ -607,6 +608,7 @@ export class GasEstimator implements IGasEstimator {
 
     const { preVerificationGas } = await this.calculatePreVerificationGas({
       userOperation,
+      baseFeePerGas
     });
 
     // @ts-ignore
