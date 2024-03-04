@@ -5,6 +5,7 @@ import { CreateGasEstimatorParams } from "../types";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
 import { MantleGasEstimator } from "./MantleGasEstimator";
+import { ScrollGasEstimator } from "./ScrollGasEstimator";
 
 /**
  * factory method to create the general gas estimator instance
@@ -81,6 +82,26 @@ export function createMantleGasEstimator(
     }),
   );
   return new MantleGasEstimator({
+    publicClient,
+    ...rest,
+  });
+}
+
+/**
+ * factory method to create the scroll gas estimator instance
+ * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the optimism gas estimator client
+ */
+export function createScrollGasEstimator(
+  params: CreateGasEstimatorParams,
+): OptimismGasEstimator {
+  const { rpcUrl, ...rest } = params;
+  const publicClient = new ViemGasEstimatorClient(
+    createPublicClient({
+      transport: http(rpcUrl),
+    }),
+  );
+  return new ScrollGasEstimator({
     publicClient,
     ...rest,
   });

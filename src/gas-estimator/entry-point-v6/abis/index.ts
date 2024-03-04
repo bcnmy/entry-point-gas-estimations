@@ -2630,6 +2630,22 @@ export const ARBITRUM_L1_FEE_GAS_PRICE_ORACLE_ABI = [
   },
 ] as const;
 
+export const SCROLL_L1_GAS_PRICE_ORACLE_ABI = [
+  {
+    name: "getL1Fee",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "data",
+        internalType: "bytes",
+        type: "bytes",
+      },
+    ],
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
+  },
+] as const;
+
 export const VERIFICATION_GAS_ESTIMATION_SIMULATOR = [
   {
     inputs: [
