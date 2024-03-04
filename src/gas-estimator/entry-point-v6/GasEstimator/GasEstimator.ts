@@ -440,7 +440,7 @@ export class GasEstimator implements IGasEstimator {
       });
     } catch (error) {
       const err = error as RpcRequestErrorType;
-      const causeParseResult = z
+      let causeParseResult = z
         .object({
           code: z.literal(3),
           message: z.string().regex(/execution reverted.*/),
@@ -449,8 +449,20 @@ export class GasEstimator implements IGasEstimator {
         // @ts-ignore
         .safeParse(err.cause);
       if (!causeParseResult.success) {
+        // Doing this extra check on causeParseResult as Astar networks return different error
         // @ts-ignore
-        throw new Error(JSON.stringify(err.cause));
+        causeParseResult = z
+          .object({
+            code: z.literal(-32603),
+            message: z.string().regex(/revert.*/),
+            data: hexDataSchema,
+          })
+          // @ts-ignore
+          .safeParse(err.cause);
+        if (!causeParseResult.success) {
+          // @ts-ignore
+          throw new Error(JSON.stringify(err.cause));
+        }
       }
 
       const cause = causeParseResult.data;
