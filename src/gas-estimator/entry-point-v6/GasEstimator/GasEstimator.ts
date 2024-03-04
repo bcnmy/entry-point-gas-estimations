@@ -458,7 +458,7 @@ export class GasEstimator implements IGasEstimator {
             data: hexDataSchema,
           })
           // @ts-ignore
-          .safeParse(err.cause);
+          .safeParse(err.cause.cause);
         if (!causeParseResult.success) {
           // @ts-ignore
           throw new Error(JSON.stringify(err.cause));
