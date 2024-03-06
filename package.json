@@ -1,6 +1,6 @@
 {
   "name": "entry-point-gas-estimations",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/bcnmy/4337-gas-estimations.git",

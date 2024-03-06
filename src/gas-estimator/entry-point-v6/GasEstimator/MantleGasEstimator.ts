@@ -47,18 +47,12 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
       ),
     );
 
-    const handleOpsData = encodeFunctionData({
-      abi: ENTRY_POINT_ABI,
-      functionName: "handleOps",
-      args: [[userOperation], userOperation.sender],
-    });
-
-    const l1FeePromise = this.publicClient.readContract({
+    const l1BaseFeePromise = this.publicClient.readContract({
       address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
       // @ts-ignore
       abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
-      functionName: "getL1Fee",
-      args: [handleOpsData],
+      functionName: "l1BaseFee",
+      args: [],
     });
 
     const overheadPromise = this.publicClient.readContract({
@@ -75,18 +69,29 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
       functionName: "scalar",
     });
 
-    const [l1Fee, overhead, scalar] = await Promise.all([
-      l1FeePromise,
+    const decimalsPromise = this.publicClient.readContract({
+      address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
+      // @ts-ignore
+      abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
+      functionName: "decimals",
+    });
+
+    const [l1BaseFee, overhead, scalar, decimals] = await Promise.all([
+      l1BaseFeePromise,
       overheadPromise,
       scalarPromise,
+      decimalsPromise
     ]);
 
     const l1RollupFee =
-      ((l1Fee as bigint) * (overhead as bigint) * (scalar as bigint)) /
-      MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR;
+      ((l1BaseFee as bigint) * (overhead as bigint) * (scalar as bigint)) /
+      (BigInt(10 ** Number(decimals)));
+      
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
+    const l2Gas = userOperation.paymasterAndData === "0x" ? userOperation.callGasLimit + userOperation.verificationGasLimit : userOperation.callGasLimit + 3n * userOperation.verificationGasLimit;
+    const l2TxnFee = (l2Gas * l2MaxFee) / 1000000000n; // converting gwei to ether
 
-    preVerificationGas += l1RollupFee / l2MaxFee;
+    preVerificationGas += l1RollupFee + l2TxnFee;
 
     return {
       preVerificationGas,
