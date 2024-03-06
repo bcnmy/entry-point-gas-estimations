@@ -91,7 +91,7 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
     const l2Gas = userOperation.paymasterAndData === "0x" ? userOperation.callGasLimit + userOperation.verificationGasLimit : userOperation.callGasLimit + 3n * userOperation.verificationGasLimit;
     const l2TxnFee = (l2Gas * l2MaxFee) / 1000000000n; // converting gwei to ether
 
-    preVerificationGas += l1RollupFee + l2TxnFee;
+    preVerificationGas += (l1RollupFee + l2TxnFee)/l2MaxFee;
 
     return {
       preVerificationGas,
