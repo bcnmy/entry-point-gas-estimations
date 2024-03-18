@@ -2352,239 +2352,286 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
 
 export const MANTLE_BVM_GAS_PRICE_ORACLE_ABI = [
   {
+    inputs: [],
+    stateMutability: "nonpayable",
     type: "constructor",
-    inputs: [{ type: "address", name: "_owner", internalType: "address" }],
   },
   {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "IsBurning",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "charge",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "daGasPrice",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "daSwitch",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "decimals",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "gasPrice",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "getL1Fee",
-    inputs: [{ type: "bytes", name: "_data", internalType: "bytes" }],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "getL1GasUsed",
-    inputs: [{ type: "bytes", name: "_data", internalType: "bytes" }],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "l1BaseFee",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "overhead",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "address", name: "", internalType: "address" }],
-    name: "owner",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "renounceOwnership",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "uint256", name: "", internalType: "uint256" }],
-    name: "scalar",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [{ type: "address", name: "", internalType: "address" }],
-    name: "sccAddress",
-    inputs: [],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setCharge",
-    inputs: [{ type: "uint256", name: "_charge", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setDAGasPrice",
-    inputs: [{ type: "uint256", name: "_daGasPrice", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setDaSwitch",
-    inputs: [{ type: "uint256", name: "_daSwitch", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setDecimals",
-    inputs: [{ type: "uint256", name: "_decimals", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setGasPrice",
-    inputs: [{ type: "uint256", name: "_gasPrice", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setIsBurning",
-    inputs: [{ type: "uint256", name: "_isBurning", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setL1BaseFee",
-    inputs: [{ type: "uint256", name: "_baseFee", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setOverhead",
-    inputs: [{ type: "uint256", name: "_overhead", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "setScalar",
-    inputs: [{ type: "uint256", name: "_scalar", internalType: "uint256" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "transferOwnership",
-    inputs: [{ type: "address", name: "newOwner", internalType: "address" }],
-  },
-  {
-    type: "event",
-    name: "ChargeUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
     anonymous: false,
-  },
-  {
-    type: "event",
-    name: "DAGasPriceUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "DASwitchUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "DecimalsUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "GasPriceUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "IsBurningUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "L1BaseFeeUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "OverheadUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "OwnershipTransferred",
     inputs: [
-      { type: "address", name: "previousOwner", indexed: true },
-      { type: "address", name: "newOwner", indexed: true },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOperator",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOperator",
+        type: "address",
+      },
     ],
-    anonymous: false,
+    name: "OperatorUpdated",
+    type: "event",
   },
   {
-    type: "event",
-    name: "ScalarUpdated",
-    inputs: [{ type: "uint256", name: "", indexed: false }],
     anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "previousTokenRatio",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "newTokenRatio",
+        type: "uint256",
+      },
+    ],
+    name: "TokenRatioUpdated",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "DECIMALS",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "baseFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "gasPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
+    ],
+    name: "getL1Fee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_data",
+        type: "bytes",
+      },
+    ],
+    name: "getL1GasUsed",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "l1BaseFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "operator",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "overhead",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "scalar",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_operator",
+        type: "address",
+      },
+    ],
+    name: "setOperator",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_tokenRatio",
+        type: "uint256",
+      },
+    ],
+    name: "setTokenRatio",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tokenRatio",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "version",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
 ] as const;
 

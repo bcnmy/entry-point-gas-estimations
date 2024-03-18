@@ -1,4 +1,4 @@
-import { toBytes, encodeFunctionData } from "viem";
+import { toBytes, encodeFunctionData, toRlp } from "viem";
 import { ENTRY_POINT_ABI, MANTLE_BVM_GAS_PRICE_ORACLE_ABI } from "../abis";
 import {
   defaultGasOverheads,
@@ -47,19 +47,17 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
       ),
     );
 
-    const l1BaseFeePromise = this.publicClient.readContract({
-      address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
-      // @ts-ignore
-      abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
-      functionName: "l1BaseFee",
-      args: [],
+    const handleOpsData = encodeFunctionData({
+      abi: ENTRY_POINT_ABI,
+      functionName: "handleOps",
+      args: [[userOperation], userOperation.sender],
     });
 
-    const overheadPromise = this.publicClient.readContract({
+    const tokenRatioPromise = this.publicClient.readContract({
       address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
       // @ts-ignore
       abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
-      functionName: "overhead",
+      functionName: "tokenRatio",
     });
 
     const scalarPromise = this.publicClient.readContract({
@@ -69,29 +67,38 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
       functionName: "scalar",
     });
 
-    const decimalsPromise = this.publicClient.readContract({
+    const rollupDataGasAndOverheadPromise = this.publicClient.readContract({
       address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
       // @ts-ignore
-      abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
-      functionName: "decimals",
+      abi,
+      functionName: "getL1GasUsed",
+      args: [toRlp(handleOpsData)],
     });
 
-    const [l1BaseFee, overhead, scalar, decimals] = await Promise.all([
-      l1BaseFeePromise,
-      overheadPromise,
-      scalarPromise,
-      decimalsPromise
-    ]);
+    const l1GasPricePromise = this.publicClient.readContract({
+      address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
+      // @ts-ignore
+      abi,
+      functionName: "l1BaseFee",
+    });
+
+    const [rollupDataGasAndOverhead, scalar, tokenRatio, l1GasPrice] =
+      await Promise.all([
+        rollupDataGasAndOverheadPromise,
+        scalarPromise,
+        tokenRatioPromise,
+        l1GasPricePromise,
+      ]);
 
     const l1RollupFee =
-      ((l1BaseFee as bigint) * (overhead as bigint) * (scalar as bigint)) /
-      (BigInt(10 ** Number(decimals)));
-      
+      ((rollupDataGasAndOverhead as bigint) *
+        (l1GasPrice as bigint) *
+        (tokenRatio as bigint) *
+        (scalar as bigint)) /
+        MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR;
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
-    const l2Gas = userOperation.paymasterAndData === "0x" ? userOperation.callGasLimit + userOperation.verificationGasLimit : userOperation.callGasLimit + 3n * userOperation.verificationGasLimit;
-    const l2TxnFee = (l2Gas * l2MaxFee) / 1000000000n; // converting gwei to ether
 
-    preVerificationGas += (l1RollupFee + l2TxnFee)/l2MaxFee;
+    preVerificationGas += l1RollupFee / l2MaxFee;
 
     return {
       preVerificationGas,
