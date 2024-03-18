@@ -70,7 +70,7 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
     const rollupDataGasAndOverheadPromise = this.publicClient.readContract({
       address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
       // @ts-ignore
-      abi,
+      abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
       functionName: "getL1GasUsed",
       args: [toRlp(handleOpsData)],
     });
@@ -78,7 +78,7 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
     const l1GasPricePromise = this.publicClient.readContract({
       address: MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
       // @ts-ignore
-      abi,
+      abi: MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
       functionName: "l1BaseFee",
     });
 
