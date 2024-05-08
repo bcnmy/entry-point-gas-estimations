@@ -570,6 +570,7 @@ export class GasEstimator implements IGasEstimator {
       if (!causeParseResult.success) {
         console.error("!causeParseResult.success (log 3): ", !causeParseResult.success);
 
+        // @ts-ignore
         console.error("err.cause (log 4): ", err.cause);
         // @ts-ignore
         throw new Error(JSON.stringify(err.cause));
