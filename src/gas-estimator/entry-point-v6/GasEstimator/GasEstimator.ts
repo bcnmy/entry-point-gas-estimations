@@ -556,6 +556,7 @@ export class GasEstimator implements IGasEstimator {
         ],
       });
     } catch (error) {
+      console.error("error (log 1): ", error);
       const err = error as RpcRequestErrorType;
       const causeParseResult = z
         .object({
@@ -565,7 +566,11 @@ export class GasEstimator implements IGasEstimator {
         })
         // @ts-ignore
         .safeParse(err.cause);
+      console.error("causeParseResult (log 2): ", causeParseResult);
       if (!causeParseResult.success) {
+        console.error("!causeParseResult.success (log 3): ", !causeParseResult.success);
+
+        console.error("err.cause (log 4): ", err.cause);
         // @ts-ignore
         throw new Error(JSON.stringify(err.cause));
       }
