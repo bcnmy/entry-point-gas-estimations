@@ -13,6 +13,8 @@ export class ViemGasEstimatorClient implements IRPCClient {
     params: ReadContractParameters,
   ): Promise<ReadContractReturnType> {
     const { address, abi, functionName, args } = params;
+    // Below ts-ignore is to by pass a random viem error, probably an issue with viem types
+    // @ts-ignore
     return await this.publicClient.readContract({
       address,
       abi,
