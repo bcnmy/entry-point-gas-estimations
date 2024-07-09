@@ -9,26 +9,23 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "format": "eslint 'src' --ext .ts --fix",
-    "prepare": "husky install",
     "build": "tsc"
   },
   "dependencies": {
-    "@types/node": "^20.10.5",
-    "eslint-plugin-tsdoc": "^0.2.17",
-    "husky": "^8.0.3",
-    "typedoc": "^0.25.7",
-    "typescript": "^5.3.3",
     "viem": "^2.7.8",
     "zod": "^3.22.4",
     "zod-validation-error": "^2.1.0"
   },
   "devDependencies": {
+    "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.40.0",
     "eslint": "^8.25.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^5.1.0"
+    "eslint-plugin-prettier": "^5.1.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "typescript": "^5.3.3"
   }
 }

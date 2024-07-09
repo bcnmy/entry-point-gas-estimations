@@ -6,9 +6,6 @@ A package to estimate callGasLimit, verificationGasLimit and preVerificationGas 
 
 First, install the required packages for initializing the gas estimator client
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-
 <Tabs>
 <TabItem value="js" label="npm">
 
@@ -60,6 +57,11 @@ const mantleGasEstimator = createMantleGasEstimator({
 
 // Scroll Networks
 const scrollGasEstimator = createScrollGasEstimator({
+  rpcUrl,
+});
+
+// Morph Networks
+const morphlGasEstimator = createMorphGasEstimator({
   rpcUrl,
 });
 ```
