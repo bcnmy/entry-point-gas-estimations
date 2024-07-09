@@ -61,7 +61,7 @@ const scrollGasEstimator = createScrollGasEstimator({
 });
 
 // Morph Networks
-const morphlGasEstimator = createMorphGasEstimator({
+const morphGasEstimator = createMorphGasEstimator({
   rpcUrl,
 });
 ```
