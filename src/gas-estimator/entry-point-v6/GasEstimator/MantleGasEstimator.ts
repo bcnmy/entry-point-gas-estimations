@@ -95,7 +95,7 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
         (l1GasPrice as bigint) *
         (tokenRatio as bigint) *
         (scalar as bigint)) /
-        MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR;
+      MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR;
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
 
     preVerificationGas += l1RollupFee / l2MaxFee;
