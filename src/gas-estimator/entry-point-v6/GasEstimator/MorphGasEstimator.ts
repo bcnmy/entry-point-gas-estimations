@@ -46,9 +46,6 @@ export class MorphGasEstimator extends GasEstimator implements IGasEstimator {
       ),
     );
 
-    if (!baseFeePerGas) {
-      throw new RpcError(`baseFeePerGas not available`);
-    }
     const handleOpsData = encodeFunctionData({
       abi: ENTRY_POINT_ABI,
       functionName: "handleOps",
@@ -63,10 +60,8 @@ export class MorphGasEstimator extends GasEstimator implements IGasEstimator {
     })) as bigint;
     // extraPvg = l1Cost / l2Price
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
-    const l2PriorityFee =
-      baseFeePerGas + BigInt(userOperation.maxPriorityFeePerGas);
-    const l2Price = l2MaxFee < l2PriorityFee ? l2MaxFee : l2PriorityFee;
-    preVerificationGas += l1Fee / l2Price;
+
+    preVerificationGas += l1Fee / l2MaxFee;
     return {
       preVerificationGas,
     };
