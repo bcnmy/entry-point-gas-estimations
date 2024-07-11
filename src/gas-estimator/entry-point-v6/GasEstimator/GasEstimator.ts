@@ -329,7 +329,7 @@ export class GasEstimator implements IGasEstimator {
    *
    * @throws {Error} If there is an making eth_call to simulateHandleOp
    */
-  private async simulateHandleOp(
+  async simulateHandleOp(
     params: SimulateHandleOpParams,
   ): Promise<SimulateHandleOp> {
     const {
@@ -587,7 +587,7 @@ export class GasEstimator implements IGasEstimator {
    *
    * @throws {Error} If there is an issue during gas estimation.
    */
-  private async estimateUserOperationGasWithoutFullEthCallSupport(
+  async estimateUserOperationGasWithoutFullEthCallSupport(
     params: EstimateUserOperationGasParams,
   ): Promise<EstimateUserOperationGas> {
     const {
