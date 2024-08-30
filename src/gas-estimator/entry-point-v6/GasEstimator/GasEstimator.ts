@@ -116,7 +116,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateUserOperationGas(
-    params: EstimateUserOperationGasParams,
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
@@ -128,7 +128,7 @@ export class GasEstimator implements IGasEstimator {
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
       return await this.estimateUserOperationGasWithoutFullEthCallSupport(
-        params,
+        params
       );
     }
 
@@ -175,7 +175,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateVerificationGasLimit(
-    params: EstimateVerificationGasLimitParams,
+    params: EstimateVerificationGasLimitParams
   ): Promise<EstimateVerificationGasLimit> {
     const {
       userOperation,
@@ -186,7 +186,7 @@ export class GasEstimator implements IGasEstimator {
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
       return await this.estimateUserOperationGasWithoutFullEthCallSupport(
-        params,
+        params
       );
     }
 
@@ -219,7 +219,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateCallGasLimit(
-    params: EstimateCallGasLimitParams,
+    params: EstimateCallGasLimitParams
   ): Promise<EstimateCallGasLimit> {
     const {
       userOperation,
@@ -230,7 +230,7 @@ export class GasEstimator implements IGasEstimator {
 
     if (!supportsEthCallStateOverride || !supportsEthCallByteCodeOverride) {
       return await this.estimateUserOperationGasWithoutFullEthCallSupport(
-        params,
+        params
       );
     }
 
@@ -264,12 +264,12 @@ export class GasEstimator implements IGasEstimator {
     if (error.result === "failed") {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${error.data}`,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
       );
     }
 
     const result = getCallGasEstimationSimulatorResult(
-      error.data as ExecutionResult,
+      error.data as ExecutionResult
     );
 
     if (result === null) {
@@ -289,15 +289,13 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during calculating preVerificationGas
    */
   async calculatePreVerificationGas(
-    params: CalculatePreVerificationGasParams,
+    params: CalculatePreVerificationGasParams
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
     const packed = toBytes(packUserOp(userOperation, false));
     const callDataCost = packed
       .map((x: number) =>
-        x === 0
-          ? defaultGasOverheads.zeroByte
-          : defaultGasOverheads.nonZeroByte,
+        x === 0 ? defaultGasOverheads.zeroByte : defaultGasOverheads.nonZeroByte
       )
       .reduce((sum: any, x: any) => sum + x);
     let preVerificationGas = BigInt(
@@ -305,8 +303,8 @@ export class GasEstimator implements IGasEstimator {
         callDataCost +
           defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
           defaultGasOverheads.perUserOp +
-          defaultGasOverheads.perUserOpWord * packed.length,
-      ),
+          defaultGasOverheads.perUserOpWord * packed.length
+      )
     );
     return {
       preVerificationGas,
@@ -330,7 +328,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an making eth_call to simulateHandleOp
    */
   async simulateHandleOp(
-    params: SimulateHandleOpParams,
+    params: SimulateHandleOpParams
   ): Promise<SimulateHandleOp> {
     const {
       userOperation,
@@ -461,6 +459,26 @@ export class GasEstimator implements IGasEstimator {
           .safeParse(err.cause.cause);
         if (!causeParseResult.success) {
           // @ts-ignore
+          causeParseResult = z
+            .object({
+              code: z.literal(-32603),
+              message: z.string().regex(/VM execution error.*/),
+              data: z.string(),
+            })
+            // @ts-ignore
+            .safeParse(err.cause.cause);
+
+          // QuickNode RPC on Gnosis returns an extra "Reverted " that needs to be removed
+          const prefix = "Reverted ";
+          if (causeParseResult.data?.data.startsWith(prefix)) {
+            causeParseResult.data.data = causeParseResult.data?.data.slice(
+              prefix.length
+            ) as `0x${string}`;
+          }
+        }
+
+        if (!causeParseResult.success) {
+          // @ts-ignore
           throw new Error(JSON.stringify(err.cause));
         }
       }
@@ -478,7 +496,7 @@ export class GasEstimator implements IGasEstimator {
 
       if (decodedError.errorName === "ExecutionResult") {
         const parsedExecutionResult = executionResultSchema.parse(
-          decodedError.args,
+          decodedError.args
         );
         return { result: "execution", data: parsedExecutionResult } as const;
       }
@@ -495,7 +513,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an making eth_call to estimateVerificationGas
    */
   private async estimateVerificationGas(
-    params: EstimateVerificationGasParams,
+    params: EstimateVerificationGasParams
   ): Promise<`0x${string}`> {
     const { userOperation, stateOverrideSet } = params;
 
@@ -557,7 +575,7 @@ export class GasEstimator implements IGasEstimator {
       });
     } catch (error) {
       const err = error as RpcRequestErrorType;
-      const causeParseResult = z
+      let causeParseResult = z
         .object({
           code: z.literal(3),
           message: z.string().regex(/execution reverted.*/),
@@ -565,6 +583,26 @@ export class GasEstimator implements IGasEstimator {
         })
         // @ts-ignore
         .safeParse(err.cause);
+      if (!causeParseResult.success) {
+        // @ts-ignore
+        causeParseResult = z
+          .object({
+            code: z.literal(-32603),
+            message: z.string().regex(/VM execution error.*/),
+            data: z.string(),
+          })
+          // @ts-ignore
+          .safeParse(err.cause.cause);
+
+        // QuickNode RPC on Gnosis returns an extra "Reverted " that needs to be removed
+        const prefix = "Reverted ";
+        if (causeParseResult.data?.data.startsWith(prefix)) {
+          causeParseResult.data.data = causeParseResult.data?.data.slice(
+            prefix.length
+          ) as `0x${string}`;
+        }
+      }
+
       if (!causeParseResult.success) {
         // @ts-ignore
         throw new Error(JSON.stringify(err.cause));
@@ -588,7 +626,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during gas estimation.
    */
   async estimateUserOperationGasWithoutFullEthCallSupport(
-    params: EstimateUserOperationGasParams,
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
