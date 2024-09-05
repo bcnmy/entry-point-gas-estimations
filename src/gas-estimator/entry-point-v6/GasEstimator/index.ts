@@ -8,6 +8,7 @@ import { MantleGasEstimator } from "./MantleGasEstimator";
 import { ScrollGasEstimator } from "./ScrollGasEstimator";
 import { MorphGasEstimator } from "./MorphGasEstimator";
 import { SeiGasEstimator } from "./SeiGasEstimator";
+import { KakarotGasEstimator } from "./KakarotGasEstimator";
 
 /**
  * factory method to create the general gas estimator instance
@@ -144,6 +145,26 @@ export function createSeiGasEstimator(
     }),
   );
   return new SeiGasEstimator({
+    publicClient,
+    ...rest,
+  });
+}
+
+/**
+ * factory method to create the kakarot gas estimator instance
+ * @param {CreateGasEstimatorParams} params config for creating the gas estimator client
+ * @returns {GasEstimator} returns the kakarot gas estimator client
+ */
+export function createKakarotGasEstimator(
+  params: CreateGasEstimatorParams,
+): KakarotGasEstimator {
+  const { rpcUrl, ...rest } = params;
+  const publicClient = new ViemGasEstimatorClient(
+    createPublicClient({
+      transport: http(rpcUrl),
+    }),
+  );
+  return new KakarotGasEstimator({
     publicClient,
     ...rest,
   });
