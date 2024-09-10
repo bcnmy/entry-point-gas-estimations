@@ -2011,33 +2011,33 @@ export const EXECUTE_USER_OP_ABI: AbiFunction[] = [
 ] as const;
 
 export const ENTRY_POINT_SIMULATIONS_ABI = [
-    {
-        inputs: [],
-        stateMutability: "nonpayable",
-        type: "constructor"
-    },
-    {
-        inputs: [
-            {
-                internalType: "address payable",
-                name: "ep",
-                type: "address"
-            },
-            {
-                internalType: "bytes[]",
-                name: "data",
-                type: "bytes[]"
-            }
-        ],
-        name: "simulateEntryPoint",
-        outputs: [
-            {
-                internalType: "bytes[]",
-                name: "",
-                type: "bytes[]"
-            }
-        ],
-        stateMutability: "nonpayable",
-        type: "function"
-    }
-]
+  {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "ep",
+        type: "address",
+      },
+      {
+        internalType: "bytes[]",
+        name: "data",
+        type: "bytes[]",
+      },
+    ],
+    name: "simulateEntryPoint",
+    outputs: [
+      {
+        internalType: "bytes[]",
+        name: "",
+        type: "bytes[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];

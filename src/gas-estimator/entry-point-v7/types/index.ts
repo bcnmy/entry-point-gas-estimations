@@ -6,7 +6,7 @@ import { ENTRY_POINT_ABI } from "../abis";
 const hexDataPattern = /^0x[0-9A-Fa-f]*$/;
 const hexPattern = /^0x[0-9a-f]*$/;
 const addressPattern = /^0x[0-9,a-f,A-F]{40}$/;
-export const hexData32Pattern = /^0x([0-9a-fA-F][0-9a-fA-F]){0,32}$/
+export const hexData32Pattern = /^0x([0-9a-fA-F][0-9a-fA-F]){0,32}$/;
 
 const addressSchema = z
   .string()
@@ -209,26 +209,25 @@ export type SignatureValidationFailed = z.infer<
 export type SenderAddressResult = z.infer<typeof senderAddressResultSchema>;
 
 const hexData32Schema = z
-    .string()
-    .regex(hexData32Pattern, { message: "not valid 32-byte hex data" })
-    .transform((val) => val as Hash)
+  .string()
+  .regex(hexData32Pattern, { message: "not valid 32-byte hex data" })
+  .transform((val) => val as Hash);
 
 const packerUserOperationSchema = z
-    .object({
-        sender: addressSchema,
-        nonce: hexNumberSchema,
-        initCode: hexDataSchema,
-        callData: hexDataSchema,
-        accountGasLimits: hexData32Schema,
-        preVerificationGas: hexNumberSchema,
-        gasFees: hexData32Schema,
-        paymasterAndData: hexDataSchema,
-        signature: hexDataSchema
-    })
-    .strict()
-    .transform((val) => val)
-export type PackedUserOperation = z.infer<typeof packerUserOperationSchema>
-
+  .object({
+    sender: addressSchema,
+    nonce: hexNumberSchema,
+    initCode: hexDataSchema,
+    callData: hexDataSchema,
+    accountGasLimits: hexData32Schema,
+    preVerificationGas: hexNumberSchema,
+    gasFees: hexData32Schema,
+    paymasterAndData: hexDataSchema,
+    signature: hexDataSchema,
+  })
+  .strict()
+  .transform((val) => val);
+export type PackedUserOperation = z.infer<typeof packerUserOperationSchema>;
 
 export type CreateGasEstimatorParams = {
   /**
@@ -252,7 +251,7 @@ export type GasEstimatorParams = {
    * @defaultValue 0x0000000071727De22E5E9d8BAf0edAc6f37da032
    */
   entryPointAddress?: Address;
-  chainId: number
+  chainId: number;
 };
 
 export type UserOperation = {
@@ -357,40 +356,6 @@ export type EstimateCallGasLimitParams = {
   baseFeePerGas?: bigint;
 };
 
-export type SimulateHandleOpParams = {
-  /**
-   * A full user operation
-   */
-  userOperation: UserOperation;
-  /**
-   * A boolean value that decides if to state override the bytecode at the entry point address
-   */
-  replacedEntryPoint: boolean;
-  /**
-   * target address to be passed in the simulateHandleOp call
-   */
-  targetAddress: Address;
-  /**
-   * target call data to be passed in the simulateHandleOp call
-   */
-  targetCallData: HexData;
-  /**
-   * A boolean value that needs to be passed false if the RPC provider does not support state overrides.
-   * @defaultValue true
-   */
-  supportsEthCallStateOverride?: boolean;
-  /**
-   * A boolean values that needs to be passed false if the RPC provider is not consistent in responses when using
-   * bytecode overrides
-   * @defaultValue true
-   */
-  supportsEthCallByteCodeOverride?: boolean;
-  /**
-   * A state override that might be required while making eth_call to simulateHandleOp
-   */
-  stateOverrideSet?: StateOverrideSet;
-};
-
 export type EstimateVerificationGasParams = {
   /**
    * A full user operation
@@ -439,7 +404,7 @@ export type EstimateCallGasLimit = {
 export type EstimatePaymasterGasLimits = {
   paymasterVerificationGasLimit: bigint;
   paymasterPostOpGasLimit: bigint;
-}
+};
 
 export type CalculatePreVerificationGas = {
   preVerificationGas: bigint;
@@ -519,27 +484,44 @@ export const targetCallResultSchema = z.object({
   gasUsed: z.bigint(),
   success: z.boolean(),
   returnData: z
-      .string()
-      .regex(hexPattern)
-      .transform((val) => val as HexData)
-})
+    .string()
+    .regex(hexPattern)
+    .transform((val) => val as HexData),
+});
 
-export type TargetCallResult = z.infer<typeof targetCallResultSchema>
+export type TargetCallResult = z.infer<typeof targetCallResultSchema>;
 
 export type SimulateHandleOpResult<
-    TypeResult extends "failed" | "execution" = "failed" | "execution"
+  TypeResult extends "failed" | "execution" = "failed" | "execution",
 > = {
-    result: TypeResult
-    data: TypeResult extends "failed"
-        ? string
-        : {
-              callDataResult?: TargetCallResult
-              executionResult: ExecutionResult
-          }
-    code?: TypeResult extends "failed" ? number : undefined
-}
+  result: TypeResult;
+  data: TypeResult extends "failed"
+    ? string
+    : {
+        callDataResult?: TargetCallResult;
+        executionResult: ExecutionResult;
+      };
+  code?: TypeResult extends "failed" ? number : undefined;
+};
 
 export enum ExecutionErrors {
-  UserOperationReverted = -32521
+  UserOperationReverted = -32521,
 }
 
+export type SimulateHandleOpParams = {
+  userOperation: UserOperation;
+  supportsEthCallStateOverride: boolean;
+  supportsEthCallByteCodeOverride: boolean;
+  stateOverrideSet?: StateOverrideSet;
+};
+
+export type EstimateVerificationGasAndCallGasLimitsParams = {
+  userOperation: UserOperation;
+  executionResult: ExecutionResult;
+  callDataResult: TargetCallResult;
+};
+
+export type EstimateVerificationGasAndCallGasLimitsResponse = {
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+};

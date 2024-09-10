@@ -16,7 +16,10 @@ import {
   CalculatePreVerificationGasParams,
   EstimateUserOperationGas,
   EstimateUserOperationGasParams,
+  EstimateVerificationGasAndCallGasLimitsParams,
+  EstimateVerificationGasAndCallGasLimitsResponse,
   GasEstimatorParams,
+  SimulateHandleOpParams,
   SimulateHandleOpResult,
   StateOverrideSet,
   VALIDATION_ERRORS,
@@ -66,6 +69,14 @@ export class GasEstimator implements IGasEstimator {
   }
 
   /**
+   * Public method to allow overriding the current entry point address
+   * @param {`0x${string}`} entryPointAddress
+   */
+  public setEntryPointAddress(entryPointAddress: `0x${string}`): void {
+    this.entryPointAddress = entryPointAddress;
+  }
+
+  /**
    * Estimates gas for a user operation.
    *
    * @param {EstimateUserOperationGasArgs} params - Configuration options for gas estimation.
@@ -74,7 +85,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateUserOperationGas(
-    params: EstimateUserOperationGasParams
+    params: EstimateUserOperationGasParams,
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
@@ -91,46 +102,42 @@ export class GasEstimator implements IGasEstimator {
       stateOverrideSet,
     });
 
-    let { verificationGasLimit, callGasLimit } =
-      this.calcVerificationGasAndCallGasLimit(
-        userOperation,
-        result.data.executionResult,
-        this.chainId,
-        result.data.callDataResult
-      );
-
-    if (result.message === "failed") {
+    if (
+      result.result === "failed" ||
+      typeof result.data === "string" ||
+      result.data.callDataResult === undefined
+    ) {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${result.data}`,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
+        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
       );
     }
 
+    let { verificationGasLimit, callGasLimit } =
+      this.estimateVerificationGasAndCallGasLimits({
+        userOperation,
+        executionResult: result.data.executionResult,
+        callDataResult: result.data.callDataResult,
+      });
+
     const { preVerificationGas } = await this.calculatePreVerificationGas({
       userOperation,
-      baseFeePerGas
+      baseFeePerGas,
     });
 
     return {
       verificationGasLimit,
       callGasLimit,
       preVerificationGas,
-      paymasterVerificationGasLimit: result.data.executionResult
-      .paymasterVerificationGasLimit,
-      paymasterPostOpGasLimit: result.data.executionResult
-      .paymasterPostOpGasLimit
-    }
+      paymasterVerificationGasLimit: verificationGasLimit,
+      paymasterPostOpGasLimit: verificationGasLimit,
+    };
   }
 
-  async simulateHandleOp(
-    params: SimulateHandleOpParams
-  ): Promise<SimulateHandleOpResponse> {
-    const {
-      userOperation,
-      supportsEthCallStateOverride,
-      supportsEthCallByteCodeOverride,
-      stateOverrideSet,
-    } = params;
+  private async simulateHandleOp(
+    params: SimulateHandleOpParams,
+  ): Promise<SimulateHandleOpResult> {
+    const { userOperation, stateOverrideSet } = params;
 
     const packedUserOperation = toPackedUserOperation(userOperation);
 
@@ -145,7 +152,7 @@ export class GasEstimator implements IGasEstimator {
     const executeUserOpMethodSig = toFunctionSelector(EXECUTE_USER_OP_ABI[0]);
 
     const callDataMethodSig = toHex(
-      slice(toBytes(packedUserOperation.callData), 0, 4)
+      slice(toBytes(packedUserOperation.callData), 0, 4),
     );
 
     if (executeUserOpMethodSig === callDataMethodSig) {
@@ -157,7 +164,7 @@ export class GasEstimator implements IGasEstimator {
           getUserOperationHash(
             packedUserOperation,
             this.entryPointAddress,
-            this.chainId
+            this.chainId,
           ),
         ],
       });
@@ -180,7 +187,7 @@ export class GasEstimator implements IGasEstimator {
         entryPointSimulationsSimulateHandleOpCallData,
         entryPointSimulationsSimulateTargetCallData,
       ],
-      stateOverrideSet
+      stateOverrideSet,
     );
 
     try {
@@ -214,10 +221,9 @@ export class GasEstimator implements IGasEstimator {
     }
   }
 
-  async callEntryPointSimulations(
+  private async callEntryPointSimulations(
     entryPointSimulationsCallData: Hex[],
-    entryPointSimulationsAddress: Address,
-    stateOverride?: StateOverrideSet
+    stateOverride?: StateOverrideSet,
   ) {
     const callData = encodeFunctionData({
       abi: ENTRY_POINT_SIMULATIONS_ABI,
@@ -230,7 +236,7 @@ export class GasEstimator implements IGasEstimator {
       // @ts-ignore
       params: [
         {
-          to: entryPointSimulationsAddress,
+          to: this.entryPointAddress,
           data: callData,
         },
         // @ts-ignore
@@ -240,7 +246,7 @@ export class GasEstimator implements IGasEstimator {
 
     const returnBytes = decodeAbiParameters(
       [{ name: "ret", type: "bytes[]" }],
-      result
+      result,
     );
 
     return returnBytes[0].map((data: Hex) => {
@@ -256,9 +262,9 @@ export class GasEstimator implements IGasEstimator {
     });
   }
 
-  async estimateVerificationGasAndCallGasLimits(
-    params: EstimateVerificationGasAndCallGasLimitsParams
-  ) {
+  private estimateVerificationGasAndCallGasLimits(
+    params: EstimateVerificationGasAndCallGasLimitsParams,
+  ): EstimateVerificationGasAndCallGasLimitsResponse {
     const { userOperation, executionResult, callDataResult } = params;
     const verificationGasLimit =
       executionResult.preOpGas - userOperation.preVerificationGas;
@@ -281,35 +287,35 @@ export class GasEstimator implements IGasEstimator {
     };
   }
 
-    /**
+  /**
    * Calculates preVerificationGas
    * @param {CalculatePreVerificationGas} params - Configuration options for preVerificationGas
    * @returns {Promise<CalculatePreVerificationGas>} A promise that resolves to an object having the preVerificationGas
    *
    * @throws {Error} If there is an issue during calculating preVerificationGas
    */
-    async calculatePreVerificationGas(
-      params: CalculatePreVerificationGasParams,
-    ): Promise<CalculatePreVerificationGas> {
-      const { userOperation } = params;
-      const packed = toBytes(packUserOp(toPackedUserOperation(userOperation)));
-      const callDataCost = packed
-        .map((x: number) =>
-          x === 0
-            ? defaultGasOverheads.zeroByte
-            : defaultGasOverheads.nonZeroByte,
-        )
-        .reduce((sum: any, x: any) => sum + x);
-      let preVerificationGas = BigInt(
-        Math.round(
-          callDataCost +
-            defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
-            defaultGasOverheads.perUserOp +
-            defaultGasOverheads.perUserOpWord * packed.length,
-        ),
-      );
-      return {
-        preVerificationGas,
-      };
-    }
+  async calculatePreVerificationGas(
+    params: CalculatePreVerificationGasParams,
+  ): Promise<CalculatePreVerificationGas> {
+    const { userOperation } = params;
+    const packed = toBytes(packUserOp(toPackedUserOperation(userOperation)));
+    const callDataCost = packed
+      .map((x: number) =>
+        x === 0
+          ? defaultGasOverheads.zeroByte
+          : defaultGasOverheads.nonZeroByte,
+      )
+      .reduce((sum: any, x: any) => sum + x);
+    let preVerificationGas = BigInt(
+      Math.round(
+        callDataCost +
+          defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
+          defaultGasOverheads.perUserOp +
+          defaultGasOverheads.perUserOpWord * packed.length,
+      ),
+    );
+    return {
+      preVerificationGas,
+    };
+  }
 }

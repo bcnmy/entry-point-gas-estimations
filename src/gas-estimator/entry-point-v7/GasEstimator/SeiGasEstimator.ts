@@ -42,7 +42,8 @@ export class SeiGasEstimator extends GasEstimator implements IGasEstimator {
     userOperation.maxPriorityFeePerGas =
       MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE;
     userOperation.preVerificationGas = SEI_PRE_VERIFICATION_GAS_OVERRIDE_VALUE;
-    userOperation.verificationGasLimit = SEI_VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE;
+    userOperation.verificationGasLimit =
+      SEI_VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE;
     userOperation.callGasLimit = SEI_CALL_GAS_LIMIT_OVERRIDE_VALUE;
 
     const simulateHandleOpResponse = await this.simulateHandleOp({
