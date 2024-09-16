@@ -235,10 +235,14 @@ export type CreateGasEstimatorParams = {
    */
   rpcUrl: string;
   /**
-   * v0.6 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
-   * @defaultValue 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * v0.7 entry point address to be passed if not deployed at 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789
+   * @defaultValue 0x0000000071727De22E5E9d8BAf0edAc6f37da032
    */
   entryPointAddress?: Address;
+  /**
+   * chainId of the network on which gas limits are being estimated
+   */
+  chainId: number;
 };
 
 export type GasEstimatorParams = {
@@ -247,10 +251,13 @@ export type GasEstimatorParams = {
    */
   publicClient: IRPCClient;
   /**
-   * v0.6 entry point address to be passed if not deployed at 0x0000000071727De22E5E9d8BAf0edAc6f37da032
+   * v0.7 entry point address to be passed if not deployed at 0x0000000071727De22E5E9d8BAf0edAc6f37da032
    * @defaultValue 0x0000000071727De22E5E9d8BAf0edAc6f37da032
    */
   entryPointAddress?: Address;
+  /**
+   * chainId of the network on which gas limits are being estimated
+   */
   chainId: number;
 };
 

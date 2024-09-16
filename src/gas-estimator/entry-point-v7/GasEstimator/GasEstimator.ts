@@ -34,7 +34,8 @@ import {
 } from "../utils";
 import {
   ENTRY_POINT_ABI,
-  ENTRY_POINT_SIMULATIONS_ABI,
+  ENTRY_POINT_SIMULATIONS_ABI_ONE,
+  ENTRY_POINT_SIMULATIONS_ABI_TWO,
   EXECUTE_USER_OP_ABI,
 } from "../abis";
 
@@ -142,7 +143,7 @@ export class GasEstimator implements IGasEstimator {
     const packedUserOperation = toPackedUserOperation(userOperation);
 
     const entryPointSimulationsSimulateHandleOpCallData = encodeFunctionData({
-      abi: ENTRY_POINT_ABI,
+      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
       functionName: "simulateHandleOpLast",
       args: [[packedUserOperation]],
     });
@@ -173,7 +174,7 @@ export class GasEstimator implements IGasEstimator {
     }
 
     const entryPointSimulationsSimulateTargetCallData = encodeFunctionData({
-      abi: ENTRY_POINT_ABI,
+      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
       functionName: "simulateCallDataLast",
       args: [
         [packedUserOperation],
@@ -226,10 +227,12 @@ export class GasEstimator implements IGasEstimator {
     stateOverride?: StateOverrideSet,
   ) {
     const callData = encodeFunctionData({
-      abi: ENTRY_POINT_SIMULATIONS_ABI,
+      abi: ENTRY_POINT_SIMULATIONS_ABI_TWO,
       functionName: "simulateEntryPoint",
       args: [this.entryPointAddress, entryPointSimulationsCallData],
     });
+
+    console.log("Before eth_call");
 
     const result = (await this.publicClient.request({
       method: "eth_call",
@@ -243,6 +246,8 @@ export class GasEstimator implements IGasEstimator {
         ...(stateOverride ? [stateOverride] : []),
       ],
     })) as unknown as Hex;
+
+    console.log("After eth_call");
 
     const returnBytes = decodeAbiParameters(
       [{ name: "ret", type: "bytes[]" }],
@@ -262,21 +267,31 @@ export class GasEstimator implements IGasEstimator {
     });
   }
 
+  /**
+   * Estimates verificationGasLimit and callGasLimit
+   *
+   * @param {EstimateVerificationGasAndCallGasLimitsParams} params - Configuration options for gas estimation for verificationGasLimit and callGasLimit.
+   * @returns {Promise<EstimateUserOperationGas>} A promise that resolves to the estimated verificationGasLimit and callGasLimit.
+   *
+   * @throws {Error | RpcError} If there is an issue during gas estimation.
+   */
   private estimateVerificationGasAndCallGasLimits(
     params: EstimateVerificationGasAndCallGasLimitsParams,
   ): EstimateVerificationGasAndCallGasLimitsResponse {
     const { userOperation, executionResult, callDataResult } = params;
+    // EntryPoint returns a preOpGas that is the pre-operation gas
+    // It has both the validation gas and the preVerificationGas
+    // So we need to subtract the preVerificationGas from this to get the valdiation step gas
+    // which is the verificationGasLimit
     const verificationGasLimit =
       executionResult.preOpGas - userOperation.preVerificationGas;
 
-    let gasPrice: bigint;
+    // gas price for calculation is assumed to be the maxFeePerGas
+    let gasPrice = userOperation.maxFeePerGas;
 
-    if (userOperation.maxPriorityFeePerGas === userOperation.maxFeePerGas) {
-      gasPrice = userOperation.maxFeePerGas;
-    } else {
-      gasPrice = userOperation.maxFeePerGas;
-    }
-
+    // paid field stores the fee paid for full op
+    // dividing by gas gives us the gas used for the full up
+    // subtracting by the pre-operation gas gives us the call data execution step gas
     const callGasLimit =
       callDataResult?.gasUsed ??
       executionResult.paid / gasPrice - executionResult.preOpGas;
@@ -299,6 +314,7 @@ export class GasEstimator implements IGasEstimator {
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
     const packed = toBytes(packUserOp(toPackedUserOperation(userOperation)));
+    // we calculate the user operation's call data cost by the 0s and non 0s
     const callDataCost = packed
       .map((x: number) =>
         x === 0
@@ -306,6 +322,7 @@ export class GasEstimator implements IGasEstimator {
           : defaultGasOverheads.nonZeroByte,
       )
       .reduce((sum: any, x: any) => sum + x);
+    // Using the default overheads of the chain we calculate the static preVerificationGas
     let preVerificationGas = BigInt(
       Math.round(
         callDataCost +

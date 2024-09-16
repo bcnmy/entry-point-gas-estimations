@@ -20,7 +20,7 @@ import {
   UserOperation,
   VALIDATION_ERRORS,
 } from "../types";
-import { ENTRY_POINT_ABI } from "../abis";
+import { ENTRY_POINT_ABI, ENTRY_POINT_SIMULATIONS_ABI_ONE } from "../abis";
 
 export class RpcError extends Error {
   code?: number;
@@ -215,7 +215,7 @@ export function getSimulateHandleOpResult(data: Hex): SimulateHandleOpResult {
   } catch {
     // no error we go the result
     const decodedResult: ExecutionResult = decodeFunctionResult({
-      abi: ENTRY_POINT_ABI,
+      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
       functionName: "simulateHandleOp",
       data,
     }) as unknown as ExecutionResult;
@@ -277,7 +277,7 @@ export function validateTargetCallDataResult(data: Hex):
     } {
   try {
     const targetCallResult = decodeFunctionResult({
-      abi: ENTRY_POINT_ABI,
+      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
       functionName: "simulateCallData",
       data: data,
     });

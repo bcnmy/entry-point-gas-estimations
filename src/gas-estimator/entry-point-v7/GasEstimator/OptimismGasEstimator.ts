@@ -9,7 +9,7 @@ import {
   CalculatePreVerificationGasParams,
   CalculatePreVerificationGas,
 } from "../types";
-import { RpcError, packUserOp } from "../utils";
+import { RpcError, packUserOp, toPackedUserOperation } from "../utils";
 import { GasEstimator } from "./GasEstimator";
 
 /**
@@ -32,7 +32,7 @@ export class OptimismGasEstimator
     params: CalculatePreVerificationGasParams,
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation, baseFeePerGas } = params;
-    const packed = toBytes(packUserOp(userOperation, false));
+    const packed = toBytes(packUserOp(toPackedUserOperation(userOperation)));
     const callDataCost = packed
       .map((x: number) =>
         x === 0
@@ -55,7 +55,7 @@ export class OptimismGasEstimator
     const handleOpsData = encodeFunctionData({
       abi: ENTRY_POINT_ABI,
       functionName: "handleOps",
-      args: [[userOperation], userOperation.sender],
+      args: [[toPackedUserOperation(userOperation)], userOperation.sender],
     });
 
     const l1Fee = (await this.publicClient.readContract({
