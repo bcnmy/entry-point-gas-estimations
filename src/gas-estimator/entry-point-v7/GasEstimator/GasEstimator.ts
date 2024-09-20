@@ -41,7 +41,7 @@ import {
 
 /**
  * @remarks
- * GasEstimator class exposes methods to calculate gas limits for EntryPoint v0.6 compatible userOps
+ * GasEstimator class exposes methods to calculate gas limits for EntryPoint v0.7 compatible userOps
  */
 export class GasEstimator implements IGasEstimator {
   /**
