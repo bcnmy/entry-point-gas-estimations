@@ -96,6 +96,11 @@ export class GasEstimator implements IGasEstimator {
       baseFeePerGas,
     } = params;
 
+    // Setting maxPriorityFeePerGas to maxFeePerGas as we don't want the estimations
+    // to depend on the variable baseFeePerGas
+    // baseFeePerGas is only going to be used for Optimism Based Networks while calculating
+    // their preVerificationGas
+
     const result = await this.simulateHandleOp({
       userOperation,
       supportsEthCallStateOverride,
