@@ -29,16 +29,16 @@ export const executionResultSchema = z
   .tuple([
     z.bigint(),
     z.bigint(),
-    z.number(),
-    z.number(),
+    z.bigint(),
+    z.bigint(),
     z.boolean(),
     z.string().regex(hexPattern),
   ])
   .transform((val) => ({
     preOpGas: val[0],
     paid: val[1],
-    validAfter: val[2],
-    validUntil: val[3],
+    accountValidationData: val[2],
+    paymasterValidationData: val[3],
     targetSuccess: val[4],
     targetResult: val[5] as HexData,
   }));
@@ -464,20 +464,12 @@ export type EthCallParams = [
 ];
 
 export type EthCallResponse =
-  | {
+{
       id: number;
       jsonrpc: string;
       data: `0x${string}`;
     }
-  | {
-      id: number;
-      jsonrpc: string;
-      error: {
-        code: number;
-        message: string;
-        data: `0x${string}`;
-      };
-    };
+  
 
 export type JSONRPCParams = EthCallParams;
 export type JSONRPCResponse = EthCallResponse;
@@ -498,18 +490,7 @@ export const targetCallResultSchema = z.object({
 
 export type TargetCallResult = z.infer<typeof targetCallResultSchema>;
 
-export type SimulateHandleOpResult<
-  TypeResult extends "failed" | "execution" = "failed" | "execution",
-> = {
-  result: TypeResult;
-  data: TypeResult extends "failed"
-    ? string
-    : {
-        callDataResult?: TargetCallResult;
-        executionResult: ExecutionResult;
-      };
-  code?: TypeResult extends "failed" ? number : undefined;
-};
+export type SimulateHandleOpResult = ExecutionResult
 
 export enum ExecutionErrors {
   UserOperationReverted = -32521,
@@ -524,8 +505,7 @@ export type SimulateHandleOpParams = {
 
 export type EstimateVerificationGasAndCallGasLimitsParams = {
   userOperation: UserOperation;
-  executionResult: ExecutionResult;
-  callDataResult: TargetCallResult;
+  simulateHandleOpResult: ExecutionResult
 };
 
 export type EstimateVerificationGasAndCallGasLimitsResponse = {

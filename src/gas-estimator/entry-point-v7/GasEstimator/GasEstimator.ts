@@ -1,17 +1,15 @@
 import {
-  decodeAbiParameters,
-  decodeErrorResult,
+  decodeFunctionResult,
   encodeFunctionData,
   Hex,
-  slice,
   toBytes,
-  toFunctionSelector,
   toHex,
 } from "viem";
-import { DEFAULT_ENTRY_POINT_ADDRESS, defaultGasOverheads } from "../constants";
+import { DEFAULT_ENTRY_POINT_ADDRESS, defaultGasOverheads, EntryPointSimulationsDeployBytecode } from "../constants";
 import { IGasEstimator, IRPCClient } from "../interface";
 import {
   Address,
+  BlockNumberTag,
   CalculatePreVerificationGas,
   CalculatePreVerificationGasParams,
   EstimateUserOperationGas,
@@ -22,21 +20,13 @@ import {
   SimulateHandleOpParams,
   SimulateHandleOpResult,
   StateOverrideSet,
-  VALIDATION_ERRORS,
 } from "../types";
 import {
-  getSimulateHandleOpResult,
-  getUserOperationHash,
   packUserOp,
-  RpcError,
   toPackedUserOperation,
-  validateTargetCallDataResult,
 } from "../utils";
 import {
-  ENTRY_POINT_ABI,
-  ENTRY_POINT_SIMULATIONS_ABI_ONE,
-  ENTRY_POINT_SIMULATIONS_ABI_TWO,
-  EXECUTE_USER_OP_ABI,
+  ENTRY_POINT_SIMULATIONS_ABI,
 } from "../abis";
 
 /**
@@ -101,29 +91,17 @@ export class GasEstimator implements IGasEstimator {
     // baseFeePerGas is only going to be used for Optimism Based Networks while calculating
     // their preVerificationGas
 
-    const result = await this.simulateHandleOp({
+    const simulateHandleOpResult = await this.simulateHandleOp({
       userOperation,
       supportsEthCallStateOverride,
       supportsEthCallByteCodeOverride,
       stateOverrideSet,
     });
 
-    if (
-      result.result === "failed" ||
-      typeof result.data === "string" ||
-      result.data.callDataResult === undefined
-    ) {
-      throw new RpcError(
-        `UserOperation reverted during simulation with reason: ${result.data}`,
-        VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      );
-    }
-
     let { verificationGasLimit, callGasLimit } =
       this.estimateVerificationGasAndCallGasLimits({
         userOperation,
-        executionResult: result.data.executionResult,
-        callDataResult: result.data.callDataResult,
+        simulateHandleOpResult,
       });
 
     const { preVerificationGas } = await this.calculatePreVerificationGas({
@@ -140,6 +118,11 @@ export class GasEstimator implements IGasEstimator {
     };
   }
 
+  /**
+   * Method calls the EntryPointSimulations contract's simulateHandleOp
+   * @param {SimulateHandleOpParams} params - userOperation and the stateOverrideSet
+   * @returns {Promise<>} 
+   */
   private async simulateHandleOp(
     params: SimulateHandleOpParams,
   ): Promise<SimulateHandleOpResult> {
@@ -147,129 +130,63 @@ export class GasEstimator implements IGasEstimator {
 
     const packedUserOperation = toPackedUserOperation(userOperation);
 
-    const entryPointSimulationsSimulateHandleOpCallData = encodeFunctionData({
-      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
-      functionName: "simulateHandleOpLast",
-      args: [[packedUserOperation]],
+    const simulateHandleOpCallData = encodeFunctionData({
+      abi: ENTRY_POINT_SIMULATIONS_ABI,
+      functionName: "simulateHandleOp",
+      args: [packedUserOperation, "0x0000000000000000000000000000000000000000", "0x"],
     });
 
-    let packedUserOperationCallData;
+    const ethCallFinalParam: StateOverrideSet = {
+      [userOperation.sender]: {
+        balance: toHex(100000_000000000000000000n),
+      },
+      [this.entryPointAddress]: {
+        code: EntryPointSimulationsDeployBytecode,
+      },
+    };
 
-    const executeUserOpMethodSig = toFunctionSelector(EXECUTE_USER_OP_ABI[0]);
-
-    const callDataMethodSig = toHex(
-      slice(toBytes(packedUserOperation.callData), 0, 4),
-    );
-
-    if (executeUserOpMethodSig === callDataMethodSig) {
-      packedUserOperationCallData = encodeFunctionData({
-        abi: EXECUTE_USER_OP_ABI,
-        functionName: "executeUserOp",
-        args: [
-          packedUserOperation,
-          getUserOperationHash(
-            packedUserOperation,
-            this.entryPointAddress,
-            this.chainId,
-          ),
-        ],
-      });
-    } else {
-      packedUserOperationCallData = packedUserOperation.callData;
+    for (const stateOverrideKey in stateOverrideSet) {
+      if (
+        stateOverrideKey.toLowerCase() === this.entryPointAddress.toLowerCase()
+      ) {
+        const { balance, state, stateDiff, nonce } =
+          stateOverrideSet[stateOverrideKey];
+        ethCallFinalParam[this.entryPointAddress] = {
+          code: EntryPointSimulationsDeployBytecode,
+          balance,
+          nonce,
+          state,
+          stateDiff,
+        };
+      } else {
+        ethCallFinalParam[stateOverrideKey] =
+          stateOverrideSet[stateOverrideKey];
+      }
     }
 
-    const entryPointSimulationsSimulateTargetCallData = encodeFunctionData({
-      abi: ENTRY_POINT_SIMULATIONS_ABI_ONE,
-      functionName: "simulateCallDataLast",
-      args: [
-        [packedUserOperation],
-        [packedUserOperation.sender],
-        [packedUserOperationCallData],
-      ],
-    });
-
-    const cause = await this.callEntryPointSimulations(
-      [
-        entryPointSimulationsSimulateHandleOpCallData,
-        entryPointSimulationsSimulateTargetCallData,
-      ],
-      stateOverrideSet,
-    );
-
-    try {
-      const executionResult = getSimulateHandleOpResult(cause[0]);
-
-      if (executionResult.result === "failed") {
-        return executionResult;
-      }
-
-      const targetCallValidationResult = validateTargetCallDataResult(cause[1]);
-
-      if (targetCallValidationResult.result === "failed") {
-        return targetCallValidationResult;
-      }
-
-      return {
-        result: "execution",
-        data: {
-          callDataResult: targetCallValidationResult.data,
-          executionResult: (
-            executionResult as SimulateHandleOpResult<"execution">
-          ).data.executionResult,
-        },
-      };
-    } catch (e) {
-      return {
-        result: "failed",
-        data: "Unknown error, could not parse simulate handle op result.",
-        code: VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
-      };
-    }
-  }
-
-  private async callEntryPointSimulations(
-    entryPointSimulationsCallData: Hex[],
-    stateOverride?: StateOverrideSet,
-  ) {
-    const callData = encodeFunctionData({
-      abi: ENTRY_POINT_SIMULATIONS_ABI_TWO,
-      functionName: "simulateEntryPoint",
-      args: [this.entryPointAddress, entryPointSimulationsCallData],
-    });
-
-    console.log("Before eth_call");
-
-    const result = (await this.publicClient.request({
+    const ethCallResult = await this.publicClient.request({
       method: "eth_call",
-      // @ts-ignore
       params: [
         {
           to: this.entryPointAddress,
-          data: callData,
+          data: simulateHandleOpCallData
         },
+        BlockNumberTag.LATEST,
         // @ts-ignore
-        ...(stateOverride ? [stateOverride] : []),
+        ethCallFinalParam,
       ],
-    })) as unknown as Hex;
+    }); 
 
-    console.log("After eth_call");
+    // console.log("ethCallResult", ethCallResult);
 
-    const returnBytes = decodeAbiParameters(
-      [{ name: "ret", type: "bytes[]" }],
-      result,
-    );
 
-    return returnBytes[0].map((data: Hex) => {
-      const decodedDelegateAndError = decodeErrorResult({
-        abi: ENTRY_POINT_ABI,
-        data: data,
-      });
-
-      if (!decodedDelegateAndError?.args?.[1]) {
-        throw new Error("Unexpected error");
-      }
-      return decodedDelegateAndError.args[1] as Hex;
+    const decodedResult = decodeFunctionResult({
+      abi: ENTRY_POINT_SIMULATIONS_ABI,
+      functionName: "simulateHandleOp",
+      data: ethCallResult as unknown as `0x${string}`,
     });
+    
+    return decodedResult;
   }
 
   /**
@@ -283,13 +200,13 @@ export class GasEstimator implements IGasEstimator {
   private estimateVerificationGasAndCallGasLimits(
     params: EstimateVerificationGasAndCallGasLimitsParams,
   ): EstimateVerificationGasAndCallGasLimitsResponse {
-    const { userOperation, executionResult, callDataResult } = params;
+    const { userOperation, simulateHandleOpResult } = params;
     // EntryPoint returns a preOpGas that is the pre-operation gas
     // It has both the validation gas and the preVerificationGas
     // So we need to subtract the preVerificationGas from this to get the valdiation step gas
     // which is the verificationGasLimit
     const verificationGasLimit =
-      executionResult.preOpGas - userOperation.preVerificationGas;
+    simulateHandleOpResult.preOpGas - userOperation.preVerificationGas;
 
     // gas price for calculation is assumed to be the maxFeePerGas
     let gasPrice = userOperation.maxFeePerGas;
@@ -298,8 +215,7 @@ export class GasEstimator implements IGasEstimator {
     // dividing by gas gives us the gas used for the full up
     // subtracting by the pre-operation gas gives us the call data execution step gas
     const callGasLimit =
-      callDataResult?.gasUsed ??
-      executionResult.paid / gasPrice - executionResult.preOpGas;
+      simulateHandleOpResult.paid / gasPrice - simulateHandleOpResult.preOpGas;
 
     return {
       verificationGasLimit,
