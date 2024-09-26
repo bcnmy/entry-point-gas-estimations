@@ -6,10 +6,7 @@ import {
   pad,
   toHex,
 } from "viem";
-import {
-  PackedUserOperation,
-  UserOperation,
-} from "../types";
+import { PackedUserOperation, UserOperation } from "../types";
 
 export class RpcError extends Error {
   code?: number;

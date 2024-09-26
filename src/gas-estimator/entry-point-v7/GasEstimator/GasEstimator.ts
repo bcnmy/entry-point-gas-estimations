@@ -5,7 +5,11 @@ import {
   toBytes,
   toHex,
 } from "viem";
-import { DEFAULT_ENTRY_POINT_ADDRESS, defaultGasOverheads, EntryPointSimulationsDeployBytecode } from "../constants";
+import {
+  DEFAULT_ENTRY_POINT_ADDRESS,
+  defaultGasOverheads,
+  EntryPointSimulationsDeployBytecode,
+} from "../constants";
 import { IGasEstimator, IRPCClient } from "../interface";
 import {
   Address,
@@ -21,13 +25,8 @@ import {
   SimulateHandleOpResult,
   StateOverrideSet,
 } from "../types";
-import {
-  packUserOp,
-  toPackedUserOperation,
-} from "../utils";
-import {
-  ENTRY_POINT_SIMULATIONS_ABI,
-} from "../abis";
+import { packUserOp, toPackedUserOperation } from "../utils";
+import { ENTRY_POINT_SIMULATIONS_ABI } from "../abis";
 
 /**
  * @remarks
@@ -88,6 +87,7 @@ export class GasEstimator implements IGasEstimator {
 
     // Setting maxPriorityFeePerGas to maxFeePerGas as we don't want the estimations
     // to depend on the variable baseFeePerGas
+    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
     // baseFeePerGas is only going to be used for Optimism Based Networks while calculating
     // their preVerificationGas
 
@@ -121,7 +121,7 @@ export class GasEstimator implements IGasEstimator {
   /**
    * Method calls the EntryPointSimulations contract's simulateHandleOp
    * @param {SimulateHandleOpParams} params - userOperation and the stateOverrideSet
-   * @returns {Promise<>} 
+   * @returns {Promise<>}
    */
   private async simulateHandleOp(
     params: SimulateHandleOpParams,
@@ -133,7 +133,11 @@ export class GasEstimator implements IGasEstimator {
     const simulateHandleOpCallData = encodeFunctionData({
       abi: ENTRY_POINT_SIMULATIONS_ABI,
       functionName: "simulateHandleOp",
-      args: [packedUserOperation, "0x0000000000000000000000000000000000000000", "0x"],
+      args: [
+        packedUserOperation,
+        "0x0000000000000000000000000000000000000000",
+        "0x",
+      ],
     });
 
     const ethCallFinalParam: StateOverrideSet = {
@@ -169,23 +173,20 @@ export class GasEstimator implements IGasEstimator {
       params: [
         {
           to: this.entryPointAddress,
-          data: simulateHandleOpCallData
+          data: simulateHandleOpCallData,
         },
         BlockNumberTag.LATEST,
         // @ts-ignore
         ethCallFinalParam,
       ],
-    }); 
-
-    // console.log("ethCallResult", ethCallResult);
-
+    });
 
     const decodedResult = decodeFunctionResult({
       abi: ENTRY_POINT_SIMULATIONS_ABI,
       functionName: "simulateHandleOp",
       data: ethCallResult as unknown as `0x${string}`,
     });
-    
+
     return decodedResult;
   }
 
@@ -206,7 +207,7 @@ export class GasEstimator implements IGasEstimator {
     // So we need to subtract the preVerificationGas from this to get the valdiation step gas
     // which is the verificationGasLimit
     const verificationGasLimit =
-    simulateHandleOpResult.preOpGas - userOperation.preVerificationGas;
+      simulateHandleOpResult.preOpGas - userOperation.preVerificationGas;
 
     // gas price for calculation is assumed to be the maxFeePerGas
     let gasPrice = userOperation.maxFeePerGas;

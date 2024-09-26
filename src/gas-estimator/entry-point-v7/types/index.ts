@@ -463,13 +463,11 @@ export type EthCallParams = [
   StateOverrideSet,
 ];
 
-export type EthCallResponse =
-{
-      id: number;
-      jsonrpc: string;
-      data: `0x${string}`;
-    }
-  
+export type EthCallResponse = {
+  id: number;
+  jsonrpc: string;
+  data: `0x${string}`;
+};
 
 export type JSONRPCParams = EthCallParams;
 export type JSONRPCResponse = EthCallResponse;
@@ -490,7 +488,7 @@ export const targetCallResultSchema = z.object({
 
 export type TargetCallResult = z.infer<typeof targetCallResultSchema>;
 
-export type SimulateHandleOpResult = ExecutionResult
+export type SimulateHandleOpResult = ExecutionResult;
 
 export enum ExecutionErrors {
   UserOperationReverted = -32521,
@@ -505,7 +503,7 @@ export type SimulateHandleOpParams = {
 
 export type EstimateVerificationGasAndCallGasLimitsParams = {
   userOperation: UserOperation;
-  simulateHandleOpResult: ExecutionResult
+  simulateHandleOpResult: ExecutionResult;
 };
 
 export type EstimateVerificationGasAndCallGasLimitsResponse = {
