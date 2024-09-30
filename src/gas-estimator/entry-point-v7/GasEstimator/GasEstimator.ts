@@ -1,7 +1,9 @@
 import {
+  decodeErrorResult,
   decodeFunctionResult,
   encodeFunctionData,
   Hex,
+  RpcRequestErrorType,
   toBytes,
   toHex,
 } from "viem";
@@ -21,12 +23,14 @@ import {
   EstimateVerificationGasAndCallGasLimitsParams,
   EstimateVerificationGasAndCallGasLimitsResponse,
   GasEstimatorParams,
+  hexDataSchema,
   SimulateHandleOpParams,
   SimulateHandleOpResult,
   StateOverrideSet,
 } from "../types";
-import { packUserOp, toPackedUserOperation } from "../utils";
-import { ENTRY_POINT_SIMULATIONS_ABI } from "../abis";
+import { handleFailedOp, packUserOp, toPackedUserOperation } from "../utils";
+import { ENTRY_POINT_ABI, ENTRY_POINT_SIMULATIONS_ABI } from "../abis";
+import { z } from "zod";
 
 /**
  * @remarks
@@ -98,6 +102,10 @@ export class GasEstimator implements IGasEstimator {
       stateOverrideSet,
     });
 
+    if (!simulateHandleOpResult) {
+      throw new Error("Error in estimating gas via simulateHandleOp");
+    }
+
     let { verificationGasLimit, callGasLimit } =
       this.estimateVerificationGasAndCallGasLimits({
         userOperation,
@@ -121,11 +129,11 @@ export class GasEstimator implements IGasEstimator {
   /**
    * Method calls the EntryPointSimulations contract's simulateHandleOp
    * @param {SimulateHandleOpParams} params - userOperation and the stateOverrideSet
-   * @returns {Promise<>}
+   * @returns {Promise<SimulateHandleOpResult>}
    */
   private async simulateHandleOp(
     params: SimulateHandleOpParams,
-  ): Promise<SimulateHandleOpResult> {
+  ): Promise<SimulateHandleOpResult | void> {
     const { userOperation, stateOverrideSet } = params;
 
     const packedUserOperation = toPackedUserOperation(userOperation);
@@ -168,26 +176,51 @@ export class GasEstimator implements IGasEstimator {
       }
     }
 
-    const ethCallResult = await this.publicClient.request({
-      method: "eth_call",
-      params: [
-        {
-          to: this.entryPointAddress,
-          data: simulateHandleOpCallData,
-        },
-        BlockNumberTag.LATEST,
+    try {
+      const ethCallResult = await this.publicClient.request({
+        method: "eth_call",
+        params: [
+          {
+            to: this.entryPointAddress,
+            data: simulateHandleOpCallData,
+          },
+          BlockNumberTag.LATEST,
+          // @ts-ignore
+          ethCallFinalParam,
+        ],
+      });
+
+      const decodedResult = decodeFunctionResult({
+        abi: ENTRY_POINT_SIMULATIONS_ABI,
+        functionName: "simulateHandleOp",
+        data: ethCallResult as unknown as `0x${string}`,
+      });
+
+      return decodedResult;
+    } catch (error) {
+      const err = error as RpcRequestErrorType;
+      let causeParseResult = z
+        .object({
+          code: z.literal(3),
+          message: z.string().regex(/execution reverted.*/),
+          data: hexDataSchema,
+        })
         // @ts-ignore
-        ethCallFinalParam,
-      ],
-    });
+        .safeParse(err.cause);
 
-    const decodedResult = decodeFunctionResult({
-      abi: ENTRY_POINT_SIMULATIONS_ABI,
-      functionName: "simulateHandleOp",
-      data: ethCallResult as unknown as `0x${string}`,
-    });
+      if (!causeParseResult.success) {
+        // @ts-ignore
+        throw new Error(JSON.stringify(err.cause));
+      }
+      const cause = causeParseResult.data;
 
-    return decodedResult;
+      const decodedError = decodeErrorResult({
+        abi: ENTRY_POINT_ABI,
+        data: cause.data,
+      });
+
+      return handleFailedOp(decodedError.args[1] as string);
+    }
   }
 
   /**

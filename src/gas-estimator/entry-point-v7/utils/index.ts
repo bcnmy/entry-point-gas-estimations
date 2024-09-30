@@ -6,7 +6,11 @@ import {
   pad,
   toHex,
 } from "viem";
-import { PackedUserOperation, UserOperation } from "../types";
+import {
+  PackedUserOperation,
+  UserOperation,
+  VALIDATION_ERRORS,
+} from "../types";
 
 export class RpcError extends Error {
   code?: number;
@@ -189,4 +193,57 @@ export function packUserOp(op: PackedUserOperation): `0x${string}` {
       op.signature,
     ],
   );
+}
+
+export function handleFailedOp(revertReason: string) {
+  revertReason = removeSpecialCharacters(revertReason);
+  if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA3")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA9")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
+    );
+  } else if (revertReason.includes("AA4")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  } else if (revertReason.includes("AA")) {
+    throw new RpcError(
+      revertReason,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    );
+  }
+  throw new RpcError(
+    "UserOperation reverted during execution phase",
+    VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+  );
+}
+
+function removeSpecialCharacters(input: string): string {
+  const match = input.match(/AA(\d+)\s(.+)/);
+
+  if (match) {
+    const errorCode = match[1]; // e.g., "25"
+    const errorMessage = match[2]; // e.g., "invalid account nonce"
+    const newMatch = `AA${errorCode} ${errorMessage}`.match(
+      // eslint-disable-next-line no-control-regex
+      /AA.*?(?=\\u|\u0000)/,
+    );
+    if (newMatch) {
+      const extractedString = newMatch[0];
+      return extractedString;
+    }
+    return `AA${errorCode} ${errorMessage}`;
+  }
+  return input;
 }
