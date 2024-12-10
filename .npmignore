@@ -10,7 +10,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Caches 
+# Caches
 
 .cache
 
@@ -172,3 +172,6 @@ out
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Random scripts not to push
+dont-commit
