@@ -79,7 +79,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   async estimateUserOperationGas(
-    params: EstimateUserOperationGasParams,
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
@@ -132,7 +132,7 @@ export class GasEstimator implements IGasEstimator {
    * @returns {Promise<SimulateHandleOpResult>}
    */
   private async simulateHandleOp(
-    params: SimulateHandleOpParams,
+    params: SimulateHandleOpParams
   ): Promise<SimulateHandleOpResult | void> {
     const { userOperation, stateOverrideSet } = params;
 
@@ -232,7 +232,7 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error | RpcError} If there is an issue during gas estimation.
    */
   private estimateVerificationGasAndCallGasLimits(
-    params: EstimateVerificationGasAndCallGasLimitsParams,
+    params: EstimateVerificationGasAndCallGasLimitsParams
   ): EstimateVerificationGasAndCallGasLimitsResponse {
     const { userOperation, simulateHandleOpResult } = params;
     // EntryPoint returns a preOpGas that is the pre-operation gas
@@ -265,16 +265,14 @@ export class GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during calculating preVerificationGas
    */
   async calculatePreVerificationGas(
-    params: CalculatePreVerificationGasParams,
+    params: CalculatePreVerificationGasParams
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
     const packed = toBytes(packUserOp(toPackedUserOperation(userOperation)));
     // we calculate the user operation's call data cost by the 0s and non 0s
     const callDataCost = packed
       .map((x: number) =>
-        x === 0
-          ? defaultGasOverheads.zeroByte
-          : defaultGasOverheads.nonZeroByte,
+        x === 0 ? defaultGasOverheads.zeroByte : defaultGasOverheads.nonZeroByte
       )
       .reduce((sum: any, x: any) => sum + x);
     // Using the default overheads of the chain we calculate the static preVerificationGas
@@ -283,8 +281,8 @@ export class GasEstimator implements IGasEstimator {
         callDataCost +
           defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
           defaultGasOverheads.perUserOp +
-          defaultGasOverheads.perUserOpWord * packed.length,
-      ),
+          defaultGasOverheads.perUserOpWord * packed.length
+      )
     );
     return {
       preVerificationGas,
