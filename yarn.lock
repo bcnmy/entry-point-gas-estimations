@@ -945,10 +945,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@biconomy/sdk@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@biconomy/sdk/-/sdk-0.0.14.tgz#ecb508033197326d0442612f670a618422eb4887"
-  integrity sha512-6y1pLCP0GSLboEkKs8OSGPeiRXJTJhOWf59xkV2D5oga9TEuLiDUQpRiMmtcO1h72jLB6oV4pzOjDThFkCfRKw==
+"@biconomy/sdk@^0.0.17":
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/@biconomy/sdk/-/sdk-0.0.17.tgz#6244472fe8b571c634de7818cbf227fb7ae1b635"
+  integrity sha512-7vuLhq5raY2GUiZlXmfgI1P9dnBdCDjx8a7WvqpkWFeZwgx0ODmmQSr2zDwc/C1F3JsdfX9j9YXHQVUWgUG/ag==
   dependencies:
     "@silencelaboratories/walletprovider-sdk" "^0.3.0"
 

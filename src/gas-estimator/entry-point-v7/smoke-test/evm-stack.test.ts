@@ -27,6 +27,10 @@ import { createNexusClient } from "@biconomy/sdk";
 import { UserOperation as PackageUserOperation } from "../types";
 import { toPackedUserOperation } from "../utils";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 describe("smoke-test", () => {
   // So Jest doesn't complain about BigInt serialization
   (BigInt.prototype as any).toJSON = function () {
@@ -600,11 +604,16 @@ describe("smoke-test", () => {
     }, 10_000);
   });
 
-  // Skipping because it throws 'AA14 initCode must return sender`
-  describe.skip("gnosis-mainnet", () => {
+  // 🔥🔥 Gnosis public RPCs are usually broken, I recommend you set GNOSIS_MAINNET_RPC_URL in the .env file,
+  // and Ankr seems to be the most reliable provider for Gnosis
+  describe("gnosis-mainnet", () => {
+    const transport = process.env.GNOSIS_MAINNET_RPC_URL
+      ? http(process.env.GNOSIS_MAINNET_RPC_URL)
+      : http();
+
     const viemClient = createPublicClient({
       chain: gnosis,
-      transport: http(),
+      transport,
     });
 
     const ethereumGasEstimator = new GasEstimator({
@@ -622,7 +631,9 @@ describe("smoke-test", () => {
           factoryAddress,
           signer: account,
           chain: gnosis,
-          transport: http(),
+          transport: http(
+            "https://rpc.ankr.com/gnosis/0f2ac70eb2e86d935951e9d3874deeb44525123a1ce2a7cf609cf1f0a098d2d6"
+          ),
           bundlerTransport,
         });
 
@@ -671,10 +682,15 @@ describe("smoke-test", () => {
     }, 10_000);
   });
 
+  // Skipping because no RPC seems to be reliable for Gnosis Chiado
   describe.skip("gnosis-chiado", () => {
+    const transport = process.env.GNOSIS_CHIADO_RPC_URL
+      ? http(process.env.GNOSIS_CHIADO_RPC_URL)
+      : http();
+
     const viemClient = createPublicClient({
       chain: gnosisChiado,
-      transport: http(),
+      transport,
     });
 
     const ethereumGasEstimator = new GasEstimator({
