@@ -1,10 +1,10 @@
 {
-  "name": "entry-point-gas-estimations",
-  "version": "1.0.3",
+  "name": "@biconomy/gas-estimations",
+  "version": "0.0.9",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "repository": "https://github.com/bcnmy/4337-gas-estimations.git",
-  "author": "Yashasvi Chaudhary <yashasvichaudhry98@gmail.com>",
+  "repository": "https://github.com/bcnmy/entry-point-gas-estimations",
+  "author": "Nikola Divić <nikola.divic@biconomy.io>",
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext .ts",
