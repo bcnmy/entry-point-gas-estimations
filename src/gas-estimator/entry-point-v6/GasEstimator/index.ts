@@ -16,13 +16,13 @@ import { KakarotGasEstimator } from "./KakarotGasEstimator";
  * @returns {GasEstimator} returns the general gas estimator client
  */
 export function createGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): GasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new GasEstimator({
     publicClient,
@@ -36,13 +36,13 @@ export function createGasEstimator(
  * @returns {GasEstimator} returns the optimism gas estimator client
  */
 export function createOptimismGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): OptimismGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new OptimismGasEstimator({
     publicClient,
@@ -56,13 +56,13 @@ export function createOptimismGasEstimator(
  * @returns {GasEstimator} returns the arbitrum gas estimator client
  */
 export function createArbitrumGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): ArbitrumGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new ArbitrumGasEstimator({
     publicClient,
@@ -76,13 +76,13 @@ export function createArbitrumGasEstimator(
  * @returns {GasEstimator} returns the mantle gas estimator client
  */
 export function createMantleGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): MantleGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new MantleGasEstimator({
     publicClient,
@@ -96,13 +96,13 @@ export function createMantleGasEstimator(
  * @returns {GasEstimator} returns the optimism gas estimator client
  */
 export function createScrollGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): OptimismGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new ScrollGasEstimator({
     publicClient,
@@ -116,13 +116,13 @@ export function createScrollGasEstimator(
  * @returns {GasEstimator} returns the morph gas estimator client
  */
 export function createMorphGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): MorphGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new MorphGasEstimator({
     publicClient,
@@ -136,13 +136,13 @@ export function createMorphGasEstimator(
  * @returns {GasEstimator} returns the sei gas estimator client
  */
 export function createSeiGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): SeiGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new SeiGasEstimator({
     publicClient,
@@ -156,13 +156,13 @@ export function createSeiGasEstimator(
  * @returns {GasEstimator} returns the kakarot gas estimator client
  */
 export function createKakarotGasEstimator(
-  params: CreateGasEstimatorParams,
+  params: CreateGasEstimatorParams
 ): KakarotGasEstimator {
   const { rpcUrl, ...rest } = params;
   const publicClient = new ViemGasEstimatorClient(
     createPublicClient({
       transport: http(rpcUrl),
-    }),
+    })
   );
   return new KakarotGasEstimator({
     publicClient,
