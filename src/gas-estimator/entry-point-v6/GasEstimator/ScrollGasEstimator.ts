@@ -15,7 +15,7 @@ import {
   CalculatePreVerificationGas,
 } from "../types";
 import { RpcError, packUserOp } from "../utils";
-import { GasEstimator } from "./GasEstimator";
+import { GasEstimator } from "./EVMGasEstimator";
 
 /**
  * @remarks
@@ -31,15 +31,13 @@ export class ScrollGasEstimator extends GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during calculating preVerificationGas.
    */
   override async calculatePreVerificationGas(
-    params: CalculatePreVerificationGasParams,
+    params: CalculatePreVerificationGasParams
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
     const packed = toBytes(packUserOp(userOperation, false));
     const callDataCost = packed
       .map((x: number) =>
-        x === 0
-          ? defaultGasOverheads.zeroByte
-          : defaultGasOverheads.nonZeroByte,
+        x === 0 ? defaultGasOverheads.zeroByte : defaultGasOverheads.nonZeroByte
       )
       .reduce((sum: any, x: any) => sum + x);
     let preVerificationGas = BigInt(
@@ -47,8 +45,8 @@ export class ScrollGasEstimator extends GasEstimator implements IGasEstimator {
         callDataCost +
           defaultGasOverheads.fixed / defaultGasOverheads.bundleSize +
           defaultGasOverheads.perUserOp +
-          defaultGasOverheads.perUserOpWord * packed.length,
-      ),
+          defaultGasOverheads.perUserOpWord * packed.length
+      )
     );
 
     const handleOpsData = encodeFunctionData({

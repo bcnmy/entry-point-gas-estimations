@@ -175,3 +175,6 @@ out
 
 # Random scripts not to push
 dont-commit
+
+# Config directory used for test config
+config/test.json

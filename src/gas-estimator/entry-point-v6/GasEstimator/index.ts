@@ -1,5 +1,5 @@
 import { createPublicClient, http } from "viem";
-import { GasEstimator } from "./GasEstimator";
+import { GasEstimator } from "./EVMGasEstimator";
 import { ViemGasEstimatorClient } from "../clients";
 import { CreateGasEstimatorParams } from "../types";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";

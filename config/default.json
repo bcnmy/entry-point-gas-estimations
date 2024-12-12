@@ -1,0 +1,359 @@
+{
+  "supportedChains": {
+    "1": {
+      "chainId": 1,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "137": {
+      "chainId": 137,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "97": {
+      "chainId": 97,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x850031776766eDbA9C2b99CB602f38F1F4500883"
+    },
+    "56": {
+      "chainId": 56,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "1101": {
+      "chainId": 1101,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "42161": {
+      "chainId": 42161,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "42170": {
+      "chainId": 42170,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x886c0aa2DCD33476eafc4d8c8D807974fcB84ca3"
+    },
+    "10": {
+      "chainId": 10,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "43113": {
+      "chainId": 43113,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "43114": {
+      "chainId": 43114,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "8453": {
+      "chainId": 8453,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "59144": {
+      "chainId": 59144,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "5000": {
+      "chainId": 5000,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
+    },
+    "204": {
+      "chainId": 204,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "5611": {
+      "chainId": 5611,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "88888": {
+      "chainId": 88888,
+      "entryPointV6Address": "0x00000061fefce24a79343c27127435286bb7a4e1",
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "592": {
+      "chainId": 592,
+      "supportsBalanceOverride": false,
+      "supportsBytecodeOverride": false
+    },
+    "88882": {
+      "chainId": 88882,
+      "entryPointV6Address": "0x00000061fefce24a79343c27127435286bb7a4e1",
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "81": {
+      "chainId": 81,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "1115": {
+      "chainId": 1115,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "1116": {
+      "chainId": 1116,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "169": {
+      "chainId": 169,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "1715": {
+      "chainId": 1715,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "9980": {
+      "chainId": 9980,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "421614": {
+      "chainId": 421614,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "11155111": {
+      "chainId": 11155111,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "84532": {
+      "chainId": 84532,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "168587773": {
+      "chainId": 168587773,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "81457": {
+      "chainId": 81457,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "534351": {
+      "chainId": 534351,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xB8C4253F8Ed4F613Ccb2FaBB3D70CF1b5E7B217F"
+    },
+    "534352": {
+      "chainId": 534352,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x6f65cC3002885937E90d123727116f721A567c25"
+    },
+    "56400": {
+      "chainId": 56400,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "7000": {
+      "chainId": 7000,
+      "supportsBalanceOverride": false,
+      "supportsBytecodeOverride": true
+    },
+    "11155420": {
+      "chainId": 11155420,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false,
+      "deployedSmartAccountAddress": "0x3C301450431Da6472F658f60C35B05117d56A767"
+    },
+    "80002": {
+      "chainId": 80002,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xAAe74D4B759AEe3EF7fF4524BD2D6dcb6d09F526"
+    },
+    "27827": {
+      "chainId": 27827,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "4653": {
+      "chainId": 4653,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "8101902": {
+      "chainId": 8101902,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "666666666": {
+      "chainId": 666666666,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "2442": {
+      "chainId": 2442,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "7001": {
+      "chainId": 7001,
+      "supportsBalanceOverride": false,
+      "supportsBytecodeOverride": false
+    },
+    "5003": {
+      "chainId": 5003,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true
+    },
+    "100": {
+      "chainId": 100,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "10200": {
+      "chainId": 10200,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4"
+    },
+    "195": {
+      "chainId": 195,
+      "supportsBalanceOverride": false,
+      "supportsBytecodeOverride": false
+    },
+    "196": {
+      "chainId": 196,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "2810": {
+      "chainId": 2810,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xE39F18c70762e55be410bf7D3CBd29247f9D4CF8"
+    },
+    "713715": {
+      "chainId": 713715,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false,
+      "callGasLimitOverride": 5000000
+    },
+    "3799": {
+      "chainId": 3799,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "167009": {
+      "chainId": 167009,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "80084": {
+      "chainId": 80084,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x025B1575E36605d59A10982A747ec3274bcb116b"
+    },
+    "5845": {
+      "chainId": 5845,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "167000": {
+      "chainId": 167000,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "1328": {
+      "chainId": 1328,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false,
+      "callGasLimitOverride": 5000000
+    },
+    "1329": {
+      "chainId": 1329,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "995": {
+      "chainId": 995,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "28882": {
+      "chainId": 28882,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "288": {
+      "chainId": 288,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "920637907288165": {
+      "chainId": 920637907288165,
+      "supportsBalanceOverride": false,
+      "supportsBytecodeOverride": false,
+      "callGasLimitOverride": 2000000,
+      "verificationGasLimitOverride": 2000000
+    },
+    "1740": {
+      "chainId": 1740,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "1750": {
+      "chainId": 1750,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    },
+    "4202": {
+      "chainId": 4202,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "1135": {
+      "chainId": 1135,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": false
+    },
+    "2818": {
+      "chainId": 2818,
+      "supportsBalanceOverride": true,
+      "supportsBytecodeOverride": true,
+      "deployedSmartAccountAddress": "0x02f6a7658EbD7ea31ae55546430c40Cf86711097"
+    }
+  }
+}

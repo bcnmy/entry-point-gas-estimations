@@ -12,7 +12,7 @@ import {
   EstimateUserOperationGasParams,
 } from "../types";
 import { handleFailedOp } from "../utils";
-import { GasEstimator } from "./GasEstimator";
+import { GasEstimator } from "./EVMGasEstimator";
 
 /**
  * @remarks
@@ -29,7 +29,7 @@ export class SeiGasEstimator extends GasEstimator implements IGasEstimator {
    * @throws {Error} If there is an issue during gas estimation.
    */
   async estimateUserOperationGasWithoutFullEthCallSupport(
-    params: EstimateUserOperationGasParams,
+    params: EstimateUserOperationGasParams
   ): Promise<EstimateUserOperationGas> {
     const {
       userOperation,
