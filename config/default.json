@@ -2,358 +2,1108 @@
   "supportedChains": {
     "1": {
       "chainId": 1,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "137": {
-      "chainId": 137,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "97": {
-      "chainId": 97,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x850031776766eDbA9C2b99CB602f38F1F4500883"
-    },
-    "56": {
-      "chainId": 56,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "1101": {
-      "chainId": 1101,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "42161": {
-      "chainId": 42161,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "42170": {
-      "chainId": 42170,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x886c0aa2DCD33476eafc4d8c8D807974fcB84ca3"
-    },
-    "10": {
-      "chainId": 10,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "43113": {
-      "chainId": 43113,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "43114": {
-      "chainId": 43114,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "8453": {
-      "chainId": 8453,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "59144": {
-      "chainId": 59144,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "5000": {
-      "chainId": 5000,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
-    },
-    "204": {
-      "chainId": 204,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "5611": {
-      "chainId": 5611,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "88888": {
-      "chainId": 88888,
-      "entryPointV6Address": "0x00000061fefce24a79343c27127435286bb7a4e1",
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "592": {
-      "chainId": 592,
-      "supportsBalanceOverride": false,
-      "supportsBytecodeOverride": false
-    },
-    "88882": {
-      "chainId": 88882,
-      "entryPointV6Address": "0x00000061fefce24a79343c27127435286bb7a4e1",
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "81": {
-      "chainId": 81,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "1115": {
-      "chainId": 1115,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "1116": {
-      "chainId": 1116,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "169": {
-      "chainId": 169,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "1715": {
-      "chainId": 1715,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "9980": {
-      "chainId": 9980,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "421614": {
-      "chainId": 421614,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
+      "name": "Ethereum Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
     "11155111": {
       "chainId": 11155111,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
+      "name": "Ethereum Sepolia",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
-    "84532": {
-      "chainId": 84532,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "168587773": {
-      "chainId": 168587773,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "81457": {
-      "chainId": 81457,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "534351": {
-      "chainId": 534351,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xB8C4253F8Ed4F613Ccb2FaBB3D70CF1b5E7B217F"
-    },
-    "534352": {
-      "chainId": 534352,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x6f65cC3002885937E90d123727116f721A567c25"
-    },
-    "56400": {
-      "chainId": 56400,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "7000": {
-      "chainId": 7000,
-      "supportsBalanceOverride": false,
-      "supportsBytecodeOverride": true
-    },
-    "11155420": {
-      "chainId": 11155420,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false,
-      "deployedSmartAccountAddress": "0x3C301450431Da6472F658f60C35B05117d56A767"
+    "137": {
+      "chainId": 137,
+      "name": "Polygon Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
     "80002": {
       "chainId": 80002,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xAAe74D4B759AEe3EF7fF4524BD2D6dcb6d09F526"
+      "name": "Polygon Amoy",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xAAe74D4B759AEe3EF7fF4524BD2D6dcb6d09F526"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
-    "27827": {
-      "chainId": 27827,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    "56": {
+      "chainId": 56,
+      "name": "Binance Smart Chain",
+      "stack": "evm",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
-    "4653": {
-      "chainId": 4653,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+    "97": {
+      "chainId": 97,
+      "name": "Binance Smart Chain Testnet",
+      "stack": "evm",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x850031776766eDbA9C2b99CB602f38F1F4500883"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
-    "8101902": {
-      "chainId": 8101902,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "666666666": {
-      "chainId": 666666666,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
+    "1101": {
+      "chainId": 1101,
+      "name": "Polygon ZK-EVM Mainnet",
+      "stack": "evm",
+      "eip1559": false,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "2442": {
       "chainId": 2442,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
+      "name": "Polygon ZK-EVM Cardona Testnet",
+      "stack": "evm",
+      "eip1559": false,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "42161": {
+      "chainId": 42161,
+      "name": "Arbitrum Mainnet",
+      "stack": "arbitrum",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
+    },
+    "421614": {
+      "chainId": 421614,
+      "name": "Arbitrum Sepolia Testnet",
+      "stack": "arbitrum",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
+    },
+    "42170": {
+      "chainId": 42170,
+      "name": "Arbitrum Nova",
+      "stack": "arbitrum",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x886c0aa2DCD33476eafc4d8c8D807974fcB84ca3"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "10": {
+      "chainId": 10,
+      "name": "Optimism Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
+    },
+    "11155420": {
+      "chainId": 11155420,
+      "name": "Optimism Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "43114": {
+      "chainId": 43114,
+      "name": "Avalanche Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "43113": {
+      "chainId": 43113,
+      "name": "Avalanche Fuji Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "8453": {
+      "chainId": 8453,
+      "name": "Base Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
+    },
+    "84532": {
+      "chainId": 84532,
+      "name": "Base Sepolia Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "59144": {
+      "chainId": 59144,
+      "name": "Linea Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "5000": {
+      "chainId": 5000,
+      "name": "Mantle Mainnet",
+      "stack": "mantle",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "5001": {
+      "chainId": 5001,
+      "name": "Mantle Testnet",
+      "stack": "mantle",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "204": {
+      "chainId": 204,
+      "name": "opBNB Mainnet",
+      "stack": "optimism",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "5611": {
+      "chainId": 5611,
+      "name": "opBNB Testnet",
+      "stack": "optimism",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x4E4bB49854ecc9b8Feea7B76144c4A55cc809e93"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "88888": {
+      "chainId": 88888,
+      "name": "Chiliz Mainnet",
+      "stack": "evm",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "88882": {
+      "chainId": 88882,
+      "name": "Chiliz Spicy Testnet",
+      "stack": "evm",
+      "eip1559": false,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "592": {
+      "chainId": 592,
+      "name": "Astar Network",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": false,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "81": {
+      "chainId": 81,
+      "name": "Astar Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1116": {
+      "chainId": 1116,
+      "name": "Core Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1115": {
+      "chainId": 1115,
+      "name": "Core Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "169": {
+      "chainId": 169,
+      "name": "Manta Pacific Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "9980": {
+      "chainId": 9980,
+      "name": "Combo Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1715": {
+      "chainId": 1715,
+      "name": "Combo Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "81457": {
+      "chainId": 81457,
+      "name": "Blast Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "168587773": {
+      "chainId": 168587773,
+      "name": "Blast Sepolia Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "534352": {
+      "chainId": 534352,
+      "name": "Scroll Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x6f65cC3002885937E90d123727116f721A567c25"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "534351": {
+      "chainId": 534351,
+      "name": "Scroll Sepolia Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xB8C4253F8Ed4F613Ccb2FaBB3D70CF1b5E7B217F"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "27827": {
+      "chainId": 27827,
+      "name": "ZeroOne Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "56400": {
+      "chainId": 56400,
+      "name": "ZeroOne Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "7000": {
+      "chainId": 7000,
+      "name": "ZetaChain Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": false,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "7001": {
       "chainId": 7001,
-      "supportsBalanceOverride": false,
-      "supportsBytecodeOverride": false
+      "name": "ZetaChain Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": false,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "4653": {
+      "chainId": 4653,
+      "name": "Gold Chain Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "8101902": {
+      "chainId": 8101902,
+      "name": "Olive Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "666666666": {
+      "chainId": 666666666,
+      "name": "Degen Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "5003": {
       "chainId": 5003,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true
+      "name": "Mantle Sepolia Testnet",
+      "stack": "mantle",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "100": {
       "chainId": 100,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+      "name": "Gnosis Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
     "10200": {
       "chainId": 10200,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4"
+      "name": "Gnosis Chiado Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": true
+      }
     },
     "195": {
       "chainId": 195,
-      "supportsBalanceOverride": false,
-      "supportsBytecodeOverride": false
+      "name": "X Layer Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": false,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "196": {
       "chainId": 196,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "2810": {
-      "chainId": 2810,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xE39F18c70762e55be410bf7D3CBd29247f9D4CF8"
-    },
-    "713715": {
-      "chainId": 713715,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false,
-      "callGasLimitOverride": 5000000
-    },
-    "3799": {
-      "chainId": 3799,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "167009": {
-      "chainId": 167009,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "80084": {
-      "chainId": 80084,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x025B1575E36605d59A10982A747ec3274bcb116b"
-    },
-    "5845": {
-      "chainId": 5845,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "167000": {
-      "chainId": 167000,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "1328": {
-      "chainId": 1328,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false,
-      "callGasLimitOverride": 5000000
-    },
-    "1329": {
-      "chainId": 1329,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "995": {
-      "chainId": 995,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "28882": {
-      "chainId": 28882,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "288": {
-      "chainId": 288,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "920637907288165": {
-      "chainId": 920637907288165,
-      "supportsBalanceOverride": false,
-      "supportsBytecodeOverride": false,
-      "callGasLimitOverride": 2000000,
-      "verificationGasLimitOverride": 2000000
-    },
-    "1740": {
-      "chainId": 1740,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "1750": {
-      "chainId": 1750,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-    },
-    "4202": {
-      "chainId": 4202,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
-    },
-    "1135": {
-      "chainId": 1135,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": false
+      "name": "X Layer Mainnet",
+      "stack": "evm",
+      "eip1559": false,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     },
     "2818": {
       "chainId": 2818,
-      "supportsBalanceOverride": true,
-      "supportsBytecodeOverride": true,
-      "deployedSmartAccountAddress": "0x02f6a7658EbD7ea31ae55546430c40Cf86711097"
+      "name": "Morph Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x02f6a7658EbD7ea31ae55546430c40Cf86711097"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "2810": {
+      "chainId": 2810,
+      "name": "Morph Holesky Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xE39F18c70762e55be410bf7D3CBd29247f9D4CF8"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "5845": {
+      "chainId": 5845,
+      "name": "Tangle Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "3799": {
+      "chainId": 3799,
+      "name": "Tangle Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "167000": {
+      "chainId": 167000,
+      "name": "Taiko Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "167009": {
+      "chainId": 167009,
+      "name": "Taiko Hekla Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "80084": {
+      "chainId": 80084,
+      "name": "Berachain bArtio Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0x025B1575E36605d59A10982A747ec3274bcb116b"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1328": {
+      "chainId": 1328,
+      "name": "Sei Atlantic 2 Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      },
+      "simulation": {
+        "preVerificationGas": 1000000,
+        "callGasLimit": 5000000,
+        "verificationGasLimit": 2000000
+      }
+    },
+    "1329": {
+      "chainId": 1329,
+      "name": "Sei Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      },
+      "simulation": {
+        "preVerificationGas": 1000000,
+        "callGasLimit": 5000000,
+        "verificationGasLimit": 2000000
+      }
+    },
+    "995": {
+      "chainId": 995,
+      "name": "5ireChain Mainnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "997": {
+      "chainId": 995,
+      "name": "5ireChain Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "288": {
+      "chainId": 288,
+      "name": "Boba Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "28882": {
+      "chainId": 28882,
+      "name": "Boba Sepolia Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "920637907288165": {
+      "chainId": 920637907288165,
+      "name": "Kakarot Sepolia Testnet",
+      "stack": "evm",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": false,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      },
+      "simulation": {
+        "preVerificationGas": 1000000,
+        "callGasLimit": 2000000,
+        "verificationGasLimit": 2000000
+      }
+    },
+    "1750": {
+      "chainId": 1750,
+      "name": "Metal L2 Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1740": {
+      "chainId": 1740,
+      "name": "Metal L2 Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "entryPoints": {
+        "v0.6.0": {
+          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
+        }
+      },
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": true
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "1135": {
+      "chainId": 1135,
+      "name": "Lisk Mainnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
+    },
+    "4202": {
+      "chainId": 4202,
+      "name": "Lisk Sepolia Testnet",
+      "stack": "optimism",
+      "eip1559": true,
+      "stateOverrideSupport": {
+        "balance": true,
+        "bytecode": false
+      },
+      "smartAccountSupport": {
+        "smartAccountsV2": true,
+        "nexus": false
+      }
     }
+  },
+  "benchmarkPricesUSD": {
+    "ETH": 3868,
+    "DEGEN": 0.01497,
+    "CHZ": 0.1104,
+    "BERA": 0,
+    "POL": 0.5987,
+    "AVAX": 49.76,
+    "xDAI": 0.9856,
+    "XDAI": 0.9856,
+    "BNB": 715.91,
+    "tBNB": 715.91,
+    "SEI": 0.5831,
+    "OKB": 53.84,
+    "MNT": 1.21
   }
 }
