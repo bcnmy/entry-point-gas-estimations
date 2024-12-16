@@ -1,19 +1,5 @@
 import { Address, Hex } from "viem";
-import { EntryPointV6 } from "./EntryPointV6";
 import { z } from "zod";
-
-/**
- * Supported versions of the entry point contract
- */
-export enum EntryPointVersion {
-  V006 = "v0.6.0",
-  V007 = "v0.7.0",
-}
-
-/**
- * A record of entry point contracts by version
- */
-export type EntryPointContracts = Record<EntryPointVersion, EntryPointV6>;
 
 /**
  * An Execution result returned by simulateHandleOp call
@@ -35,7 +21,17 @@ export const executionResultSchema = z
     targetSuccess: val[4],
     targetResult: val[5] as Hex,
   }));
-export type ExecutionResult = z.infer<typeof executionResultSchema>;
+
+export type ExecutionResultV6 = z.infer<typeof executionResultSchema>;
+
+export function isExecutionResultV6(data: unknown): data is ExecutionResultV6 {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "validUntil" in data &&
+    "validAfter" in data
+  );
+}
 
 /**
  * An error returned by simulateHandleOp call containing a cause

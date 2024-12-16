@@ -2,19 +2,11 @@ import config from "config";
 import { SupportedChain } from "../../shared/config";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
-import {
-  createPublicClient,
-  extractChain,
-  http,
-  toHex,
-  zeroAddress,
-} from "viem";
+import { createPublicClient, http, toHex, zeroAddress } from "viem";
 import { createNexusClient, getCustomChain, NexusClient } from "@biconomy/sdk";
 import { UserOperationV7 } from "./UserOperationV7";
-import {
-  EntryPointV7Simulations,
-  isExecutionResultV7,
-} from "./EntryPointV7Simulations";
+import { EntryPointV7Simulations } from "./EntryPointV7Simulations";
+import { isExecutionResultV7 } from "./types";
 
 // Hardcoded gas values for gas estimation, to ensure user op completeness
 const defaultCallGasLimit = BigInt(5_000_000);
@@ -34,6 +26,8 @@ describe("EntryPointV7Simulations", () => {
 
   const includeChainIds = config.get<number[]>("includeInTests");
   const excludeChainIds = config.get<number[]>("excludeFromTests");
+
+  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>

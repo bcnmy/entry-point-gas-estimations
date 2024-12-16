@@ -131,7 +131,7 @@ export class GasEstimator implements IGasEstimator {
    * @param {SimulateHandleOpParams} params - userOperation and the stateOverrideSet
    * @returns {Promise<SimulateHandleOpResult>}
    */
-  private async simulateHandleOp(
+  public async simulateHandleOp(
     params: SimulateHandleOpParams
   ): Promise<SimulateHandleOpResult | void> {
     const { userOperation, stateOverrideSet } = params;

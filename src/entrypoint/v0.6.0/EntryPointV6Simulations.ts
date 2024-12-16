@@ -7,7 +7,7 @@ import {
   toHex,
 } from "viem";
 import { EntryPointV6, RpcClient } from "./EntryPointV6";
-import { ExecutionResult } from "./types";
+import { ExecutionResultV6 } from "./types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
   CGL_ROUNDING,
@@ -147,7 +147,7 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     return this.parseEstimateCallGasLimitResult(executionResult);
   }
 
-  parseEstimateCallGasLimitResult(data: ExecutionResult) {
+  parseEstimateCallGasLimitResult(data: ExecutionResultV6) {
     const result = decodeErrorResult({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
       data: data.targetResult,

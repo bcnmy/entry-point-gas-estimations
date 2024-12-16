@@ -8,7 +8,6 @@ import {
 } from "viem";
 
 import {
-  EntryPointVersion,
   errorWithCauseSchema,
   errorWithNestedCauseSchema,
   ParseError,
@@ -19,6 +18,8 @@ import { toPackedUserOperation, UserOperationV7 } from "./UserOperationV7";
 import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
 import { ENTRYPOINT_V7_ADDRESS } from "./constants";
 import { z } from "zod";
+import { ExecutionResultV7 } from "./types";
+import { EntryPointVersion } from "../shared/types";
 
 interface SimulateHandleOpParams {
   userOperation: UserOperationV7;
@@ -28,7 +29,7 @@ interface SimulateHandleOpParams {
 }
 
 export class EntryPointV7Simulations {
-  public version = EntryPointVersion.V007;
+  public version = EntryPointVersion.v070;
   public abi = ENTRYPOINT_V7_SIMULATIONS_ABI;
 
   constructor(
@@ -110,6 +111,18 @@ export class EntryPointV7Simulations {
     }
   }
 
+  encodeHandleOpsFunctionData(
+    userOperation: UserOperationV7,
+    beneficiary: Address
+  ): Hex {
+    const packed = toPackedUserOperation(userOperation);
+    return encodeFunctionData({
+      abi: this.abi,
+      functionName: "handleOps",
+      args: [[packed], beneficiary],
+    });
+  }
+
   /**
    * Parse the error data to get the ExecutionResult using various error formats
    * observed by testing on different networks & RPC providers
@@ -143,23 +156,3 @@ export class EntryPointV7Simulations {
 }
 
 export type RpcClient = Pick<PublicClient, "request" | "chain">;
-
-const ExecutionResultV7Schema = z
-  .object({
-    preOpGas: z.bigint(),
-    paid: z.bigint(),
-    accountValidationData: z.bigint(),
-    paymasterValidationData: z.bigint(),
-    targetSuccess: z.boolean(),
-    targetResult: z.string(),
-  })
-  .transform((data) => ({
-    ...data,
-    targetResult: data.targetResult as Hex,
-  }));
-
-export type ExecutionResultV7 = z.infer<typeof ExecutionResultV7Schema>;
-
-export function isExecutionResultV7(data: unknown): data is ExecutionResultV7 {
-  return ExecutionResultV7Schema.safeParse(data).success;
-}

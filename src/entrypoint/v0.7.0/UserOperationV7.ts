@@ -100,7 +100,7 @@ export function getPaymasterAndData(unpackedUserOperation: UserOperationV7) {
     : "0x";
 }
 
-export function packUserOp(op: PackedUserOperation): Hex {
+export function packUserOpV7(op: PackedUserOperation): Hex {
   return encodeAbiParameters(
     [
       {

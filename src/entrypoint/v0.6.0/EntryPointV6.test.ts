@@ -3,10 +3,10 @@ import {
   createWalletClient,
   http,
   zeroAddress,
-  extractChain,
   Address,
   toHex,
   parseEther,
+  Hex,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
@@ -29,6 +29,7 @@ import { ParseError } from "./types";
 import config from "config";
 import { SupportedChain } from "../../shared/config";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
+import { UserOperationV6 } from "./UserOperationV6";
 
 describe("DefaultEntryPointV6", () => {
   const privateKey = generatePrivateKey();
@@ -70,6 +71,7 @@ describe("DefaultEntryPointV6", () => {
 
       let smartAccount: BiconomySmartAccountV2;
       let userOperation: UserOperation;
+      let callData: Hex;
 
       beforeAll(async () => {
         smartAccount = await createSmartAccountClient({
@@ -86,11 +88,7 @@ describe("DefaultEntryPointV6", () => {
         const sender = await smartAccount.getAddress();
         const nonce = await smartAccount.getNonce();
         const initCode = await smartAccount.getInitCode();
-        const callData = await smartAccount.encodeExecute(
-          zeroAddress,
-          1n,
-          "0x"
-        );
+        callData = await smartAccount.encodeExecute(zeroAddress, 1n, "0x");
 
         const unsignedUserOperation: Partial<UserOperationStruct> = {
           sender,
@@ -117,7 +115,7 @@ describe("DefaultEntryPointV6", () => {
       it("simulateHandleOp should revert with AA21 without a balance override", async () => {
         const epv6 = new EntryPointV6(
           viemClient,
-          (supportedChain.entryPoints?.["v0.6.0"].address as Address) ||
+          (supportedChain.entryPoints?.["v060"].address as Address) ||
             ENTRYPOINT_V6_ADDRESS
         );
         try {
@@ -144,7 +142,7 @@ describe("DefaultEntryPointV6", () => {
         it("simulateHandleOp should return a ExecutionResult with a balance override", async () => {
           const epv6 = new EntryPointV6(
             viemClient,
-            (supportedChain.entryPoints?.["v0.6.0"].address as Address) ||
+            (supportedChain.entryPoints?.["v060"].address as Address) ||
               ENTRYPOINT_V6_ADDRESS
           );
           const executionResult = await epv6.simulateHandleOp({
@@ -158,7 +156,58 @@ describe("DefaultEntryPointV6", () => {
             },
           });
           expect(executionResult).toBeDefined();
+
+          const { paid, preOpGas } = executionResult;
+          expect(paid).toBeGreaterThan(0);
+          expect(preOpGas).toBeGreaterThan(0);
         }, 20_000);
+      }
+
+      if (supportedChain.entryPoints?.["v060"].existingSmartAccountAddress) {
+        it("should return a gas estimate for a deployed smart account", async () => {
+          const epv6 = new EntryPointV6(
+            viemClient,
+            (supportedChain.entryPoints?.["v060"].address as Address) ||
+              ENTRYPOINT_V6_ADDRESS
+          );
+
+          const sender = supportedChain.entryPoints?.["v060"]
+            .existingSmartAccountAddress as Address;
+          const initCode = "0x";
+
+          let unsignedUserOperation: Partial<UserOperationStruct> = {
+            sender,
+            initCode,
+            nonce: await epv6.getNonce(sender!),
+            callGasLimit:
+              supportedChain.simulation?.callGasLimit ||
+              CALL_GAS_LIMIT_OVERRIDE_VALUE,
+            maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
+            maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
+            preVerificationGas: PRE_VERIFICATION_GAS_OVERRIDE_VALUE,
+            verificationGasLimit:
+              supportedChain.simulation?.verificationGasLimit ||
+              VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE,
+            paymasterAndData: "0x",
+            callData,
+          };
+
+          const userOperation = (await smartAccount.signUserOp(
+            unsignedUserOperation
+          )) as UserOperationV6;
+
+          const executionResult = await epv6.simulateHandleOp({
+            userOperation,
+            targetAddress: epv6.address,
+            targetCallData: userOperation.callData,
+            stateOverrides: {
+              [userOperation.sender]: {
+                balance: toHex(parseEther("10")),
+              },
+            },
+          });
+          expect(executionResult).toBeDefined();
+        });
       }
     });
   }

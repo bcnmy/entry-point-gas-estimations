@@ -6,7 +6,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -39,7 +39,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -58,7 +58,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xAAe74D4B759AEe3EF7fF4524BD2D6dcb6d09F526"
         }
       },
@@ -77,7 +77,7 @@
       "stack": "evm",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -96,7 +96,7 @@
       "stack": "evm",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x850031776766eDbA9C2b99CB602f38F1F4500883"
         }
       },
@@ -143,7 +143,7 @@
       "stack": "arbitrum",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -190,7 +190,7 @@
       "stack": "optimism",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -209,7 +209,7 @@
       "stack": "optimism",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a"
         }
       },
@@ -228,7 +228,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -261,7 +261,7 @@
       "stack": "optimism",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -308,7 +308,7 @@
       "stack": "mantle",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
         }
       },
@@ -341,7 +341,7 @@
       "stack": "optimism",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -360,7 +360,7 @@
       "stack": "optimism",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x4E4bB49854ecc9b8Feea7B76144c4A55cc809e93"
         }
       },
@@ -379,9 +379,9 @@
       "stack": "evm",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "address": "0x00000061fefce24a79343c27127435286bb7a4e1",
-          "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
+          "existingSmartAccountAddress": "0x1876530c69b9f9c28eef169ab6ef294a00638ef9"
         }
       },
       "stateOverrideSupport": {
@@ -399,9 +399,9 @@
       "stack": "evm",
       "eip1559": false,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "address": "0x00000061fefce24a79343c27127435286bb7a4e1",
-          "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
+          "existingSmartAccountAddress": "0x88d8a7761798c720d7365a9d5112ad7a737173a6"
         }
       },
       "stateOverrideSupport": {
@@ -447,7 +447,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -466,7 +466,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -555,7 +555,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x6f65cC3002885937E90d123727116f721A567c25"
         }
       },
@@ -574,7 +574,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xB8C4253F8Ed4F613Ccb2FaBB3D70CF1b5E7B217F"
         }
       },
@@ -705,7 +705,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -724,7 +724,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4"
         }
       },
@@ -771,7 +771,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x02f6a7658EbD7ea31ae55546430c40Cf86711097"
         }
       },
@@ -790,7 +790,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xE39F18c70762e55be410bf7D3CBd29247f9D4CF8"
         }
       },
@@ -823,7 +823,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -870,7 +870,7 @@
       "stack": "evm",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0x025B1575E36605d59A10982A747ec3274bcb116b"
         }
       },
@@ -1002,7 +1002,7 @@
       "stack": "optimism",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -1021,7 +1021,7 @@
       "stack": "optimism",
       "eip1559": true,
       "entryPoints": {
-        "v0.6.0": {
+        "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
         }
       },
@@ -1078,6 +1078,8 @@
     "OKB": 53.84,
     "MNT": 1.21
   },
-  "excludeFromTests": [1115, 1116, 81, 2442, 3799, 920637907288165, 42170],
+  "excludeFromTests": [
+    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611
+  ],
   "includeInTests": []
 }

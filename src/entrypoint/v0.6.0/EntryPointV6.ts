@@ -8,10 +8,9 @@ import {
 
 import {
   SimulateHandleOpError,
-  EntryPointVersion,
   errorWithCauseSchema,
   errorWithNestedCauseSchema,
-  ExecutionResult,
+  ExecutionResultV6,
   executionResultSchema,
   ParseError,
   StateOverrideSet,
@@ -19,9 +18,10 @@ import {
 import { ENTRYPOINT_V6_ABI } from "./abi";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
 import { UserOperationV6 } from "./UserOperationV6";
+import { EntryPointVersion } from "../shared/types";
 
 export class EntryPointV6 {
-  public version = EntryPointVersion.V006;
+  public version = EntryPointVersion.v060;
   public abi = ENTRYPOINT_V6_ABI;
 
   constructor(
@@ -43,7 +43,7 @@ export class EntryPointV6 {
     targetAddress,
     targetCallData,
     stateOverrides,
-  }: SimulateHandleOpParams): Promise<ExecutionResult> {
+  }: SimulateHandleOpParams): Promise<ExecutionResultV6> {
     const simulateHandleOpParams: any = [
       {
         to: this.address,
@@ -69,6 +69,7 @@ export class EntryPointV6 {
       throw new Error("SimulateHandleOp should always revert");
     } catch (err: any) {
       // console.log(err.message);
+      // console.log(err);
       const data = this.parseRpcRequestErrorData(err);
       return this.parseSimulateHandleOpExecutionResult(data);
     }
@@ -130,7 +131,7 @@ export class EntryPointV6 {
    * @param data revert data from simulateHandleOp
    * @returns ExecutionResult
    */
-  protected parseSimulateHandleOpExecutionResult(data: Hex): ExecutionResult {
+  protected parseSimulateHandleOpExecutionResult(data: Hex): ExecutionResultV6 {
     const decodedError = decodeErrorResult({
       abi: this.abi,
       data: data as Hex,

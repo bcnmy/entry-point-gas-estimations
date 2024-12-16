@@ -1,6 +1,6 @@
-import { ChainStack } from "../chain/types";
-import { EntryPointVersion } from "../entrypoint/v0.6.0/types";
 import z from "zod";
+import { EntryPointVersion } from "../entrypoint/shared/types";
+import { ChainStack } from "./types";
 
 export const SupportedChainSchema = z.object({
   chainId: z.number(),
@@ -9,11 +9,11 @@ export const SupportedChainSchema = z.object({
   eip1559: z.boolean(),
   entryPoints: z
     .object({
-      [EntryPointVersion.V006]: z.object({
+      [EntryPointVersion.v060]: z.object({
         address: z.string().optional(),
         existingSmartAccountAddress: z.string().optional(),
       }),
-      [EntryPointVersion.V007]: z
+      [EntryPointVersion.v070]: z
         .object({
           address: z.string(),
           existingSmartAccountAddress: z.string().optional(),

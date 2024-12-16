@@ -22,6 +22,7 @@ import config from "config";
 import { SupportedChain } from "../../shared/config";
 import { EntryPointV6Simulations } from "./EntryPointV6Simulations";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
+import { EntryPointVersion } from "../shared/types";
 
 describe("EntryPointV6Simulations", () => {
   const privateKey = generatePrivateKey();
@@ -37,10 +38,11 @@ describe("EntryPointV6Simulations", () => {
     .map((c) => c)
     .filter(
       (c) =>
-        c.stateOverrideSupport.bytecode &&
-        c.entryPoints?.["v0.6.0"].existingSmartAccountAddress &&
-        !excludeChainIds.includes(c.chainId) &&
-        (includeChainIds.length === 0 || includeChainIds.includes(c.chainId))
+        c.stateOverrideSupport.bytecode ||
+        (c.chainId === 1 &&
+          c.entryPoints?.[EntryPointVersion.v060].existingSmartAccountAddress &&
+          !excludeChainIds.includes(c.chainId) &&
+          (includeChainIds.length === 0 || includeChainIds.includes(c.chainId)))
     )) {
     describe(`${supportedChain.name} (${supportedChain.chainId})`, () => {
       const bundlerUrl = `https://bundler.biconomy.io/api/v2/${supportedChain.chainId}/whatever`;
@@ -94,7 +96,7 @@ describe("EntryPointV6Simulations", () => {
         const epContract = getContract({
           abi: ENTRY_POINT_ABI,
           address:
-            (supportedChain.entryPoints?.["v0.6.0"].address as Address) ||
+            (supportedChain.entryPoints?.["v060"].address as Address) ||
             ENTRYPOINT_V6_ADDRESS,
           client: viemClient,
         });
@@ -102,7 +104,7 @@ describe("EntryPointV6Simulations", () => {
         let nonce = 0n;
         try {
           nonce = await epContract.read.getNonce([
-            supportedChain.entryPoints?.["v0.6.0"]
+            supportedChain.entryPoints?.["v060"]
               .existingSmartAccountAddress! as Address,
             0n,
           ]);
@@ -113,7 +115,7 @@ describe("EntryPointV6Simulations", () => {
         const unsignedUserOperation: Partial<UserOperationStruct> = {
           // we are using an existing deployed account so we don't get AA20 account not deployed
           sender:
-            supportedChain.entryPoints?.["v0.6.0"].existingSmartAccountAddress!,
+            supportedChain.entryPoints?.["v060"].existingSmartAccountAddress!,
           initCode,
           nonce,
           callGasLimit: 20_000_000n,
@@ -134,7 +136,7 @@ describe("EntryPointV6Simulations", () => {
         it("should return a value greater than 0", async () => {
           const epv6Simulator = new EntryPointV6Simulations(
             viemClient,
-            supportedChain.entryPoints?.["v0.6.0"].address as Address
+            supportedChain.entryPoints?.["v060"].address as Address
           );
 
           const estimateResult =
@@ -153,7 +155,7 @@ describe("EntryPointV6Simulations", () => {
         it("should return a value greater than 0", async () => {
           const epv6Simulator = new EntryPointV6Simulations(
             viemClient,
-            supportedChain.entryPoints?.["v0.6.0"].address as Address
+            supportedChain.entryPoints?.["v060"].address as Address
           );
           const estimateResult = await epv6Simulator.estimateCallGasLimit({
             userOperation,
