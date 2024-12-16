@@ -175,11 +175,6 @@
       "name": "Arbitrum Nova",
       "stack": "arbitrum",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0x886c0aa2DCD33476eafc4d8c8D807974fcB84ca3"
-        }
-      },
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -331,11 +326,6 @@
       "name": "Mantle Testnet",
       "stack": "mantle",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0x4c893375253bdf31001a96dcf93cbfeba96253db"
-        }
-      },
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -376,7 +366,7 @@
       },
       "stateOverrideSupport": {
         "balance": true,
-        "bytecode": true
+        "bytecode": false
       },
       "smartAccountSupport": {
         "smartAccountsV2": true,
@@ -390,6 +380,7 @@
       "eip1559": false,
       "entryPoints": {
         "v0.6.0": {
+          "address": "0x00000061fefce24a79343c27127435286bb7a4e1",
           "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
         }
       },
@@ -409,6 +400,7 @@
       "eip1559": false,
       "entryPoints": {
         "v0.6.0": {
+          "address": "0x00000061fefce24a79343c27127435286bb7a4e1",
           "existingSmartAccountAddress": "0x00000061fefce24a79343c27127435286bb7a4e1"
         }
       },
@@ -441,7 +433,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -600,11 +592,6 @@
       "name": "ZeroOne Mainnet",
       "stack": "evm",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-        }
-      },
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -619,11 +606,6 @@
       "name": "ZeroOne Testnet",
       "stack": "evm",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-        }
-      },
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -666,11 +648,6 @@
       "name": "Gold Chain Mainnet",
       "stack": "optimism",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-        }
-      },
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -686,7 +663,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -831,13 +808,8 @@
       "name": "Tangle Mainnet",
       "stack": "evm",
       "eip1559": true,
-      "entryPoints": {
-        "v0.6.0": {
-          "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
-        }
-      },
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": true
       },
       "smartAccountSupport": {
@@ -870,7 +842,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -884,7 +856,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -955,7 +927,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -969,7 +941,7 @@
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
-        "balance": true,
+        "balance": false,
         "bytecode": false
       },
       "smartAccountSupport": {
@@ -1007,7 +979,7 @@
     },
     "920637907288165": {
       "chainId": 920637907288165,
-      "name": "Kakarot Sepolia Testnet",
+      "name": "Kakarot Starknet Sepolia",
       "stack": "evm",
       "eip1559": true,
       "stateOverrideSupport": {
@@ -1105,5 +1077,7 @@
     "SEI": 0.5831,
     "OKB": 53.84,
     "MNT": 1.21
-  }
+  },
+  "excludeFromTests": [1115, 1116, 81, 2442, 3799, 920637907288165, 42170],
+  "includeInTests": []
 }
