@@ -17,7 +17,7 @@ import { MakeOptional } from "../../shared/types";
 import { bumpBigIntPercent } from "../../shared/utils";
 import { EntryPoints, ExecutionResult, UserOperation } from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
-import { defaultGasOverheads } from "./constants";
+import { defaultGasOverheads, INNER_GAS_OVERHEAD } from "./constants";
 
 export class EVMGasEstimator {
   constructor(
@@ -92,33 +92,57 @@ export class EVMGasEstimator {
         ? this.entryPoints[EntryPointVersion.v060].contract
         : this.entryPoints[EntryPointVersion.v070].contract;
 
-    const [executionResult, preVerificationGas] = await Promise.all([
-      entryPoint.simulateHandleOp({
-        userOperation,
-        targetAddress: entryPoint.address,
-        targetCallData: "0x",
-        stateOverrides,
-      }),
-      this.estimatePreVerificationGas(
-        entryPointVersion,
-        userOperation,
-        baseFeePerGas
-      ),
-    ]);
+    const simulateHandleOpPromise = entryPoint.simulateHandleOp({
+      userOperation,
+      targetAddress: entryPoint.address,
+      targetCallData: "0x",
+      stateOverrides,
+    });
 
-    const { callGasLimit, verificationGasLimit, validAfter, validUntil } =
+    const estimatePreVerificationGasPromise = this.estimatePreVerificationGas(
+      entryPointVersion,
+      userOperation,
+      baseFeePerGas
+    );
+
+    const results =
+      entryPointVersion === EntryPointVersion.v060
+        ? await Promise.all([
+            simulateHandleOpPromise,
+            estimatePreVerificationGasPromise,
+          ])
+        : await Promise.all([
+            simulateHandleOpPromise,
+            estimatePreVerificationGasPromise,
+            this.rpcClient.estimateGas({
+              account: entryPoint.address,
+              to: userOperation.sender,
+              data: userOperation.callData,
+            }),
+          ]);
+
+    const [executionResult, preVerificationGas] = results;
+
+    let { callGasLimit, verificationGasLimit, validAfter, validUntil } =
       this.estimateVerificationAndCallGasLimits(userOperation, executionResult);
 
     let paymasterVerificationGasLimit: bigint | undefined;
     let paymasterPostOpGasLimit: bigint | undefined;
-
     if (entryPointVersion === EntryPointVersion.v070) {
+      const executionGas = results[2] as bigint;
       paymasterVerificationGasLimit = userOperation.paymaster
         ? verificationGasLimit
         : 0n;
       paymasterPostOpGasLimit = userOperation.paymaster
         ? verificationGasLimit
         : 0n;
+
+      callGasLimit = executionGas;
+
+      callGasLimit -= 21000n; // 21000 is the gas cost of the call from EOA, we need to remove it
+      callGasLimit = bumpBigIntPercent(callGasLimit, 10); // markup to cover the 63/64 problem
+      callGasLimit += INNER_GAS_OVERHEAD;
+      callGasLimit += paymasterPostOpGasLimit;
     }
 
     return {

@@ -1,241 +1,284 @@
-import { table } from "console";
 import { EntryPointVersion } from "../entrypoint/shared/types";
 import { BenchmarkResults } from "../gas-estimator/refactored/utils";
 
 const benchmarkResults: BenchmarkResults = {
   v060: {
     "Ethereum Mainnet": {
-      smartAccountDeployment: "0.00321422881459185 ETH (12.4326 USD)",
-      nativeTransfer: "0.0010344416534865 ETH ($4.0012)",
+      smartAccountDeployment: "0.004995977998096635 ETH ($19.3244)",
+      nativeTransfer: "0.00160786553765915 ETH ($6.2192)",
     },
     "Optimism Mainnet": {
-      smartAccountDeployment: "0.000000527416057392 ETH (0.0020 USD)",
-      nativeTransfer: "0.000000283199727336 ETH ($0.0011)",
+      smartAccountDeployment: "0.00000063681287328 ETH ($0.0025)",
+      nativeTransfer: "0.00000036551389824 ETH ($0.0014)",
     },
     "Binance Smart Chain": {
-      smartAccountDeployment: "0.000340347 BNB (0.2437 USD)",
+      smartAccountDeployment: "0.000340347 BNB ($0.2437)",
       nativeTransfer: "0.000138575 BNB ($0.0992)",
     },
     "Binance Smart Chain Testnet": {
-      smartAccountDeployment: "0.000340347 tBNB (0.2437 USD)",
+      smartAccountDeployment: "0.000340347 tBNB ($0.2437)",
       nativeTransfer: "0.000138563 tBNB ($0.0992)",
     },
     "Gnosis Mainnet": {
-      smartAccountDeployment: "0.000408445202042226 XDAI (0.0004 USD)",
-      nativeTransfer: "0.00014379000071895 XDAI ($0.0001)",
+      smartAccountDeployment: "0.000396191847063339 XDAI ($0.0004)",
+      nativeTransfer: "0.000139476301078425 XDAI ($0.0001)",
     },
     "Polygon Mainnet": {
-      smartAccountDeployment: "0.015630613159045005 POL (0.0094 USD)",
-      nativeTransfer: "0.006367088793960021 POL ($0.0038)",
+      smartAccountDeployment: "0.015730166097164475 POL ($0.0094)",
+      nativeTransfer: "0.006407086881045735 POL ($0.0038)",
     },
     "Manta Pacific Testnet": {
-      smartAccountDeployment: "0.000001021161823185 ETH (0.0039 USD)",
+      smartAccountDeployment: "0.00000102117033186 ETH ($0.0039)",
       nativeTransfer: "",
     },
     "X Layer Mainnet": {
-      smartAccountDeployment: "0.002261778585 OKB (0.1218 USD)",
+      smartAccountDeployment: "0.00337990389 OKB ($0.1820)",
       nativeTransfer: "",
     },
     "opBNB Mainnet": {
-      smartAccountDeployment: "0.000000652707 BNB (0.0005 USD)",
+      smartAccountDeployment: "0.000000652707 BNB ($0.0005)",
       nativeTransfer: "0.000000347485 BNB ($0.0002)",
     },
     "Boba Mainnet": {
-      smartAccountDeployment: "0.000018501529502511 ETH (0.0716 USD)",
+      smartAccountDeployment: "0.000026379702582846 ETH ($0.1020)",
       nativeTransfer: "",
     },
     "Polygon ZK-EVM Mainnet": {
-      smartAccountDeployment: "0.000038459437 ETH (0.1488 USD)",
+      smartAccountDeployment: "0.000066027706 ETH ($0.2554)",
       nativeTransfer: "",
     },
     "Lisk Mainnet": {
-      smartAccountDeployment: "0.000001201840646748 ETH (0.0046 USD)",
+      smartAccountDeployment: "0.00000171960966522 ETH ($0.0067)",
       nativeTransfer: "",
     },
     "Sei Atlantic 2 Testnet": {
-      smartAccountDeployment: "0.000409998504342411 SEI (0.0002 USD)",
+      smartAccountDeployment: "0.0341087814 SEI ($0.0199)",
       nativeTransfer: "",
     },
     "Sei Mainnet": {
-      smartAccountDeployment: "0.000477857492620821 SEI (0.0003 USD)",
+      smartAccountDeployment: "0.000411820240400298 SEI ($0.0002)",
       nativeTransfer: "",
     },
     "Combo Testnet": {
-      smartAccountDeployment: "0.00000323170908512 undefined (0 USD)",
+      smartAccountDeployment: "0.000004037223334683 BNB ($0.0029)",
       nativeTransfer: "",
     },
     "Metal L2 Testnet": {
-      smartAccountDeployment: "0.000109881770275992 undefined (0 USD)",
-      nativeTransfer: "0.00008500913000643 undefined ($0)",
+      smartAccountDeployment: "0.000163900326954888 ETH ($0.6340)",
+      nativeTransfer: "0.000126870932453958 ETH ($0.4907)",
     },
     "Metal L2 Mainnet": {
-      smartAccountDeployment: "0.00002496407187357 ETH (0.0966 USD)",
-      nativeTransfer: "0.000019201968243642 ETH ($0.0743)",
+      smartAccountDeployment: "0.000038629071457518 ETH ($0.1494)",
+      nativeTransfer: "0.000030005269855722 ETH ($0.1161)",
     },
     "Morph Holesky Testnet": {
-      smartAccountDeployment: "0.0000684826452 ETH (0.2649 USD)",
+      smartAccountDeployment: "0.0000684826452 ETH ($0.2649)",
       nativeTransfer: "0.0000278909476 ETH ($0.1079)",
     },
     "Morph Mainnet": {
-      smartAccountDeployment: "0.000003017146544811 ETH (0.0117 USD)",
-      nativeTransfer: "0.000001228774455843 ETH ($0.0048)",
+      smartAccountDeployment: "0.000002538794962557 ETH ($0.0098)",
+      nativeTransfer: "0.000001033959190341 ETH ($0.0040)",
     },
     "Lisk Sepolia Testnet": {
-      smartAccountDeployment: "0.000002109209897013 ETH (0.0082 USD)",
+      smartAccountDeployment: "0.000002931620011796 ETH ($0.0113)",
       nativeTransfer: "",
     },
     "Gold Chain Mainnet": {
-      smartAccountDeployment: "0.000000345398933795 undefined (0 USD)",
+      smartAccountDeployment: "0.000000345660012356 ETH ($0.0013)",
       nativeTransfer: "",
     },
     "Mantle Mainnet": {
-      smartAccountDeployment: "0.00218006592 MNT (0.0026 USD)",
-      nativeTransfer: "0.001743232488 MNT ($0.0021)",
+      smartAccountDeployment: "0.003624621816 MNT ($0.0044)",
+      nativeTransfer: "0.002896488312 MNT ($0.0035)",
     },
     "Mantle Testnet": {
-      smartAccountDeployment: "0.010088805648 MNT (0.0122 USD)",
+      smartAccountDeployment: "0.015214216704 MNT ($0.0184)",
       nativeTransfer: "",
     },
     "Mantle Sepolia Testnet": {
-      smartAccountDeployment: "0.010624937616 MNT (0.0129 USD)",
+      smartAccountDeployment: "0.015214216704 MNT ($0.0184)",
       nativeTransfer: "",
     },
     "Base Mainnet": {
-      smartAccountDeployment: "0.000006856642600822 ETH (0.0265 USD)",
-      nativeTransfer: "0.000002457485114517 ETH ($0.0095)",
+      smartAccountDeployment: "0.000007279579431554 ETH ($0.0282)",
+      nativeTransfer: "0.000002628016350701 ETH ($0.0102)",
     },
     "Combo Mainnet": {
-      smartAccountDeployment: "0.000000918621267517 undefined (0 USD)",
+      smartAccountDeployment: "0.000000918621267517 BNB ($0.0007)",
       nativeTransfer: "",
     },
     "ZeroOne Mainnet": {
-      smartAccountDeployment: "0.010211850000340395 undefined (0 USD)",
+      smartAccountDeployment: "0.010211850000340395 AVAX ($0.5081)",
       nativeTransfer: "",
     },
     "Boba Sepolia Testnet": {
-      smartAccountDeployment: "0.000075692578332852 ETH (0.2928 USD)",
+      smartAccountDeployment: "0.000126391906874304 ETH ($0.4889)",
       nativeTransfer: "",
     },
     "Arbitrum Mainnet": {
-      smartAccountDeployment: "0.00000608298 ETH (0.0235 USD)",
-      nativeTransfer: "0.000003375696 ETH ($0.0131)",
+      smartAccountDeployment: "0.000006246648 ETH ($0.0242)",
+      nativeTransfer: "0.000003543204 ETH ($0.0137)",
     },
     "Avalanche Fuji Testnet": {
-      smartAccountDeployment: "0.000408445200340371 AVAX (0.0203 USD)",
+      smartAccountDeployment: "0.000408445200340371 AVAX ($0.0203)",
       nativeTransfer: "",
     },
     "Avalanche Mainnet": {
-      smartAccountDeployment: "0.000412064718148098 AVAX (0.0205 USD)",
-      nativeTransfer: "0.000167792667032762 AVAX ($0.0083)",
+      smartAccountDeployment: "0.000417752310750678 AVAX ($0.0208)",
+      nativeTransfer: "0.000170108653550782 AVAX ($0.0085)",
     },
     "ZeroOne Testnet": {
-      smartAccountDeployment: "0.010211850000340395 undefined (0 USD)",
+      smartAccountDeployment: "0.010211850000340395 AVAX ($0.5081)",
       nativeTransfer: "",
     },
     "Linea Mainnet": {
-      smartAccountDeployment: "0.000036563209093722 ETH (0.1414 USD)",
+      smartAccountDeployment: "0.000039184300728334 ETH ($0.1516)",
       nativeTransfer: "",
     },
     "Polygon Amoy": {
-      smartAccountDeployment: "0.012254220001021185 POL (0.0073 USD)",
-      nativeTransfer: "0.004991724000415977 POL ($0.0030)",
+      smartAccountDeployment: "0.010211850001021185 POL ($0.0061)",
+      nativeTransfer: "0.004159770000415977 POL ($0.0025)",
     },
     "Berachain bArtio Testnet": {
-      smartAccountDeployment: "0.004187288402205645 BERA (0.0000 USD)",
-      nativeTransfer: "0.001705533204367297 BERA ($0.0000)",
+      smartAccountDeployment: "0.00539353656014151 BERA ($0.0000)",
+      nativeTransfer: "0.002196852666619486 BERA ($0.0000)",
     },
     "Blast Mainnet": {
-      smartAccountDeployment: "0.000000544199877732 ETH (0.0021 USD)",
+      smartAccountDeployment: "0.000000712094073873 ETH ($0.0028)",
       nativeTransfer: "",
     },
     "Base Sepolia Testnet": {
-      smartAccountDeployment: "0.000000530941558992 ETH (0.0021 USD)",
+      smartAccountDeployment: "0.0000006029519846 ETH ($0.0023)",
       nativeTransfer: "",
     },
     "Chiliz Spicy Testnet": {
-      smartAccountDeployment: "0.994435115 CHZ (0.1098 USD)",
+      smartAccountDeployment: "0.994435115 CHZ ($0.1098)",
       nativeTransfer: "0.27398455 CHZ ($0.0302)",
     },
     "Chiliz Mainnet": {
-      smartAccountDeployment: "0.994435115 CHZ (0.1098 USD)",
+      smartAccountDeployment: "0.994435115 CHZ ($0.1098)",
       nativeTransfer: "0.273954538 CHZ ($0.0302)",
     },
     "Arbitrum Sepolia Testnet": {
-      smartAccountDeployment: "0.0000444582 ETH (0.1720 USD)",
+      smartAccountDeployment: "0.00004907724 ETH ($0.1898)",
       nativeTransfer: "",
     },
     "Scroll Sepolia Testnet": {
-      smartAccountDeployment: "0.000018880645540122 ETH (0.0730 USD)",
-      nativeTransfer: "0.000007688194914418 ETH ($0.0297)",
+      smartAccountDeployment: "0.000019298448900396 ETH ($0.0746)",
+      nativeTransfer: "0.000007858324355324 ETH ($0.0304)",
     },
     "Scroll Mainnet": {
-      smartAccountDeployment: "0.000020687825623104 ETH (0.0800 USD)",
-      nativeTransfer: "0.000008425536991552 ETH ($0.0326)",
+      smartAccountDeployment: "0.000019869132618288 ETH ($0.0769)",
+      nativeTransfer: "0.000008092107644144 ETH ($0.0313)",
     },
     "Ethereum Sepolia": {
-      smartAccountDeployment: "0.018733963697988 ETH (72.4630 USD)",
+      smartAccountDeployment: "0.01909431775064352 ETH ($73.8568)",
       nativeTransfer: "",
     },
     "Optimism Testnet": {
-      smartAccountDeployment: "0.000001693544298465 ETH (0.0066 USD)",
-      nativeTransfer: "0.000001168969109315 ETH ($0.0045)",
+      smartAccountDeployment: "0.000002104153262436 ETH ($0.0081)",
+      nativeTransfer: "0.000001484757261318 ETH ($0.0057)",
     },
     "Blast Sepolia Testnet": {
-      smartAccountDeployment: "0.000000340449784794 ETH (0.0013 USD)",
+      smartAccountDeployment: "0.000000340449784794 ETH ($0.0013)",
       nativeTransfer: "",
     },
     "Degen Mainnet": {
-      smartAccountDeployment: "0.04084452 DEGEN (0.0006 USD)",
+      smartAccountDeployment: "0.04084452 DEGEN ($0.0006)",
       nativeTransfer: "",
     },
   },
-  v070: {},
+  v070: {
+    "Ethereum Mainnet": {
+      smartAccountDeployment: "0.007378329105994693 ETH ($28.5394)",
+      nativeTransfer: "",
+    },
+    "Optimism Mainnet": {
+      smartAccountDeployment: "0.000001167752462937 ETH ($0.0045)",
+      nativeTransfer: "",
+    },
+    "Binance Smart Chain": {
+      smartAccountDeployment: "0.000461057 BNB ($0.3301)",
+      nativeTransfer: "",
+    },
+    "Binance Smart Chain Testnet": {
+      smartAccountDeployment: "0.000461057 tBNB ($0.3301)",
+      nativeTransfer: "",
+    },
+    "Gnosis Mainnet": {
+      smartAccountDeployment: "0.000536514375687384 XDAI ($0.0005)",
+      nativeTransfer: "",
+    },
+    "Polygon Mainnet": {
+      smartAccountDeployment: "0.022769048851373979 POL ($0.0136)",
+      nativeTransfer: "",
+    },
+    "Base Mainnet": {
+      smartAccountDeployment: "0.000009981299887713 ETH ($0.0386)",
+      nativeTransfer: "",
+    },
+    "Arbitrum Mainnet": {
+      smartAccountDeployment: "0.000012426276 ETH ($0.0481)",
+      nativeTransfer: "",
+    },
+    "Polygon Amoy": {
+      smartAccountDeployment: "0.013557192601383387 POL ($0.0081)",
+      nativeTransfer: "",
+    },
+    "Arbitrum Sepolia Testnet": {
+      smartAccountDeployment: "0.00007701648 ETH ($0.2979)",
+      nativeTransfer: "",
+    },
+    "Ethereum Sepolia": {
+      smartAccountDeployment: "0.028422518370393686 ETH ($109.9383)",
+      nativeTransfer: "",
+    },
+  },
 };
 
 function benchmarkResultsToMarkdownTable(benchmarkResults: BenchmarkResults) {
-  const entryPoints = Object.keys(benchmarkResults).map(
-    (k) => k as EntryPointVersion
-  );
-
   const header = ["Chain", "Smart Account Deployment", "Native Transfer"];
 
-  const chains = Object.keys(benchmarkResults[entryPoints[0]]);
-  chains.sort();
+  const v6results = benchmarkResults[EntryPointVersion.v060];
+  const v7results = benchmarkResults[EntryPointVersion.v070];
 
-  let maxColumnLength = 0;
-  const rows = chains.map((chain) => {
-    const row = [chain];
-    const { smartAccountDeployment, nativeTransfer } =
-      benchmarkResults[entryPoints[0]][chain];
+  const resultsToRows = (results: Record<string, any>) => {
+    const chains = Object.keys(results);
+    chains.sort();
 
-    row.push(smartAccountDeployment);
-    row.push(nativeTransfer);
-    maxColumnLength = Math.max(
-      maxColumnLength,
-      smartAccountDeployment.length,
-      nativeTransfer.length
-    );
+    return chains.map((chain) => {
+      const { smartAccountDeployment, nativeTransfer } = results[chain];
 
-    // console.log(row);
-    // const { smartAccountDeployment, nativeTransfer } =
-    //   benchmarkResults[entryPoint][chain];
-    // row.push(`${smartAccountDeployment} | ${nativeTransfer}`);
-    return row;
-  });
-
-  // console.log(rows);
+      return [chain, smartAccountDeployment, nativeTransfer];
+    });
+  };
 
   const tableHeader = `| ${header.join(" | ")} |`;
   const delimiter = `| ---- | ---- | ---- |`;
 
-  const resultRows = rows.map((row) => "| " + row.join(" | ") + " | ");
-  console.log(resultRows);
+  const v6rows = resultsToRows(v6results);
+  const v6ResultRows = v6rows.map((row) => "| " + row.join(" | ") + " | ");
 
-  const tableRows = [tableHeader, delimiter, ...resultRows];
+  const v6TableRows = [tableHeader, delimiter, ...v6ResultRows];
 
-  // console.log(tableRows);
-  const markdownTable = tableRows.join("\n");
-  console.log(markdownTable);
+  const v6MarkdownTable = v6TableRows.join("\n");
+
+  console.log("# Gas Estimation Benchmark Results");
+
+  console.log("## EntryPoint v0.6.0");
+  console.log();
+  console.log(v6MarkdownTable);
+  console.log();
+
+  const v7Rows = resultsToRows(v7results);
+  const v7ResultRows = v7Rows.map((row) => "| " + row.join(" | ") + " | ");
+
+  const v7TableRows = [tableHeader, delimiter, ...v7ResultRows];
+  const v7MarkdownTable = v7TableRows.join("\n");
+
+  console.log("## EntryPoint v0.7.0");
+  console.log();
+  console.log(v7MarkdownTable);
 }
 
 benchmarkResultsToMarkdownTable(benchmarkResults);

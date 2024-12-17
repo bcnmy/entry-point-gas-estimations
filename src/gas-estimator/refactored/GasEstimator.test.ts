@@ -260,6 +260,9 @@ describe("GasEstimator", () => {
               validUntil,
             } = gasEstimate;
 
+            // console.log(`Entry point v0.6.0 gas estimate:`);
+            // console.log(gasEstimate);
+
             expect(callGasLimit).toBeGreaterThan(0n);
             expect(verificationGasLimit).toBeGreaterThan(0n);
             expect(preVerificationGas).toBeGreaterThan(0n);
@@ -570,7 +573,8 @@ describe("GasEstimator", () => {
           expect(paymasterPostOpGasLimit).toBe(0n);
           expect(paymasterVerificationGasLimit).toBe(0n);
 
-          console.log(estimate);
+          // console.log(`Entry point v0.7.0 gas estimate:`);
+          // console.log(estimate);
           const {
             requiredPrefundEth,
             requiredPrefundWei,

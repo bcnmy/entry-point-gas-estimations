@@ -9,7 +9,7 @@ import {
   CalculatePreVerificationGasParams,
   CalculatePreVerificationGas,
 } from "../types";
-import { RpcError, packUserOp } from "../utils";
+import { packUserOp } from "../utils";
 import { GasEstimator } from "./EVMGasEstimator";
 
 /**
