@@ -24,12 +24,12 @@ import {
   CALL_GAS_LIMIT_BINARY_SEARCH_BYTECODE,
   VERIFICATION_GAS_LIMIT_BINARY_SEARCH_BYTECODE,
 } from "./bytecode";
+import { removeSpecialCharacters } from "./utils";
 import {
   CALL_GAS_ESTIMATION_SIMULATOR,
-  UserOperation,
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
-} from "../../gas-estimator/entry-point-v6";
-import { removeSpecialCharacters } from "./utils";
+} from "./abi";
+import { UserOperationV6 } from "./UserOperationV6";
 
 export class EntryPointV6Simulations extends EntryPointV6 {
   constructor(
@@ -267,7 +267,7 @@ class UnknownError extends Error {
 }
 
 interface EstimateVerificationGasLimitParams {
-  userOperation: UserOperation;
+  userOperation: UserOperationV6;
 }
 
 interface EstimateVerificationGasLimitResult {

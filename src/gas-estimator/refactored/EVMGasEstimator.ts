@@ -3,28 +3,21 @@ import {
   isExecutionResultV6,
   StateOverrideSet,
 } from "../../entrypoint/v0.6.0/types";
-import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
 import {
-  Address,
-  ByteArray,
-  parseEther,
-  PublicClient,
-  toBytes,
-  toHex,
-} from "viem";
-import { defaultGasOverheads, packUserOp } from "../entry-point-v6";
-import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
+  packUserOpV6,
+  UserOperationV6,
+} from "../../entrypoint/v0.6.0/UserOperationV6";
+import { ByteArray, parseEther, PublicClient, toBytes, toHex } from "viem";
+
 import {
   packUserOpV7,
   toPackedUserOperation,
-  UserOperationV7,
 } from "../../entrypoint/v0.7.0/UserOperationV7";
 import { MakeOptional } from "../../shared/types";
 import { bumpBigIntPercent } from "../../shared/utils";
 import { EntryPoints, ExecutionResult, UserOperation } from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { defaultGasOverheads } from "./constants";
 
 export class EVMGasEstimator {
   constructor(
@@ -116,20 +109,26 @@ export class EVMGasEstimator {
     const { callGasLimit, verificationGasLimit, validAfter, validUntil } =
       this.estimateVerificationAndCallGasLimits(userOperation, executionResult);
 
+    let paymasterVerificationGasLimit: bigint | undefined;
+    let paymasterPostOpGasLimit: bigint | undefined;
+
+    if (entryPointVersion === EntryPointVersion.v070) {
+      paymasterVerificationGasLimit = userOperation.paymaster
+        ? verificationGasLimit
+        : 0n;
+      paymasterPostOpGasLimit = userOperation.paymaster
+        ? verificationGasLimit
+        : 0n;
+    }
+
     return {
       callGasLimit,
       verificationGasLimit,
       preVerificationGas,
       validAfter,
       validUntil,
-      paymasterVerificationGasLimit:
-        entryPointVersion === EntryPointVersion.v070
-          ? verificationGasLimit
-          : undefined,
-      paymasterPostOpGasLimit:
-        entryPointVersion === EntryPointVersion.v070
-          ? verificationGasLimit
-          : undefined,
+      paymasterVerificationGasLimit,
+      paymasterPostOpGasLimit,
     };
   }
 
@@ -206,7 +205,7 @@ export class EVMGasEstimator {
     let packed: ByteArray;
 
     if (entryPointVersion === EntryPointVersion.v060) {
-      packed = toBytes(packUserOp(userOperation, true));
+      packed = toBytes(packUserOpV6(userOperation, true));
     } else {
       const packedUserOperation = toPackedUserOperation(userOperation);
       packed = toBytes(packUserOpV7(packedUserOperation));
@@ -280,24 +279,6 @@ export interface EstimateUserOperationGasParams {
 interface EstimateUserOperationGasOptions {
   useBinarySearch: boolean;
   overrideSenderBalance: boolean;
-}
-
-export interface IEntryPointV6 {
-  address: Address;
-  simulateHandleOp: typeof EntryPointV6.prototype.simulateHandleOp;
-  getNonce: typeof EntryPointV6.prototype.getNonce;
-  encodeHandleOpsFunctionData: typeof EntryPointV6.prototype.encodeHandleOpsFunctionData;
-}
-
-export interface IEntryPointV6Simulations extends IEntryPointV6 {
-  estimateVerificationGasLimit: typeof EntryPointV6Simulations.prototype.estimateVerificationGasLimit;
-  estimateCallGasLimit: typeof EntryPointV6Simulations.prototype.estimateCallGasLimit;
-}
-
-export interface IEntryPointV7Simulations {
-  address: Address;
-  simulateHandleOp: typeof EntryPointV7Simulations.prototype.simulateHandleOp;
-  encodeHandleOpsFunctionData: typeof EntryPointV7Simulations.prototype.encodeHandleOpsFunctionData;
 }
 
 export interface SimulationOptions {

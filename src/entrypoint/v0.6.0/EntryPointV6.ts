@@ -68,8 +68,6 @@ export class EntryPointV6 {
       });
       throw new Error("SimulateHandleOp should always revert");
     } catch (err: any) {
-      // console.log(err.message);
-      // console.log(err);
       const data = this.parseRpcRequestErrorData(err);
       return this.parseSimulateHandleOpExecutionResult(data);
     }

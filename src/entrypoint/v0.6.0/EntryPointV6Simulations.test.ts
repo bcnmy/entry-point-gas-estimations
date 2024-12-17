@@ -8,10 +8,6 @@ import {
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
-  ENTRY_POINT_ABI,
-  UserOperation,
-} from "../../gas-estimator/entry-point-v6";
-import {
   BiconomySmartAccountV2,
   createSmartAccountClient,
   getCustomChain,
@@ -21,8 +17,8 @@ import * as chains from "viem/chains";
 import config from "config";
 import { SupportedChain } from "../../shared/config";
 import { EntryPointV6Simulations } from "./EntryPointV6Simulations";
-import { ENTRYPOINT_V6_ADDRESS } from "./constants";
 import { EntryPointVersion } from "../shared/types";
+import { UserOperationV6 } from "./UserOperationV6";
 
 describe("EntryPointV6Simulations", () => {
   const privateKey = generatePrivateKey();
@@ -34,15 +30,16 @@ describe("EntryPointV6Simulations", () => {
   const includeChainIds = config.get<number[]>("includeInTests");
   const excludeChainIds = config.get<number[]>("excludeFromTests");
 
+  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
+
   for (const supportedChain of Object.values(supportedChains)
     .map((c) => c)
     .filter(
       (c) =>
-        c.stateOverrideSupport.bytecode ||
-        (c.chainId === 1 &&
-          c.entryPoints?.[EntryPointVersion.v060].existingSmartAccountAddress &&
-          !excludeChainIds.includes(c.chainId) &&
-          (includeChainIds.length === 0 || includeChainIds.includes(c.chainId)))
+        c.stateOverrideSupport.bytecode &&
+        c.entryPoints?.[EntryPointVersion.v060].existingSmartAccountAddress &&
+        !excludeChainIds.includes(c.chainId) &&
+        (includeChainIds.length === 0 || includeChainIds.includes(c.chainId))
     )) {
     describe(`${supportedChain.name} (${supportedChain.chainId})`, () => {
       const bundlerUrl = `https://bundler.biconomy.io/api/v2/${supportedChain.chainId}/whatever`;
@@ -67,8 +64,14 @@ describe("EntryPointV6Simulations", () => {
       });
 
       let smartAccount: BiconomySmartAccountV2;
-      let userOperation: UserOperation;
+      let userOperation: UserOperationV6;
 
+      const epv6Simulator = new EntryPointV6Simulations(
+        viemClient,
+        supportedChain.entryPoints?.["v060"].address as Address
+      );
+
+      let maxFeePerGas: bigint, maxPriorityFeePerGas: bigint;
       beforeAll(async () => {
         smartAccount = await createSmartAccountClient({
           signer,
@@ -90,27 +93,22 @@ describe("EntryPointV6Simulations", () => {
           "0x"
         );
 
-        const { maxFeePerGas, maxPriorityFeePerGas } =
-          await viemClient.estimateFeesPerGas();
-
-        const epContract = getContract({
-          abi: ENTRY_POINT_ABI,
-          address:
-            (supportedChain.entryPoints?.["v060"].address as Address) ||
-            ENTRYPOINT_V6_ADDRESS,
-          client: viemClient,
-        });
-
-        let nonce = 0n;
-        try {
-          nonce = await epContract.read.getNonce([
+        const [fees, nonce] = await Promise.all([
+          viemClient.estimateFeesPerGas(),
+          epv6Simulator.getNonce(
             supportedChain.entryPoints?.["v060"]
-              .existingSmartAccountAddress! as Address,
-            0n,
-          ]);
-        } catch (err) {
-          console.error(err);
+              .existingSmartAccountAddress! as Address
+          ),
+        ]);
+
+        if (nonce === 0n) {
+          fail(
+            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`
+          );
         }
+
+        maxFeePerGas = fees.maxFeePerGas;
+        maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
 
         const unsignedUserOperation: Partial<UserOperationStruct> = {
           // we are using an existing deployed account so we don't get AA20 account not deployed
@@ -129,16 +127,11 @@ describe("EntryPointV6Simulations", () => {
 
         userOperation = (await smartAccount.signUserOp(
           unsignedUserOperation
-        )) as UserOperation;
+        )) as UserOperationV6;
       }, 10_000);
 
       describe("estimateVerificationGasLimit", () => {
         it("should return a value greater than 0", async () => {
-          const epv6Simulator = new EntryPointV6Simulations(
-            viemClient,
-            supportedChain.entryPoints?.["v060"].address as Address
-          );
-
           const estimateResult =
             await epv6Simulator.estimateVerificationGasLimit({
               userOperation,

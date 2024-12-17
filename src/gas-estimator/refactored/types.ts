@@ -1,3 +1,4 @@
+import { Address } from "viem";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
 import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
@@ -20,3 +21,21 @@ export type EntryPoints = {
     contract: EntryPointV7Simulations;
   };
 };
+
+export interface IEntryPointV6 {
+  address: Address;
+  simulateHandleOp: typeof EntryPointV6.prototype.simulateHandleOp;
+  getNonce: typeof EntryPointV6.prototype.getNonce;
+  encodeHandleOpsFunctionData: typeof EntryPointV6.prototype.encodeHandleOpsFunctionData;
+}
+
+export interface IEntryPointV6Simulations extends IEntryPointV6 {
+  estimateVerificationGasLimit: typeof EntryPointV6Simulations.prototype.estimateVerificationGasLimit;
+  estimateCallGasLimit: typeof EntryPointV6Simulations.prototype.estimateCallGasLimit;
+}
+
+export interface IEntryPointV7Simulations {
+  address: Address;
+  simulateHandleOp: typeof EntryPointV7Simulations.prototype.simulateHandleOp;
+  encodeHandleOpsFunctionData: typeof EntryPointV7Simulations.prototype.encodeHandleOpsFunctionData;
+}

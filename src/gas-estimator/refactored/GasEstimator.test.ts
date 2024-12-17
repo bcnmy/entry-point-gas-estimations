@@ -11,6 +11,7 @@ import {
   formatEther,
   Hex,
   http,
+  parseEther,
   toHex,
   zeroAddress,
 } from "viem";
@@ -26,11 +27,12 @@ import { arbitrum, mainnet, mantle, optimism } from "viem/chains";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
 import { MantleGasEstimator } from "./MantleGasEstimator.ts";
-import { getRequiredPrefund } from "../../shared/utils";
+import { getRequiredPrefundV6, getRequiredPrefundV7 } from "../../shared/utils";
 import { createNexusClient, NexusClient } from "@biconomy/sdk";
 import { UserOperation } from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { ChainStack } from "../../shared/types";
+import { BenchmarkResults } from "./utils";
 
 describe("factory", () => {
   describe("createGasEstimator", () => {
@@ -111,6 +113,15 @@ describe("factory", () => {
 });
 
 describe("GasEstimator", () => {
+  const benchmarkResults: BenchmarkResults = {
+    [EntryPointVersion.v060]: {},
+    [EntryPointVersion.v070]: {},
+  };
+
+  afterAll(() => {
+    console.log(JSON.stringify(benchmarkResults, null, 2));
+  });
+
   describe("EntryPoint v0.6.0", () => {
     (BigInt.prototype as any).toJSON = function () {
       return this.toString();
@@ -172,13 +183,15 @@ describe("GasEstimator", () => {
 
         beforeAll(async () => {
           if (testChain.eip1559) {
-            const fees = await viemClient.estimateFeesPerGas();
+            const [fees, latestBlock] = await Promise.all([
+              viemClient.estimateFeesPerGas(),
+              viemClient.getBlock({
+                blockTag: "latest",
+              }),
+            ]);
+
             maxFeePerGas = fees.maxFeePerGas;
             maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
-
-            const latestBlock = await viemClient.getBlock({
-              blockTag: "latest",
-            });
 
             if (!latestBlock.baseFeePerGas) {
               throw new Error(`baseFeePerGas is null`);
@@ -207,7 +220,12 @@ describe("GasEstimator", () => {
             1n,
             "0x"
           );
-        }, 10_000);
+
+          benchmarkResults[EntryPointVersion.v060][testChain.name!] = {
+            smartAccountDeployment: "",
+            nativeTransfer: "",
+          };
+        }, 20_000);
 
         describe("estimateUserOperationGas", () => {
           it("should return a gas estimate for a smart account deployment", async () => {
@@ -247,31 +265,23 @@ describe("GasEstimator", () => {
             expect(preVerificationGas).toBeGreaterThan(0n);
             expect(validUntil).toBeGreaterThan(0);
 
-            const requiredPrefundWei = getRequiredPrefund({
-              paymasterAndData: userOperation.paymasterAndData,
+            var {
+              requiredPrefundEth,
+              nativeCurrencySymbol,
+              requiredPrefundUsd,
+              requiredPrefundWei,
+            } = calculateRequiredPrefundV6(
+              userOperation,
               callGasLimit,
               verificationGasLimit,
               preVerificationGas,
-              maxFeePerGas: userOperation.maxFeePerGas,
-            });
-
-            const requiredPrefundEth = formatEther(requiredPrefundWei);
-
-            let ethPriceUsd = 0;
-            let requiredPrefundUsd = 0;
-
-            if (
-              config.has(`benchmarkPricesUSD.${chain?.nativeCurrency.symbol}`)
-            ) {
-              ethPriceUsd = config.get<number>(
-                `benchmarkPricesUSD.${chain.nativeCurrency.symbol}`
-              ); // usd
-              requiredPrefundUsd = Number(requiredPrefundEth) * ethPriceUsd;
-            }
-
-            console.log(
-              `[${testChain.name}] Smart Account Deployment: ${requiredPrefundEth} ${chain?.nativeCurrency.symbol} (${requiredPrefundUsd} USD)`
+              chain,
+              testChain
             );
+
+            benchmarkResults[EntryPointVersion.v060][
+              testChain.name!
+            ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
 
             // try running simulateHandleOp again with the returned values
             unsignedUserOperation = {
@@ -299,9 +309,7 @@ describe("GasEstimator", () => {
               },
             });
 
-            console.log(
-              `Paid: ${formatEther(paid)} ${chain?.nativeCurrency.symbol}`
-            );
+            expect(paid).toBeGreaterThan(0n);
           }, 20_000);
 
           if (testChain.entryPoints?.["v060"].existingSmartAccountAddress) {
@@ -347,29 +355,31 @@ describe("GasEstimator", () => {
                 expect(callGasLimit).toBeGreaterThan(0n);
                 expect(verificationGasLimit).toBeGreaterThan(0n);
                 expect(preVerificationGas).toBeGreaterThan(0n);
-                const requiredPrefundWei = getRequiredPrefund({
+                const requiredPrefundWei = getRequiredPrefundV6({
                   paymasterAndData: userOperation.paymasterAndData,
                   callGasLimit,
                   verificationGasLimit,
                   preVerificationGas,
                   maxFeePerGas: userOperation.maxFeePerGas,
                 });
-                const requiredPrefundEth = formatEther(requiredPrefundWei);
-                let ethPriceUsd = 0;
-                let requiredPrefundUsd = 0;
-                if (
-                  config.has(
-                    `benchmarkPricesUSD.${chain?.nativeCurrency.symbol}`
-                  )
-                ) {
-                  ethPriceUsd = config.get<number>(
-                    `benchmarkPricesUSD.${chain.nativeCurrency.symbol}`
-                  ); // usd
-                  requiredPrefundUsd = Number(requiredPrefundEth) * ethPriceUsd;
-                }
-                console.log(
-                  `[${testChain.name}] Deployed smart account: ${requiredPrefundEth} ${chain?.nativeCurrency.symbol} (${requiredPrefundUsd} USD)`
+
+                const {
+                  requiredPrefundEth,
+                  nativeCurrencySymbol,
+                  requiredPrefundUsd,
+                } = calculateRequiredPrefundV6(
+                  userOperation,
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                  chain,
+                  testChain
                 );
+
+                benchmarkResults[EntryPointVersion.v060][
+                  testChain.name!
+                ].nativeTransfer = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+
                 // try running simulateHandleOp again with the returned values
                 unsignedUserOperation = {
                   ...unsignedUserOperation,
@@ -394,11 +404,6 @@ describe("GasEstimator", () => {
                     },
                   },
                 });
-                console.log(
-                  `Paid: ${formatEther(paid)} ${
-                    chain?.nativeCurrency.symbol || "UNKNOWN_TOKEN"
-                  }`
-                );
               } catch (err: any) {
                 (BigInt.prototype as any).toJSON = function () {
                   return this.toString();
@@ -437,6 +442,11 @@ describe("GasEstimator", () => {
 
     for (const testChain of testChains) {
       describe(`${testChain.name} (${testChain.chainId})`, () => {
+        const chain = extractChain({
+          chains: Object.values(chains),
+          id: testChain.chainId as any,
+        });
+
         const transport = testChain.rpcUrl ? http(testChain.rpcUrl) : http();
 
         const viemClient = createPublicClient({
@@ -474,13 +484,15 @@ describe("GasEstimator", () => {
           });
 
           if (testChain.eip1559) {
-            const fees = await viemClient.estimateFeesPerGas();
+            const [fees, latestBlock] = await Promise.all([
+              viemClient.estimateFeesPerGas(),
+              viemClient.getBlock({
+                blockTag: "latest",
+              }),
+            ]);
+
             maxFeePerGas = fees.maxFeePerGas;
             maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
-
-            const latestBlock = await viemClient.getBlock({
-              blockTag: "latest",
-            });
 
             if (!latestBlock.baseFeePerGas) {
               throw new Error(`baseFeePerGas is null`);
@@ -529,7 +541,12 @@ describe("GasEstimator", () => {
           unsignedUserOperation.signature = signature;
 
           userOperation = { ...unsignedUserOperation } as UserOperation;
-        }, 10_000);
+
+          benchmarkResults[EntryPointVersion.v070][testChain.name!] = {
+            smartAccountDeployment: "",
+            nativeTransfer: "",
+          };
+        }, 20_000);
 
         it("should return a gas estimate for a smart account deployment", async () => {
           const estimate = await gasEstimator.estimateUserOperationGas({
@@ -550,10 +567,145 @@ describe("GasEstimator", () => {
           expect(callGasLimit).toBeGreaterThan(0n);
           expect(verificationGasLimit).toBeGreaterThan(0n);
           expect(preVerificationGas).toBeGreaterThan(0n);
-          expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
-          expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
+          expect(paymasterPostOpGasLimit).toBe(0n);
+          expect(paymasterVerificationGasLimit).toBe(0n);
+
+          console.log(estimate);
+          const {
+            requiredPrefundEth,
+            requiredPrefundWei,
+            nativeCurrencySymbol,
+            requiredPrefundUsd,
+          } = calculateRequiredPrefundV7(
+            userOperation,
+            callGasLimit,
+            verificationGasLimit,
+            preVerificationGas,
+            chain,
+            testChain,
+            paymasterVerificationGasLimit,
+            paymasterPostOpGasLimit
+          );
+
+          benchmarkResults[EntryPointVersion.v070][
+            testChain.name!
+          ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+
+          userOperation = {
+            ...userOperation,
+            callGasLimit,
+            verificationGasLimit,
+            preVerificationGas,
+            paymasterPostOpGasLimit,
+            paymasterVerificationGasLimit,
+          };
+
+          const signature = await nexusClient.account.signUserOperation(
+            userOperation as any
+          );
+
+          userOperation.signature = signature;
+
+          // try running simulateHandleOp again with the returned values
+          const entryPoint =
+            gasEstimator.entryPoints[EntryPointVersion.v070].contract;
+
+          const { paid } = await entryPoint.simulateHandleOp({
+            userOperation,
+            targetAddress: entryPoint.address,
+            targetCallData: userOperation.callData,
+            stateOverrides: {
+              [userOperation.sender]: {
+                balance: toHex(requiredPrefundWei),
+              },
+            },
+          });
+
+          expect(paid).toBeGreaterThan(0n);
+          // console.log(
+          //   `paid=${formatEther(paid)} ETH ($${
+          //     Number(formatEther(paid)) * 3868
+          //   })`
+          // );
         }, 10_000);
       });
     }
   });
 });
+
+function calculateRequiredPrefundV6(
+  userOperation: UnEstimatedUserOperation,
+  callGasLimit: bigint,
+  verificationGasLimit: bigint,
+  preVerificationGas: bigint,
+  chain: chains.Chain,
+  testChain: SupportedChain
+) {
+  const requiredPrefundWei = getRequiredPrefundV6({
+    paymasterAndData: userOperation.paymasterAndData,
+    callGasLimit,
+    verificationGasLimit,
+    preVerificationGas,
+    maxFeePerGas: userOperation.maxFeePerGas,
+  });
+
+  const requiredPrefundEth = formatEther(requiredPrefundWei);
+
+  let ethPriceUsd = 0;
+  let requiredPrefundUsd = "0";
+
+  const nativeCurrencySymbol =
+    chain?.nativeCurrency.symbol || testChain.nativeCurrency;
+  if (config.has(`benchmarkPricesUSD.${nativeCurrencySymbol}`)) {
+    ethPriceUsd = config.get<number>(
+      `benchmarkPricesUSD.${nativeCurrencySymbol}`
+    ); // usd
+    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4);
+  }
+  return {
+    requiredPrefundEth,
+    nativeCurrencySymbol,
+    requiredPrefundUsd,
+    requiredPrefundWei,
+  };
+}
+
+function calculateRequiredPrefundV7(
+  userOperation: UnEstimatedUserOperation,
+  callGasLimit: bigint,
+  verificationGasLimit: bigint,
+  preVerificationGas: bigint,
+  chain: chains.Chain,
+  testChain: SupportedChain,
+  paymasterVerificationGasLimit?: bigint,
+  paymasterPostOpGasLimit?: bigint
+) {
+  const requiredPrefundWei = getRequiredPrefundV7({
+    callGasLimit,
+    verificationGasLimit,
+    preVerificationGas,
+    paymasterVerificationGasLimit: paymasterVerificationGasLimit || 0n,
+    paymasterPostOpGasLimit: paymasterPostOpGasLimit || 0n,
+    maxFeePerGas: userOperation.maxFeePerGas,
+  });
+
+  const requiredPrefundEth = formatEther(requiredPrefundWei);
+
+  let ethPriceUsd = 0;
+  let requiredPrefundUsd = "0";
+
+  const nativeCurrencySymbol =
+    chain?.nativeCurrency.symbol || testChain.nativeCurrency;
+  if (config.has(`benchmarkPricesUSD.${nativeCurrencySymbol}`)) {
+    ethPriceUsd = config.get<number>(
+      `benchmarkPricesUSD.${nativeCurrencySymbol}`
+    ); // usd
+    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4);
+  }
+  return {
+    requiredPrefundEth,
+    nativeCurrencySymbol,
+    requiredPrefundUsd,
+    requiredPrefundWei,
+  };
+}

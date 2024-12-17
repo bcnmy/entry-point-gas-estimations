@@ -17,7 +17,6 @@ import { ENTRYPOINT_V7_SIMULATIONS_ABI } from "./abi";
 import { toPackedUserOperation, UserOperationV7 } from "./UserOperationV7";
 import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
 import { ENTRYPOINT_V7_ADDRESS } from "./constants";
-import { z } from "zod";
 import { ExecutionResultV7 } from "./types";
 import { EntryPointVersion } from "../shared/types";
 

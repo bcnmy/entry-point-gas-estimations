@@ -2,7 +2,7 @@ import config from "config";
 import { SupportedChain } from "../../shared/config";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
-import { createPublicClient, http, toHex, zeroAddress } from "viem";
+import { createPublicClient, Hex, http, toHex, zeroAddress } from "viem";
 import { createNexusClient, getCustomChain, NexusClient } from "@biconomy/sdk";
 import { UserOperationV7 } from "./UserOperationV7";
 import { EntryPointV7Simulations } from "./EntryPointV7Simulations";
@@ -67,11 +67,32 @@ describe("EntryPointV7Simulations", () => {
           bundlerTransport: http("https://not-gonna-use-the-bundler.com"),
         });
 
-        const { maxFeePerGas, maxPriorityFeePerGas } =
-          await viemClient.estimateFeesPerGas();
+        let maxFeePerGas: bigint, maxPriorityFeePerGas: bigint;
+        let factory: Hex, factoryData: Hex;
 
-        const { factory, factoryData } =
-          await nexusClient.account.getFactoryArgs();
+        const [fees, factoryArgs, callData, nonce] = await Promise.all([
+          viemClient.estimateFeesPerGas(),
+          nexusClient.account.getFactoryArgs(),
+          nexusClient.account.encodeExecute({
+            to: zeroAddress,
+            data: "0x",
+            value: 1n,
+          }),
+          nexusClient.account.getNonce(),
+        ]);
+
+        if (!factoryArgs.factory) {
+          fail("Factory address is not defined");
+        }
+
+        if (!factoryArgs.factoryData) {
+          fail("Factory data is not defined");
+        }
+
+        maxFeePerGas = fees.maxFeePerGas;
+        maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
+        factory = factoryArgs.factory;
+        factoryData = factoryArgs.factoryData;
 
         const vitalik = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
         userOperation = {
@@ -84,11 +105,11 @@ describe("EntryPointV7Simulations", () => {
           callGasLimit: defaultCallGasLimit,
           maxFeePerGas,
           maxPriorityFeePerGas,
-          nonce: await nexusClient.account.getNonce(),
+          nonce,
           preVerificationGas: defaultPreVerificationGas,
           verificationGasLimit: defaultVerificationGasLimit,
-          factory: factory || "0x",
-          factoryData: factoryData || "0x",
+          factory,
+          factoryData,
           signature: "0x",
         };
 

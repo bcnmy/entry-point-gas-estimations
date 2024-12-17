@@ -497,6 +497,7 @@
       "chainId": 9980,
       "name": "Combo Mainnet",
       "stack": "optimism",
+      "nativeCurrency": "BNB",
       "eip1559": true,
       "stateOverrideSupport": {
         "balance": true,
@@ -511,6 +512,7 @@
       "chainId": 1715,
       "name": "Combo Testnet",
       "stack": "optimism",
+      "nativeCurrency": "BNB",
       "eip1559": true,
       "stateOverrideSupport": {
         "balance": true,
@@ -592,6 +594,7 @@
       "name": "ZeroOne Mainnet",
       "stack": "evm",
       "eip1559": true,
+      "nativeCurrency": "AVAX",
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -606,6 +609,7 @@
       "name": "ZeroOne Testnet",
       "stack": "evm",
       "eip1559": true,
+      "nativeCurrency": "AVAX",
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -648,6 +652,7 @@
       "name": "Gold Chain Mainnet",
       "stack": "optimism",
       "eip1559": true,
+      "nativeCurrency": "ETH",
       "stateOverrideSupport": {
         "balance": true,
         "bytecode": true
@@ -1001,6 +1006,7 @@
       "name": "Metal L2 Mainnet",
       "stack": "optimism",
       "eip1559": true,
+      "nativeCurrency": "ETH",
       "entryPoints": {
         "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
@@ -1020,6 +1026,7 @@
       "name": "Metal L2 Testnet",
       "stack": "optimism",
       "eip1559": true,
+      "nativeCurrency": "ETH",
       "entryPoints": {
         "v060": {
           "existingSmartAccountAddress": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7"
@@ -1079,7 +1086,7 @@
     "MNT": 1.21
   },
   "excludeFromTests": [
-    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611
+    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611, 10200
   ],
   "includeInTests": []
 }

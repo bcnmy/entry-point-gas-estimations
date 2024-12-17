@@ -4,9 +4,10 @@ import { ChainStack } from "./types";
 
 export const SupportedChainSchema = z.object({
   chainId: z.number(),
-  name: z.string().optional(),
+  name: z.string(),
   stack: z.nativeEnum(ChainStack),
   eip1559: z.boolean(),
+  nativeCurrency: z.string().optional(),
   entryPoints: z
     .object({
       [EntryPointVersion.v060]: z.object({

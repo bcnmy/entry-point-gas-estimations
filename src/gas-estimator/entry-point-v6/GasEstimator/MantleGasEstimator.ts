@@ -10,8 +10,8 @@ import {
   CalculatePreVerificationGasParams,
   CalculatePreVerificationGas,
 } from "../types";
-import { packUserOp } from "../utils";
 import { GasEstimator } from "./EVMGasEstimator";
+import { packUserOpV6 } from "../../../entrypoint/v0.6.0/UserOperationV6";
 
 /**
  * @remarks
@@ -30,7 +30,7 @@ export class MantleGasEstimator extends GasEstimator implements IGasEstimator {
     params: CalculatePreVerificationGasParams
   ): Promise<CalculatePreVerificationGas> {
     const { userOperation } = params;
-    const packed = toBytes(packUserOp(userOperation, false));
+    const packed = toBytes(packUserOpV6(userOperation, false));
     const callDataCost = packed
       .map((x: number) =>
         x === 0 ? defaultGasOverheads.zeroByte : defaultGasOverheads.nonZeroByte
