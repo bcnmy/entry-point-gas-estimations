@@ -11,7 +11,7 @@ import {
 } from "./types";
 import { ENTRYPOINT_V6_ABI } from "./abi";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
-import { UserOperationV6 } from "./UserOperationV6";
+import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
 import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
 
 export class EntryPointV6 {
@@ -38,6 +38,8 @@ export class EntryPointV6 {
     targetCallData,
     stateOverrides,
   }: SimulateHandleOpParams): Promise<ExecutionResultV6> {
+    userOperation = userOperationV6Schema.parse(userOperation);
+
     const simulateHandleOpParams: any = [
       {
         to: this.address,
@@ -80,6 +82,8 @@ export class EntryPointV6 {
     userOperation: UserOperationV6,
     beneficiary: Address
   ): Hex {
+    userOperation = userOperationV6Schema.parse(userOperation);
+
     return encodeFunctionData({
       abi: this.abi,
       functionName: "handleOps",

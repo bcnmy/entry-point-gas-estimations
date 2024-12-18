@@ -13,7 +13,11 @@ import {
   StateOverrideSet,
 } from "../v0.6.0/types";
 import { ENTRYPOINT_V7_SIMULATIONS_ABI } from "./abi";
-import { toPackedUserOperation, UserOperationV7 } from "./UserOperationV7";
+import {
+  toPackedUserOperation,
+  UserOperationV7,
+  userOperationV7Schema,
+} from "./UserOperationV7";
 import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
 import { ENTRYPOINT_V7_ADDRESS } from "./constants";
 import { ExecutionResultV7 } from "./types";
@@ -50,6 +54,8 @@ export class EntryPointV7Simulations {
     targetCallData,
     stateOverrides,
   }: SimulateHandleOpParams): Promise<ExecutionResultV7> {
+    userOperation = userOperationV7Schema.parse(userOperation);
+
     const packedUserOperation = toPackedUserOperation(userOperation);
 
     const simulateHandleOpParams: any = [

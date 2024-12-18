@@ -6,24 +6,24 @@ import {
 } from "../entry-point-v6";
 import { Hex, toRlp } from "viem";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
-import {
-  isUserOperationV6,
-  UserOperationV6,
-} from "../../entrypoint/v0.6.0/UserOperationV6";
+import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
 import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
 import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
 import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
+import {
+  isUserOperationV6,
+  UserOperation,
+  validateUserOperation,
+} from "./UserOperation";
 
 export class MantleGasEstimator extends EVMGasEstimator {
   override async estimatePreVerificationGas(
-    entryPointVersion: EntryPointVersion,
-    userOperation: UserOperationV6 | UserOperationV7,
+    userOperation: UserOperation,
     baseFeePerGas: bigint
   ): Promise<bigint> {
-    let l2Fee = await super.estimatePreVerificationGas(
-      entryPointVersion,
-      userOperation
-    );
+    userOperation = validateUserOperation(userOperation);
+
+    let l2Fee = await super.estimatePreVerificationGas(userOperation);
 
     const l2MaxFee = BigInt(userOperation.maxFeePerGas);
 

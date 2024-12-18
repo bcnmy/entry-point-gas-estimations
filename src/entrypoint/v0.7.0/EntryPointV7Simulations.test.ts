@@ -4,7 +4,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 import { createPublicClient, Hex, http, toHex, zeroAddress } from "viem";
 import { createNexusClient, getCustomChain, NexusClient } from "@biconomy/sdk";
-import { UserOperationV7 } from "./UserOperationV7";
+import { UserOperationV7, userOperationV7Schema } from "./UserOperationV7";
 import { EntryPointV7Simulations } from "./EntryPointV7Simulations";
 import { isExecutionResultV7 } from "./types";
 
@@ -95,7 +95,7 @@ describe("EntryPointV7Simulations", () => {
         factoryData = factoryArgs.factoryData;
 
         const vitalik = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
-        userOperation = {
+        const unSignedUserOperation = {
           sender: nexusClient.account.address,
           callData: await nexusClient.account.encodeExecute({
             to: vitalik,
@@ -114,9 +114,11 @@ describe("EntryPointV7Simulations", () => {
         };
 
         const signature = await nexusClient.account.signUserOperation(
-          userOperation
+          unSignedUserOperation as any
         );
-        userOperation.signature = signature;
+        unSignedUserOperation.signature = signature;
+
+        userOperation = userOperationV7Schema.parse(unSignedUserOperation);
       }, 10_000);
 
       it("simulateHandleOp should return an ExecutionResult given a balance override", async () => {

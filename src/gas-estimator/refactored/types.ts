@@ -6,12 +6,8 @@ import {
 import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
 import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
 import { ExecutionResultV6 } from "../../entrypoint/v0.6.0/types";
-import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
 import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
 import { ExecutionResultV7 } from "../../entrypoint/v0.7.0/types";
-import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
-
-export type UserOperation = UserOperationV6 & UserOperationV7;
 
 export type ExecutionResult = ExecutionResultV6 | ExecutionResultV7;
 
@@ -48,3 +44,38 @@ export type GasEstimatorRpcClient = Pick<
   "readContract" | "estimateGas"
 > &
   EntryPointRpcClient;
+
+export type EstimateUserOperationGasResult =
+  | EstimateUserOperationGasResultV6
+  | EstimateUserOperationGasResultV7;
+
+export interface EstimateUserOperationGasResultV6 {
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+  preVerificationGas: bigint;
+  validAfter: number;
+  validUntil: number;
+}
+
+export function isEstimateUserOperationGasResultV6(
+  result: EstimateUserOperationGasResult
+): result is EstimateUserOperationGasResultV6 {
+  return "validAfter" in result && "validUntil" in result;
+}
+
+export interface EstimateUserOperationGasResultV7 {
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+  preVerificationGas: bigint;
+  paymasterVerificationGasLimit: bigint;
+  paymasterPostOpGasLimit: bigint;
+}
+
+export function isEstimateUserOperationGasResultV7(
+  result: EstimateUserOperationGasResult
+): result is EstimateUserOperationGasResultV7 {
+  return (
+    "paymasterVerificationGasLimit" in result &&
+    "paymasterPostOpGasLimit" in result
+  );
+}

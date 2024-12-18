@@ -7,25 +7,38 @@ import {
 } from "../../shared/types";
 import z from "zod";
 
-export type UserOperationV7 = {
-  sender: Address;
-  nonce: bigint;
-  factory: Hex;
-  factoryData: Hex;
-  callData: Hex;
-  callGasLimit: bigint;
-  verificationGasLimit: bigint;
-  preVerificationGas: bigint;
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
-  paymaster?: Hex;
-  paymasterData?: Hex;
-  paymasterVerificationGasLimit?: bigint;
-  paymasterPostOpGasLimit?: bigint;
-  signature: Hex;
-};
+export const userOperationV7Schema = z
+  .object({
+    sender: z.string(),
+    nonce: z.coerce.bigint(),
+    factory: z.string().optional(),
+    factoryData: z.string().optional(),
+    callData: z.string(),
+    callGasLimit: z.coerce.bigint(),
+    verificationGasLimit: z.coerce.bigint(),
+    preVerificationGas: z.coerce.bigint(),
+    maxFeePerGas: z.coerce.bigint(),
+    maxPriorityFeePerGas: z.coerce.bigint(),
+    paymaster: z.string().optional(),
+    paymasterData: z.string().optional(),
+    paymasterVerificationGasLimit: z.coerce.bigint().optional(),
+    paymasterPostOpGasLimit: z.coerce.bigint().optional(),
+    signature: z.string(),
+  })
+  .transform((val) => ({
+    ...val,
+    sender: val.sender as Address,
+    factory: val.factory as Hex,
+    factoryData: val.factoryData as Hex,
+    callData: val.callData as Hex,
+    paymaster: val.paymaster as Hex,
+    paymasterData: val.paymasterData as Hex,
+    signature: val.signature as Hex,
+  }));
 
-const PackedUserOperationSchema = z
+export type UserOperationV7 = z.infer<typeof userOperationV7Schema>;
+
+const packedUserOperationSchema = z
   .object({
     sender: addressSchema,
     nonce: hexNumberSchema,
@@ -40,7 +53,7 @@ const PackedUserOperationSchema = z
   .strict()
   .transform((val) => val);
 
-export type PackedUserOperation = z.infer<typeof PackedUserOperationSchema>;
+export type PackedUserOperation = z.infer<typeof packedUserOperationSchema>;
 
 export function toPackedUserOperation(
   unpackedUserOperation: UserOperationV7

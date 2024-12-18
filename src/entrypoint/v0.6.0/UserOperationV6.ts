@@ -5,38 +5,32 @@ import {
   keccak256,
   parseAbiParameters,
 } from "viem";
+import z from "zod";
 
-export type UserOperationV6 = {
-  sender: Address;
-  nonce: bigint;
-  initCode: Hex;
-  callData: Hex;
-  callGasLimit: bigint;
-  verificationGasLimit: bigint;
-  preVerificationGas: bigint;
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
-  paymasterAndData: Hex;
-  signature: Hex;
-};
+export const userOperationV6Schema = z
+  .object({
+    sender: z.string(),
+    nonce: z.coerce.bigint(),
+    initCode: z.string(),
+    callData: z.string(),
+    callGasLimit: z.coerce.bigint(),
+    verificationGasLimit: z.coerce.bigint(),
+    preVerificationGas: z.coerce.bigint(),
+    maxFeePerGas: z.coerce.bigint(),
+    maxPriorityFeePerGas: z.coerce.bigint(),
+    paymasterAndData: z.string(),
+    signature: z.string(),
+  })
+  .transform((val) => ({
+    ...val,
+    sender: val.sender as Address,
+    initCode: val.initCode as Hex,
+    callData: val.callData as Hex,
+    paymasterAndData: val.paymasterAndData as Hex,
+    signature: val.signature as Hex,
+  }));
 
-export function isUserOperationV6(userOp: any): userOp is UserOperationV6 {
-  return (
-    typeof userOp === "object" &&
-    userOp !== null &&
-    "sender" in userOp &&
-    "nonce" in userOp &&
-    "initCode" in userOp &&
-    "callData" in userOp &&
-    "callGasLimit" in userOp &&
-    "verificationGasLimit" in userOp &&
-    "preVerificationGas" in userOp &&
-    "maxFeePerGas" in userOp &&
-    "maxPriorityFeePerGas" in userOp &&
-    "paymasterAndData" in userOp &&
-    "signature" in userOp
-  );
-}
+export type UserOperationV6 = z.infer<typeof userOperationV6Schema>;
 
 export function packUserOpV6(
   userOp: UserOperationV6,

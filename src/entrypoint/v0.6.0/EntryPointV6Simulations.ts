@@ -29,7 +29,7 @@ import {
   CALL_GAS_ESTIMATION_SIMULATOR,
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
 } from "./abi";
-import { UserOperationV6 } from "./UserOperationV6";
+import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
 import { EntryPointRpcClient } from "../shared/types";
 
 export class EntryPointV6Simulations extends EntryPointV6 {
@@ -58,9 +58,10 @@ export class EntryPointV6Simulations extends EntryPointV6 {
   }: EstimateVerificationGasLimitParams): Promise<EstimateVerificationGasLimitResult> {
     if (userOperation.initCode !== "0x") {
       throw new Error(
-        "binary search is not supported for non-deployed smart accounts"
+        "binary search is not supported when initCode is not 0x, because it will throw AA20 account not deployed"
       );
     }
+    userOperation = userOperationV6Schema.parse(userOperation);
 
     // first iteration should run at max vgl
     userOperation.verificationGasLimit = INITIAL_VGL_UPPER_BOUND;

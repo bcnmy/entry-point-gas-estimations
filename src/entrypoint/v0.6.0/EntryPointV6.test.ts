@@ -21,14 +21,16 @@ import { ParseError } from "./types";
 import config from "config";
 import { SupportedChain } from "../../shared/config";
 import {
-  CALL_GAS_LIMIT_OVERRIDE_VALUE,
   ENTRYPOINT_V6_ADDRESS,
   MAX_FEE_PER_GAS_OVERRIDE_VALUE,
   MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-  PRE_VERIFICATION_GAS_OVERRIDE_VALUE,
-  VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE,
 } from "./constants";
-import { UserOperationV6 } from "./UserOperationV6";
+import { userOperationV6Schema } from "./UserOperationV6";
+import {
+  SIMULATION_CALL_GAS_LIMIT,
+  SIMULATION_PRE_VERIFICATION_GAS,
+  SIMULATION_VERIFICATION_GAS_LIMIT,
+} from "../../gas-estimator/refactored/constants";
 
 describe("DefaultEntryPointV6", () => {
   const privateKey = generatePrivateKey();
@@ -70,7 +72,6 @@ describe("DefaultEntryPointV6", () => {
       });
 
       let smartAccount: BiconomySmartAccountV2;
-      let userOperation: UserOperationV6;
       let callData: Hex;
 
       const entryPointContract = supportedChain.entryPoints?.["v060"];
@@ -91,13 +92,15 @@ describe("DefaultEntryPointV6", () => {
           bundlerUrl,
         });
 
+        callData = await smartAccount.encodeExecute(zeroAddress, 1n, "0x");
+      }, 20_000);
+
+      it("simulateHandleOp should revert with AA21 without a balance override", async () => {
         const [sender, nonce, initCode] = await Promise.all([
           smartAccount.getAddress(),
           smartAccount.getNonce(),
           smartAccount.getInitCode(),
         ]);
-
-        callData = await smartAccount.encodeExecute(zeroAddress, 1n, "0x");
 
         const unsignedUserOperation: Partial<UserOperationStruct> = {
           sender,
@@ -105,23 +108,23 @@ describe("DefaultEntryPointV6", () => {
           nonce,
           callGasLimit:
             supportedChain.simulation?.callGasLimit ||
-            CALL_GAS_LIMIT_OVERRIDE_VALUE,
+            SIMULATION_CALL_GAS_LIMIT,
           maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
           maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-          preVerificationGas: PRE_VERIFICATION_GAS_OVERRIDE_VALUE,
+          preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
           verificationGasLimit:
             supportedChain.simulation?.verificationGasLimit ||
-            VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE,
+            SIMULATION_VERIFICATION_GAS_LIMIT,
           paymasterAndData: "0x",
           callData,
         };
 
-        userOperation = (await smartAccount.signUserOp(
+        const signedUserOperation = await smartAccount.signUserOp(
           unsignedUserOperation
-        )) as UserOperationV6;
-      }, 20_000);
+        );
 
-      it("simulateHandleOp should revert with AA21 without a balance override", async () => {
+        const userOperation = userOperationV6Schema.parse(signedUserOperation);
+
         try {
           await epv6.simulateHandleOp({
             userOperation,
@@ -144,6 +147,36 @@ describe("DefaultEntryPointV6", () => {
 
       if (supportedChain.stateOverrideSupport.balance) {
         it("simulateHandleOp should return a ExecutionResult with a balance override", async () => {
+          const [sender, nonce, initCode] = await Promise.all([
+            smartAccount.getAddress(),
+            smartAccount.getNonce(),
+            smartAccount.getInitCode(),
+          ]);
+
+          const unsignedUserOperation: Partial<UserOperationStruct> = {
+            sender,
+            initCode,
+            nonce,
+            callGasLimit:
+              supportedChain.simulation?.callGasLimit ||
+              SIMULATION_CALL_GAS_LIMIT,
+            maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
+            maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
+            preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
+            verificationGasLimit:
+              supportedChain.simulation?.verificationGasLimit ||
+              SIMULATION_VERIFICATION_GAS_LIMIT,
+            paymasterAndData: "0x",
+            callData,
+          };
+
+          const signedUserOperation = await smartAccount.signUserOp(
+            unsignedUserOperation
+          );
+
+          const userOperation =
+            userOperationV6Schema.parse(signedUserOperation);
+
           try {
             const executionResult = await epv6.simulateHandleOp({
               userOperation,
@@ -179,20 +212,23 @@ describe("DefaultEntryPointV6", () => {
             nonce: await epv6.getNonce(existingSmartAccountAddress! as Address),
             callGasLimit:
               supportedChain.simulation?.callGasLimit ||
-              CALL_GAS_LIMIT_OVERRIDE_VALUE,
+              SIMULATION_CALL_GAS_LIMIT,
             maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
             maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-            preVerificationGas: PRE_VERIFICATION_GAS_OVERRIDE_VALUE,
+            preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
             verificationGasLimit:
               supportedChain.simulation?.verificationGasLimit ||
-              VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE,
+              SIMULATION_VERIFICATION_GAS_LIMIT,
             paymasterAndData: "0x",
             callData,
           };
 
-          const userOperation = (await smartAccount.signUserOp(
+          const signedUserOperation = await smartAccount.signUserOp(
             unsignedUserOperation
-          )) as UserOperationV6;
+          );
+
+          const userOperation =
+            userOperationV6Schema.parse(signedUserOperation);
 
           const executionResult = await epv6.simulateHandleOp({
             userOperation,

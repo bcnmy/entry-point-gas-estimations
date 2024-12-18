@@ -1,5 +1,5 @@
 import config from "config";
-import { Address, createPublicClient, http } from "viem";
+import { Address } from "viem";
 import { ENTRYPOINT_V6_ADDRESS } from "../../entrypoint/v0.6.0/constants";
 import { ENTRYPOINT_V7_ADDRESS } from "../../entrypoint/v0.7.0/constants";
 import {
@@ -14,16 +14,19 @@ import {
   SimulationOptions,
   EstimateUserOperationGasParams,
   EVMGasEstimator,
-  EstimateUserOperationGasResult,
 } from "./EVMGasEstimator";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
 import { MantleGasEstimator } from "./MantleGasEstimator.ts";
-import { EntryPoints, GasEstimatorRpcClient } from "./types";
+import {
+  EntryPoints,
+  EstimateUserOperationGasResult,
+  GasEstimatorRpcClient,
+} from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { ChainStack } from "../../shared/types";
-import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
-import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
+import { UserOperation } from "./UserOperation";
+import z from "zod";
 
 export function createGasEstimator({
   chainId,
@@ -32,6 +35,8 @@ export function createGasEstimator({
   entryPoints = getSupportedEntryPoints(chainId),
   simulationOptions = getSimulationOptions(chainId),
 }: CreateGasEstimatorOptions): GasEstimator {
+  chainId = z.coerce.number().parse(chainId);
+
   const entryPointV6 = new EntryPointV6(
     rpcClient,
     entryPoints[EntryPointVersion.v060].address
@@ -96,6 +101,7 @@ export function createGasEstimator({
 }
 
 function getStack(chainId: number): ChainStack {
+  chainId = z.coerce.number().parse(chainId);
   return config.has(`supportedChains.${chainId}.stack`)
     ? config.get<ChainStack>(`supportedChains.${chainId}.stack`)
     : ChainStack.EVM;
@@ -104,6 +110,8 @@ function getStack(chainId: number): ChainStack {
 function getSupportedEntryPoints(
   chainId: number
 ): Record<EntryPointVersion, { address: Address }> {
+  chainId = z.coerce.number().parse(chainId);
+
   const entryPointV6Address = config.has(
     `supportedChains.${chainId}.entryPoints.${EntryPointVersion.v060}.address`
   )
@@ -127,6 +135,8 @@ function getSupportedEntryPoints(
 }
 
 function getSimulationOptions(chainId: number): SimulationOptions {
+  chainId = z.coerce.number().parse(chainId);
+
   const preVerificationGas = config.has(
     `supportedChains.${chainId}.simulation.preVerificationGas`
   )
@@ -178,8 +188,7 @@ export interface GasEstimator {
     params: EstimateUserOperationGasParams
   ) => Promise<EstimateUserOperationGasResult>;
   estimatePreVerificationGas: (
-    entryPointVersion: EntryPointVersion,
-    userOperation: UserOperationV6 | UserOperationV7,
+    userOperation: UserOperation,
     baseFeePerGas: bigint
   ) => Promise<bigint>;
 }
