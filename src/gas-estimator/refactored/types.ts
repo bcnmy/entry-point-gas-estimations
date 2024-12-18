@@ -1,5 +1,8 @@
-import { Address } from "viem";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { Address, PublicClient } from "viem";
+import {
+  EntryPointRpcClient,
+  EntryPointVersion,
+} from "../../entrypoint/shared/types";
 import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
 import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
 import { ExecutionResultV6 } from "../../entrypoint/v0.6.0/types";
@@ -39,3 +42,9 @@ export interface IEntryPointV7Simulations {
   simulateHandleOp: typeof EntryPointV7Simulations.prototype.simulateHandleOp;
   encodeHandleOpsFunctionData: typeof EntryPointV7Simulations.prototype.encodeHandleOpsFunctionData;
 }
+
+export type GasEstimatorRpcClient = Pick<
+  PublicClient,
+  "readContract" | "estimateGas"
+> &
+  EntryPointRpcClient;

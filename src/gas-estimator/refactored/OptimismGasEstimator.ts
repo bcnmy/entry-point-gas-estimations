@@ -3,45 +3,65 @@ import {
   OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
   OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
 } from "../entry-point-v6";
-import { UserOperation } from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
+import {
+  isUserOperationV6,
+  UserOperationV6,
+} from "../../entrypoint/v0.6.0/UserOperationV6";
+import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
+import { Hex } from "viem";
 
 export class OptimismGasEstimator extends EVMGasEstimator {
   override async estimatePreVerificationGas(
     entryPointVersion: EntryPointVersion,
-    userOperation: UserOperation,
+    userOperation: UserOperationV6 | UserOperationV7,
     baseFeePerGas: bigint
   ): Promise<bigint> {
     if (!baseFeePerGas) {
-      throw new Error(`baseFeePerGas not available`);
+      throw new Error(
+        `baseFeePerGas is required to estimate Optimism pre-verification gas`
+      );
     }
 
-    let l1PreVerificationGas = await super.estimatePreVerificationGas(
+    let l2Fee = await super.estimatePreVerificationGas(
       entryPointVersion,
       userOperation
     );
 
-    const entryPoint = this.entryPoints[entryPointVersion].contract;
-
-    const handleOpsData = entryPoint.encodeHandleOpsFunctionData(
-      userOperation,
-      userOperation.sender
-    );
-
-    const l1Fee = (await this.rpcClient.readContract({
-      address: OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
-      abi: OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
-      functionName: "getL1Fee",
-      args: [handleOpsData],
-    })) as bigint;
+    const l1Fee = await this.getL1Fee(userOperation);
 
     const l2MaxFee = userOperation.maxFeePerGas;
+
     const l2PriorityFee = baseFeePerGas + userOperation.maxPriorityFeePerGas;
 
     const l2Price = l2MaxFee < l2PriorityFee ? l2MaxFee : l2PriorityFee;
 
-    const optimismPreVerificationGas = l1PreVerificationGas + l1Fee / l2Price;
+    return l2Fee + l1Fee / l2Price;
+  }
 
-    return optimismPreVerificationGas;
+  private async getL1Fee(
+    userOperation: UserOperationV6 | UserOperationV7
+  ): Promise<bigint> {
+    let handleOpsData: Hex;
+    if (isUserOperationV6(userOperation)) {
+      const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
+      handleOpsData = entryPoint.encodeHandleOpsFunctionData(
+        userOperation,
+        userOperation.sender
+      );
+    } else {
+      const entryPoint = this.entryPoints[EntryPointVersion.v070].contract;
+      handleOpsData = entryPoint.encodeHandleOpsFunctionData(
+        userOperation,
+        userOperation.sender
+      );
+    }
+
+    return this.rpcClient.readContract({
+      address: OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
+      abi: OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
+      functionName: "getL1Fee",
+      args: [handleOpsData],
+    });
   }
 }

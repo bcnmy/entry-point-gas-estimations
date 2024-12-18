@@ -1,10 +1,4 @@
-import {
-  Address,
-  decodeErrorResult,
-  encodeFunctionData,
-  Hex,
-  PublicClient,
-} from "viem";
+import { Address, decodeErrorResult, encodeFunctionData, Hex } from "viem";
 
 import {
   SimulateHandleOpError,
@@ -18,14 +12,14 @@ import {
 import { ENTRYPOINT_V6_ABI } from "./abi";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
 import { UserOperationV6 } from "./UserOperationV6";
-import { EntryPointVersion } from "../shared/types";
+import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
 
 export class EntryPointV6 {
   public version = EntryPointVersion.v060;
   public abi = ENTRYPOINT_V6_ABI;
 
   constructor(
-    protected client: RpcClient,
+    protected client: EntryPointRpcClient,
     public address: Address = ENTRYPOINT_V6_ADDRESS
   ) {}
 
@@ -155,11 +149,6 @@ export class EntryPointV6 {
     return parseResult.data;
   }
 }
-
-export type RpcClient = Pick<
-  PublicClient,
-  "request" | "chain" | "readContract"
->;
 
 interface SimulateHandleOpParams {
   userOperation: UserOperationV6;

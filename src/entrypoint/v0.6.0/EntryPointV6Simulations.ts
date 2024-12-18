@@ -6,7 +6,7 @@ import {
   RpcError,
   toHex,
 } from "viem";
-import { EntryPointV6, RpcClient } from "./EntryPointV6";
+import { EntryPointV6 } from "./EntryPointV6";
 import { ExecutionResultV6 } from "./types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
@@ -30,10 +30,11 @@ import {
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
 } from "./abi";
 import { UserOperationV6 } from "./UserOperationV6";
+import { EntryPointRpcClient } from "../shared/types";
 
 export class EntryPointV6Simulations extends EntryPointV6 {
   constructor(
-    client: RpcClient,
+    client: EntryPointRpcClient,
     public address: Address = ENTRYPOINT_V6_ADDRESS,
     /**
      * the bytecode of the contract that extends the Entry Point contract and

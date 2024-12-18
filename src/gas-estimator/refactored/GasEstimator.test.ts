@@ -11,7 +11,6 @@ import {
   formatEther,
   Hex,
   http,
-  parseEther,
   toHex,
   zeroAddress,
 } from "viem";
@@ -39,46 +38,71 @@ describe("factory", () => {
     const rpcUrl = "http://rpc.url";
 
     it("should create an OptimismGasEstimator", () => {
+      const rpcClient = createPublicClient({
+        chain: optimism,
+        transport: http(rpcUrl),
+      });
+
       const gasEstimator = createGasEstimator({
         chainId: optimism.id,
-        rpcUrl,
+        rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
     });
 
     it("should create an ArbitrumGasEstimator", () => {
+      const rpcClient = createPublicClient({
+        chain: arbitrum,
+        transport: http(rpcUrl),
+      });
+
       const gasEstimator = createGasEstimator({
         chainId: arbitrum.id,
-        rpcUrl,
+        rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(ArbitrumGasEstimator);
     });
 
     it("should create a MantleGasEstimator", () => {
+      const rpcClient = createPublicClient({
+        chain: mantle,
+        transport: http(rpcUrl),
+      });
+
       const gasEstimator = createGasEstimator({
         chainId: mantle.id,
-        rpcUrl,
+        rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(MantleGasEstimator);
     });
 
     it("should create a EVMGasEstimator", () => {
+      const rpcClient = createPublicClient({
+        chain: mainnet,
+        transport: http(rpcUrl),
+      });
+
       const gasEstimator = createGasEstimator({
         chainId: mainnet.id,
-        rpcUrl,
+        rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(EVMGasEstimator);
     });
 
     it("should create a custom gas estimator with the params passed", () => {
+      const rpcClient = createPublicClient({
+        chain: mainnet,
+        transport: http(rpcUrl),
+      });
+
       const chainId = 654321;
       const gasEstimator = createGasEstimator({
         chainId,
-        rpcUrl,
+        rpcClient,
         stack: ChainStack.Optimism,
         entryPoints: {
           [EntryPointVersion.v060]: {
@@ -178,7 +202,7 @@ describe("GasEstimator", () => {
 
         const gasEstimator = createGasEstimator({
           chainId: testChain.chainId,
-          rpcUrl: testChain.rpcUrl!,
+          rpcClient: viemClient,
         });
 
         beforeAll(async () => {
@@ -411,7 +435,6 @@ describe("GasEstimator", () => {
                 (BigInt.prototype as any).toJSON = function () {
                   return this.toString();
                 };
-                const serialized = JSON.stringify(err, null, 2);
                 throw new Error(err.message);
               }
             }, 20_000);
@@ -464,7 +487,7 @@ describe("GasEstimator", () => {
 
         const gasEstimator = createGasEstimator({
           chainId: testChain.chainId,
-          rpcUrl: testChain.rpcUrl!,
+          rpcClient: viemClient,
         });
 
         let maxFeePerGas: bigint,

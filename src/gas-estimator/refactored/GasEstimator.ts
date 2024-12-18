@@ -19,21 +19,19 @@ import {
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
 import { MantleGasEstimator } from "./MantleGasEstimator.ts";
-import { EntryPoints } from "./types";
+import { EntryPoints, GasEstimatorRpcClient } from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { ChainStack } from "../../shared/types";
+import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
+import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
 
 export function createGasEstimator({
   chainId,
-  rpcUrl,
+  rpcClient,
   stack = getStack(chainId),
   entryPoints = getSupportedEntryPoints(chainId),
   simulationOptions = getSimulationOptions(chainId),
 }: CreateGasEstimatorOptions): GasEstimator {
-  const rpcClient = createPublicClient({
-    transport: http(rpcUrl),
-  });
-
   const entryPointV6 = new EntryPointV6(
     rpcClient,
     entryPoints[EntryPointVersion.v060].address
@@ -164,19 +162,24 @@ function getSimulationOptions(chainId: number): SimulationOptions {
   };
 }
 
-interface CreateGasEstimatorOptions {
+export interface CreateGasEstimatorOptions {
   chainId: number;
-  rpcUrl: string;
+  rpcClient: GasEstimatorRpcClient;
   stack?: ChainStack;
   entryPoints?: Record<EntryPointVersion, { address: Address }>;
   simulationOptions?: SimulationOptions;
 }
 
-interface GasEstimator {
+export interface GasEstimator {
   chainId: number;
   entryPoints: EntryPoints;
   simulationOptions: SimulationOptions;
   estimateUserOperationGas: (
     params: EstimateUserOperationGasParams
   ) => Promise<EstimateUserOperationGasResult>;
+  estimatePreVerificationGas: (
+    entryPointVersion: EntryPointVersion,
+    userOperation: UserOperationV6 | UserOperationV7,
+    baseFeePerGas: bigint
+  ) => Promise<bigint>;
 }

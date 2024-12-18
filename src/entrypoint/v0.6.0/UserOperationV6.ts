@@ -20,6 +20,24 @@ export type UserOperationV6 = {
   signature: Hex;
 };
 
+export function isUserOperationV6(userOp: any): userOp is UserOperationV6 {
+  return (
+    typeof userOp === "object" &&
+    userOp !== null &&
+    "sender" in userOp &&
+    "nonce" in userOp &&
+    "initCode" in userOp &&
+    "callData" in userOp &&
+    "callGasLimit" in userOp &&
+    "verificationGasLimit" in userOp &&
+    "preVerificationGas" in userOp &&
+    "maxFeePerGas" in userOp &&
+    "maxPriorityFeePerGas" in userOp &&
+    "paymasterAndData" in userOp &&
+    "signature" in userOp
+  );
+}
+
 export function packUserOpV6(
   userOp: UserOperationV6,
   forSignature = true

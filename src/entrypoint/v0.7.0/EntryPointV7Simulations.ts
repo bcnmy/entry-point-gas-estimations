@@ -4,7 +4,6 @@ import {
   decodeFunctionResult,
   encodeFunctionData,
   Hex,
-  PublicClient,
 } from "viem";
 
 import {
@@ -18,7 +17,7 @@ import { toPackedUserOperation, UserOperationV7 } from "./UserOperationV7";
 import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
 import { ENTRYPOINT_V7_ADDRESS } from "./constants";
 import { ExecutionResultV7 } from "./types";
-import { EntryPointVersion } from "../shared/types";
+import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
 
 interface SimulateHandleOpParams {
   userOperation: UserOperationV7;
@@ -32,7 +31,7 @@ export class EntryPointV7Simulations {
   public abi = ENTRYPOINT_V7_SIMULATIONS_ABI;
 
   constructor(
-    protected client: RpcClient,
+    protected client: EntryPointRpcClient,
     public address: Address = ENTRYPOINT_V7_ADDRESS
   ) {}
 
@@ -153,5 +152,3 @@ export class EntryPointV7Simulations {
     return data;
   }
 }
-
-export type RpcClient = Pick<PublicClient, "request" | "chain">;

@@ -4,25 +4,32 @@ import {
   StateOverrideSet,
 } from "../../entrypoint/v0.6.0/types";
 import {
+  isUserOperationV6,
   packUserOpV6,
   UserOperationV6,
 } from "../../entrypoint/v0.6.0/UserOperationV6";
-import { ByteArray, parseEther, PublicClient, toBytes, toHex } from "viem";
+import { ByteArray, parseEther, toBytes, toHex } from "viem";
 
 import {
   packUserOpV7,
   toPackedUserOperation,
+  UserOperationV7,
 } from "../../entrypoint/v0.7.0/UserOperationV7";
 import { MakeOptional } from "../../shared/types";
 import { bumpBigIntPercent } from "../../shared/utils";
-import { EntryPoints, ExecutionResult, UserOperation } from "./types";
+import {
+  EntryPoints,
+  ExecutionResult,
+  GasEstimatorRpcClient,
+  UserOperation,
+} from "./types";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { defaultGasOverheads, INNER_GAS_OVERHEAD } from "./constants";
 
 export class EVMGasEstimator {
   constructor(
     public chainId: number,
-    protected rpcClient: PublicClient,
+    protected rpcClient: GasEstimatorRpcClient,
     public entryPoints: EntryPoints,
     public simulationOptions: SimulationOptions
   ) {}
@@ -223,12 +230,12 @@ export class EVMGasEstimator {
 
   async estimatePreVerificationGas(
     entryPointVersion: EntryPointVersion,
-    userOperation: UserOperation,
+    userOperation: UserOperationV6 | UserOperationV7,
     baseFeePerGas?: bigint
   ): Promise<bigint> {
     let packed: ByteArray;
 
-    if (entryPointVersion === EntryPointVersion.v060) {
+    if (isUserOperationV6(userOperation)) {
       packed = toBytes(packUserOpV6(userOperation, true));
     } else {
       const packedUserOperation = toPackedUserOperation(userOperation);
@@ -300,7 +307,7 @@ export interface EstimateUserOperationGasParams {
   options?: Partial<EstimateUserOperationGasOptions>;
 }
 
-interface EstimateUserOperationGasOptions {
+export interface EstimateUserOperationGasOptions {
   useBinarySearch: boolean;
   overrideSenderBalance: boolean;
 }
