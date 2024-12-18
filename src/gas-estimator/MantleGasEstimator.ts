@@ -1,20 +1,20 @@
 import { EVMGasEstimator } from "./EVMGasEstimator";
-import {
-  MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
-  MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR,
-  MANTLE_BVM_GAS_PRICE_ORACLE_ABI,
-} from "../entry-point-v6";
 import { Hex, toRlp } from "viem";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
-import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
-import { UserOperationV7 } from "../../entrypoint/v0.7.0/UserOperationV7";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
+import { EntryPointVersion } from "../entrypoint/shared/types";
+import { UserOperationV6 } from "../entrypoint/v0.6.0/UserOperationV6";
+import { UserOperationV7 } from "../entrypoint/v0.7.0/UserOperationV7";
+import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
+import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
 import {
   isUserOperationV6,
   UserOperation,
   validateUserOperation,
 } from "./UserOperation";
+import {
+  MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
+  MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR,
+} from "./constants";
+import { MANTLE_BVM_GAS_PRICE_ORACLE_ABI } from "./abi";
 
 export class MantleGasEstimator extends EVMGasEstimator {
   override async estimatePreVerificationGas(

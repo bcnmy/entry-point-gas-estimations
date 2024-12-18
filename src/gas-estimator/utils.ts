@@ -1,4 +1,4 @@
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
 
 export type BenchmarkResults = Record<
   EntryPointVersion,

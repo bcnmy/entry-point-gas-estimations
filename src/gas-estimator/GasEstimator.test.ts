@@ -1,5 +1,5 @@
 import config from "config";
-import { SupportedChain } from "../../shared/config";
+import { SupportedChain } from "../shared/config";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 import {
@@ -23,17 +23,17 @@ import {
 import {
   UserOperationV6,
   userOperationV6Schema,
-} from "../../entrypoint/v0.6.0/UserOperationV6";
+} from "../entrypoint/v0.6.0/UserOperationV6";
 import { createGasEstimator } from "./GasEstimator";
-import { getRequiredPrefundV6, getRequiredPrefundV7 } from "../../shared/utils";
+import { getRequiredPrefundV6, getRequiredPrefundV7 } from "../shared/utils";
 import { createNexusClient, NexusClient } from "@biconomy/sdk";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
 import { BenchmarkResults } from "./utils";
 import { UserOperation } from "./UserOperation";
 import {
   UserOperationV7,
   userOperationV7Schema,
-} from "../../entrypoint/v0.7.0/UserOperationV7";
+} from "../entrypoint/v0.7.0/UserOperationV7";
 import {
   isEstimateUserOperationGasResultV6,
   isEstimateUserOperationGasResultV7,

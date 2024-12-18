@@ -3,7 +3,6 @@ import {
   createWalletClient,
   http,
   zeroAddress,
-  getContract,
   Address,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";

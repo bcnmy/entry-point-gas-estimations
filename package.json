@@ -11,13 +11,21 @@
     "format": "eslint 'src' --ext .ts --fix",
     "build": "tsc",
     "test": "jest --verbose --testPathIgnorePatterns smoke-test",
-    "test:smoke": "jest --verbose --silent=false -t smoke-test"
+    "test:smoke": "jest --verbose --silent=false -t smoke-test",
+    "test:coverage": "jest --collect-coverage --testPathIgnorePatterns smoke-test"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
     "viem": "^2.21.49",
     "zod": "^3.22.4",
     "zod-validation-error": "^2.1.0"
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "src/legacy",
+      "src/scripts",
+      "src/dont-commit"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

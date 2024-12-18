@@ -1,15 +1,15 @@
 import config from "config";
 import { Address } from "viem";
-import { ENTRYPOINT_V6_ADDRESS } from "../../entrypoint/v0.6.0/constants";
-import { ENTRYPOINT_V7_ADDRESS } from "../../entrypoint/v0.7.0/constants";
+import { ENTRYPOINT_V6_ADDRESS } from "../entrypoint/v0.6.0/constants";
+import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants";
 import {
   SIMULATION_CALL_GAS_LIMIT,
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
 } from "./constants";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
+import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
+import { EntryPointV6Simulations } from "../entrypoint/v0.6.0/EntryPointV6Simulations";
+import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
 import {
   SimulationOptions,
   EstimateUserOperationGasParams,
@@ -23,8 +23,8 @@ import {
   EstimateUserOperationGasResult,
   GasEstimatorRpcClient,
 } from "./types";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
-import { ChainStack } from "../../shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
+import { ChainStack } from "../shared/types";
 import { UserOperation } from "./UserOperation";
 import z from "zod";
 

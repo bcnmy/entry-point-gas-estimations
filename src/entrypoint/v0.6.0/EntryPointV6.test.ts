@@ -30,7 +30,7 @@ import {
   SIMULATION_CALL_GAS_LIMIT,
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
-} from "../../gas-estimator/refactored/constants";
+} from "../../gas-estimator/constants";
 
 describe("DefaultEntryPointV6", () => {
   const privateKey = generatePrivateKey();

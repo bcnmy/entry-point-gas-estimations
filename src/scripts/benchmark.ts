@@ -1,5 +1,5 @@
 import { EntryPointVersion } from "../entrypoint/shared/types";
-import { BenchmarkResults } from "../gas-estimator/refactored/utils";
+import { BenchmarkResults } from "../gas-estimator/utils";
 
 const benchmarkResults: BenchmarkResults = {
   v060: {

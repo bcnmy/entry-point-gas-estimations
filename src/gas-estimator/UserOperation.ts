@@ -1,11 +1,11 @@
 import {
   UserOperationV6,
   userOperationV6Schema,
-} from "../../entrypoint/v0.6.0/UserOperationV6";
+} from "../entrypoint/v0.6.0/UserOperationV6";
 import {
   UserOperationV7,
   userOperationV7Schema,
-} from "../../entrypoint/v0.7.0/UserOperationV7";
+} from "../entrypoint/v0.7.0/UserOperationV7";
 
 export type UserOperation = UserOperationV6 | UserOperationV7;
 

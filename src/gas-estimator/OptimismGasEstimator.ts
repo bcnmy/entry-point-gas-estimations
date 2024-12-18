@@ -1,9 +1,5 @@
 import { EVMGasEstimator } from "./EVMGasEstimator";
-import {
-  OPTIMISM_L1_GAS_PRICE_ORACLE_ABI,
-  OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS,
-} from "../entry-point-v6";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
 import { Hex } from "viem";
 import {
   validateUserOperation,
@@ -11,6 +7,8 @@ import {
   isUserOperationV6,
 } from "./UserOperation";
 import z from "zod";
+import { OPTIMISM_L1_GAS_PRICE_ORACLE_ADDRESS } from "./constants";
+import { OPTIMISM_L1_GAS_PRICE_ORACLE_ABI } from "./abi";
 
 export class OptimismGasEstimator extends EVMGasEstimator {
   override async estimatePreVerificationGas(

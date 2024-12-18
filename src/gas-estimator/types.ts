@@ -2,12 +2,12 @@ import { Address, PublicClient } from "viem";
 import {
   EntryPointRpcClient,
   EntryPointVersion,
-} from "../../entrypoint/shared/types";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
-import { ExecutionResultV6 } from "../../entrypoint/v0.6.0/types";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
-import { ExecutionResultV7 } from "../../entrypoint/v0.7.0/types";
+} from "../entrypoint/shared/types";
+import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
+import { EntryPointV6Simulations } from "../entrypoint/v0.6.0/EntryPointV6Simulations";
+import { ExecutionResultV6 } from "../entrypoint/v0.6.0/types";
+import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
+import { ExecutionResultV7 } from "../entrypoint/v0.7.0/types";
 
 export type ExecutionResult = ExecutionResultV6 | ExecutionResultV7;
 

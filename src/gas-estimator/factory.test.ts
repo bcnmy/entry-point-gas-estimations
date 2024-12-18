@@ -5,8 +5,8 @@ import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
 import { MantleGasEstimator } from "./MantleGasEstimator.ts";
 import { EVMGasEstimator } from "./EVMGasEstimator";
-import { ChainStack } from "../../shared/types";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { ChainStack } from "../shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
 
 describe("factory", () => {
   describe("createGasEstimator", () => {

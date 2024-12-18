@@ -1,14 +1,14 @@
 import { optimism } from "viem/chains";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV6Simulations } from "../../entrypoint/v0.6.0/EntryPointV6Simulations";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
+import { EntryPointVersion } from "../entrypoint/shared/types";
+import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
+import { EntryPointV6Simulations } from "../entrypoint/v0.6.0/EntryPointV6Simulations";
+import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
 import { SimulationOptions } from "./EVMGasEstimator";
 import { createGasEstimator } from "./GasEstimator";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { EntryPoints, GasEstimatorRpcClient } from "./types";
 import config from "config";
-import { SupportedChain } from "../../shared/config";
+import { SupportedChain } from "../shared/config";
 import {
   createPublicClient,
   createWalletClient,
@@ -22,7 +22,7 @@ import {
   createSmartAccountClient,
   UserOperationStruct,
 } from "@biconomy/account";
-import { UserOperationV6 } from "../../entrypoint/v0.6.0/UserOperationV6";
+import { UserOperationV6 } from "../entrypoint/v0.6.0/UserOperationV6";
 import {
   SIMULATION_CALL_GAS_LIMIT,
   SIMULATION_PRE_VERIFICATION_GAS,

@@ -2,27 +2,27 @@ import config from "config";
 import {
   isExecutionResultV6,
   StateOverrideSet,
-} from "../../entrypoint/v0.6.0/types";
+} from "../entrypoint/v0.6.0/types";
 import {
   packUserOpV6,
   UserOperationV6,
-} from "../../entrypoint/v0.6.0/UserOperationV6";
+} from "../entrypoint/v0.6.0/UserOperationV6";
 import { ByteArray, parseEther, toBytes, toHex } from "viem";
 
 import {
   packUserOpV7,
   toPackedUserOperation,
   UserOperationV7,
-} from "../../entrypoint/v0.7.0/UserOperationV7";
-import { MakeOptional } from "../../shared/types";
-import { bumpBigIntPercent } from "../../shared/utils";
+} from "../entrypoint/v0.7.0/UserOperationV7";
+import { MakeOptional } from "../shared/types";
+import { bumpBigIntPercent } from "../shared/utils";
 import {
   EntryPoints,
   EstimateUserOperationGasResult,
   ExecutionResult,
   GasEstimatorRpcClient,
 } from "./types";
-import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { EntryPointVersion } from "../entrypoint/shared/types";
 import { defaultGasOverheads, INNER_GAS_OVERHEAD } from "./constants";
 import {
   validateUserOperation,
