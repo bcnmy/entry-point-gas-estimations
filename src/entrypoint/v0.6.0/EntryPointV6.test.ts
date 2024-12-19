@@ -19,7 +19,6 @@ import * as chains from "viem/chains";
 import { EntryPointV6 } from "./EntryPointV6";
 import { ParseError } from "./types";
 import config from "config";
-import { SupportedChain } from "../../shared/config";
 import {
   ENTRYPOINT_V6_ADDRESS,
   MAX_FEE_PER_GAS_OVERRIDE_VALUE,
@@ -31,41 +30,49 @@ import {
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
 } from "../../gas-estimator/constants";
+import { supportedChains } from "../../chains/chains";
 
 describe("DefaultEntryPointV6", () => {
+  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
+
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
-
-  const supportedChains =
-    config.get<Record<string, SupportedChain>>("supportedChains");
 
   const includeChainIds = config.get<number[]>("includeInTests");
   const excludeChainIds = config.get<number[]>("excludeFromTests");
 
-  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
+  const testChains = Object.values(supportedChains).filter(
+    (chain) =>
+      !excludeChainIds.includes(chain.chainId) &&
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
+  );
 
-  for (const supportedChain of Object.values(supportedChains).filter(
-    (c) =>
-      !excludeChainIds.includes(c.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(c.chainId))
-  )) {
-    describe(`${supportedChain.name} (${supportedChain.chainId})`, () => {
-      const bundlerUrl = `https://bundler.biconomy.io/api/v2/${supportedChain.chainId}/whatever`;
+  for (const testChain of testChains) {
+    let rpcUrl: string;
+    try {
+      rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
+    } catch (err) {
+      console.warn(
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+      );
+      continue;
+    }
 
-      const transport = supportedChain.rpcUrl
-        ? http(supportedChain.rpcUrl)
-        : http();
+    describe(`${testChain.name} (${testChain.chainId})`, () => {
+      const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
+
+      const transport = http(rpcUrl);
 
       const viemClient = createPublicClient({
         chain: {
-          id: supportedChain.chainId,
+          id: testChain.chainId,
         } as chains.Chain,
         transport,
       });
 
       const signer = createWalletClient({
         chain: {
-          id: supportedChain.chainId,
+          id: testChain.chainId,
         } as chains.Chain,
         account,
         transport,
@@ -74,18 +81,18 @@ describe("DefaultEntryPointV6", () => {
       let smartAccount: BiconomySmartAccountV2;
       let callData: Hex;
 
-      const entryPointContract = supportedChain.entryPoints?.["v060"];
-      const epv6 = new EntryPointV6(
-        viemClient,
-        (entryPointContract?.address as Address) || ENTRYPOINT_V6_ADDRESS
-      );
+      const entryPointContractAddress =
+        (testChain.entryPoints?.["v060"]?.address as Address) ||
+        ENTRYPOINT_V6_ADDRESS;
+
+      const epv6 = new EntryPointV6(viemClient, entryPointContractAddress);
 
       beforeAll(async () => {
         smartAccount = await createSmartAccountClient({
           customChain: getCustomChain(
-            supportedChain.name!,
-            supportedChain.chainId,
-            supportedChain.rpcUrl!,
+            testChain.name,
+            testChain.chainId,
+            rpcUrl,
             ""
           ),
           signer,
@@ -107,13 +114,14 @@ describe("DefaultEntryPointV6", () => {
           initCode,
           nonce,
           callGasLimit:
-            supportedChain.simulation?.callGasLimit ||
-            SIMULATION_CALL_GAS_LIMIT,
+            testChain.simulation?.callGasLimit || SIMULATION_CALL_GAS_LIMIT,
           maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
           maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-          preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
+          preVerificationGas:
+            testChain.simulation?.preVerificationGas ||
+            SIMULATION_PRE_VERIFICATION_GAS,
           verificationGasLimit:
-            supportedChain.simulation?.verificationGasLimit ||
+            testChain.simulation?.verificationGasLimit ||
             SIMULATION_VERIFICATION_GAS_LIMIT,
           paymasterAndData: "0x",
           callData,
@@ -145,7 +153,7 @@ describe("DefaultEntryPointV6", () => {
         }
       }, 20_000);
 
-      if (supportedChain.stateOverrideSupport.balance) {
+      if (testChain.stateOverrideSupport.balance) {
         it("simulateHandleOp should return a ExecutionResult with a balance override", async () => {
           const [sender, nonce, initCode] = await Promise.all([
             smartAccount.getAddress(),
@@ -158,13 +166,14 @@ describe("DefaultEntryPointV6", () => {
             initCode,
             nonce,
             callGasLimit:
-              supportedChain.simulation?.callGasLimit ||
-              SIMULATION_CALL_GAS_LIMIT,
+              testChain.simulation?.callGasLimit || SIMULATION_CALL_GAS_LIMIT,
             maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
             maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-            preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
+            preVerificationGas:
+              testChain.simulation?.preVerificationGas ||
+              SIMULATION_PRE_VERIFICATION_GAS,
             verificationGasLimit:
-              supportedChain.simulation?.verificationGasLimit ||
+              testChain.simulation?.verificationGasLimit ||
               SIMULATION_VERIFICATION_GAS_LIMIT,
             paymasterAndData: "0x",
             callData,
@@ -199,25 +208,27 @@ describe("DefaultEntryPointV6", () => {
         }, 20_000);
       }
 
-      const existingSmartAccountAddress =
-        entryPointContract?.existingSmartAccountAddress;
-
-      if (existingSmartAccountAddress) {
+      if (config.has(`testChains.${testChain.chainId}.testAddresses.v2`)) {
         it("should return a gas estimate for a deployed smart account", async () => {
           const initCode = "0x";
 
+          const testSender = config.get<Address>(
+            `testChains.${testChain.chainId}.testAddresses.v2`
+          );
+
           let unsignedUserOperation: Partial<UserOperationStruct> = {
-            sender: existingSmartAccountAddress,
+            sender: testSender,
             initCode,
-            nonce: await epv6.getNonce(existingSmartAccountAddress! as Address),
+            nonce: await epv6.getNonce(testSender),
             callGasLimit:
-              supportedChain.simulation?.callGasLimit ||
-              SIMULATION_CALL_GAS_LIMIT,
+              testChain.simulation?.callGasLimit || SIMULATION_CALL_GAS_LIMIT,
             maxFeePerGas: MAX_FEE_PER_GAS_OVERRIDE_VALUE,
             maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
-            preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
+            preVerificationGas:
+              testChain.simulation?.preVerificationGas ||
+              SIMULATION_PRE_VERIFICATION_GAS,
             verificationGasLimit:
-              supportedChain.simulation?.verificationGasLimit ||
+              testChain.simulation?.verificationGasLimit ||
               SIMULATION_VERIFICATION_GAS_LIMIT,
             paymasterAndData: "0x",
             callData,

@@ -1,0 +1,8 @@
+{
+  "testChains": {
+    "1": {
+      "rpcUrl": "<PRIVATE RPC URL FOR ETHEREUM MAINNET>"
+    }
+  },
+  "includeInTests": [1]
+}

@@ -1,23 +1,30 @@
 import z from "zod";
 import { EntryPointVersion } from "../entrypoint/shared/types";
-import { ChainStack } from "./types";
+
+export enum ChainStack {
+  EVM = "evm",
+  Optimism = "optimism",
+  Arbitrum = "arbitrum",
+  Mantle = "mantle",
+}
 
 export const SupportedChainSchema = z.object({
   chainId: z.number(),
   name: z.string(),
+  isTestnet: z.boolean(),
   stack: z.nativeEnum(ChainStack),
   eip1559: z.boolean(),
   nativeCurrency: z.string().optional(),
   entryPoints: z
     .object({
-      [EntryPointVersion.v060]: z.object({
-        address: z.string().optional(),
-        existingSmartAccountAddress: z.string().optional(),
-      }),
+      [EntryPointVersion.v060]: z
+        .object({
+          address: z.string(),
+        })
+        .optional(),
       [EntryPointVersion.v070]: z
         .object({
           address: z.string(),
-          existingSmartAccountAddress: z.string().optional(),
         })
         .optional(),
     })
@@ -32,12 +39,11 @@ export const SupportedChainSchema = z.object({
   }),
   simulation: z
     .object({
-      preVerificationGas: z.number(),
-      verificationGasLimit: z.number(),
-      callGasLimit: z.number(),
+      preVerificationGas: z.coerce.bigint(),
+      verificationGasLimit: z.coerce.bigint(),
+      callGasLimit: z.coerce.bigint(),
     })
     .optional(),
-  rpcUrl: z.string().optional(),
 });
 
 export type SupportedChain = z.infer<typeof SupportedChainSchema>;

@@ -1,5 +1,4 @@
 import config from "config";
-import { SupportedChain } from "../shared/config";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 import {
@@ -29,7 +28,6 @@ import { getRequiredPrefundV6, getRequiredPrefundV7 } from "../shared/utils";
 import { createNexusClient, NexusClient } from "@biconomy/sdk";
 import { EntryPointVersion } from "../entrypoint/shared/types";
 import { BenchmarkResults } from "./utils";
-import { UserOperation } from "./UserOperation";
 import {
   UserOperationV7,
   userOperationV7Schema,
@@ -38,8 +36,10 @@ import {
   isEstimateUserOperationGasResultV6,
   isEstimateUserOperationGasResultV7,
 } from "./types";
+import { supportedChains } from "../chains/chains";
+import { SupportedChain } from "../chains/types";
 
-describe("GasEstimator:e2e", () => {
+describe("GasEstimator", () => {
   (BigInt.prototype as any).toJSON = function () {
     return this.toString();
   };
@@ -52,9 +52,6 @@ describe("GasEstimator:e2e", () => {
   afterAll(() => {
     console.log(JSON.stringify(benchmarkResults, null, 2));
   });
-
-  const supportedChains =
-    config.get<Record<string, SupportedChain>>("supportedChains");
 
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
@@ -71,20 +68,31 @@ describe("GasEstimator:e2e", () => {
   );
 
   for (const testChain of testChains) {
+    let rpcUrl: string;
+    try {
+      rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
+    } catch (err) {
+      console.warn(
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+      );
+      continue;
+    }
+    // This bundler URL is never called, but the format has to be correct or the createSmartAccountClient function will throw an error
+    const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
+
     describe("e2e tests", () => {
-      const bundlerUrl = `https://bundler.biconomy.io/api/v2/${testChain.chainId}/whatever`;
-
-      const transport = testChain.rpcUrl ? http(testChain.rpcUrl) : http();
-
-      const chain = extractChain({
+      const viemChain = extractChain({
         chains: Object.values(chains),
         id: testChain.chainId as any,
       });
 
+      const transport = http(rpcUrl);
       const viemClient = createPublicClient({
-        chain: {
-          id: testChain.chainId,
-        } as chains.Chain,
+        chain:
+          viemChain ||
+          ({
+            id: testChain.chainId,
+          } as chains.Chain),
         transport,
       });
 
@@ -141,15 +149,15 @@ describe("GasEstimator:e2e", () => {
 
             const gasEstimator = createGasEstimator({
               chainId: testChain.chainId,
-              rpcClient: viemClient,
+              rpc: viemClient,
             });
 
             beforeAll(async () => {
               smartAccount = await createSmartAccountClient({
                 customChain: getCustomChain(
-                  testChain.name!,
+                  testChain.name,
                   testChain.chainId,
-                  testChain.rpcUrl!,
+                  rpcUrl,
                   ""
                 ),
                 signer,
@@ -224,7 +232,7 @@ describe("GasEstimator:e2e", () => {
                   callGasLimit,
                   verificationGasLimit,
                   preVerificationGas,
-                  chain,
+                  viemChain,
                   testChain
                 );
 
@@ -259,21 +267,25 @@ describe("GasEstimator:e2e", () => {
                 }
               }, 20_000);
 
-              if (testChain.entryPoints?.["v060"].existingSmartAccountAddress) {
+              if (
+                config.has(`testChains.${testChain.chainId}.testAddresses.v2`)
+              ) {
                 it("should return a gas estimate for a deployed smart account", async () => {
                   try {
+                    const testSender = config.get<Address>(
+                      `testChains.${testChain.chainId}.testAddresses.v2`
+                    );
+
                     // we are using an existing deployed account so we don't get AA20 account not deployed
-                    const sender = testChain.entryPoints?.["v060"]
-                      .existingSmartAccountAddress as Address;
+                    const sender = testSender;
 
                     const entryPoint =
                       gasEstimator.entryPoints[EntryPointVersion.v060].contract;
 
-                    const initCode = "0x";
                     let unsignedUserOperation: Partial<UserOperationStruct> = {
                       sender,
-                      initCode,
-                      nonce: await entryPoint.getNonce(sender!),
+                      initCode: "0x",
+                      nonce: await entryPoint.getNonce(sender),
                       maxFeePerGas,
                       maxPriorityFeePerGas,
                       callGasLimit: 1n,
@@ -282,9 +294,10 @@ describe("GasEstimator:e2e", () => {
                       paymasterAndData: "0x",
                       callData: nativeTransferCallData,
                     };
-                    const userOperation = (await smartAccount.signUserOp(
-                      unsignedUserOperation
-                    )) as UserOperation;
+
+                    const userOperation = userOperationV6Schema.parse(
+                      await smartAccount.signUserOp(unsignedUserOperation)
+                    );
 
                     const gasEstimate =
                       await gasEstimator.estimateUserOperationGas({
@@ -292,21 +305,16 @@ describe("GasEstimator:e2e", () => {
                         baseFeePerGas,
                       });
                     expect(gasEstimate).toBeDefined();
+
                     const {
                       callGasLimit,
                       verificationGasLimit,
                       preVerificationGas,
                     } = gasEstimate;
+
                     expect(callGasLimit).toBeGreaterThan(0n);
                     expect(verificationGasLimit).toBeGreaterThan(0n);
                     expect(preVerificationGas).toBeGreaterThan(0n);
-                    const requiredPrefundWei = getRequiredPrefundV6({
-                      paymasterAndData: "0x",
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                      maxFeePerGas: userOperation.maxFeePerGas,
-                    });
 
                     const {
                       requiredPrefundEth,
@@ -317,7 +325,7 @@ describe("GasEstimator:e2e", () => {
                       callGasLimit,
                       verificationGasLimit,
                       preVerificationGas,
-                      chain,
+                      viemChain,
                       testChain
                     );
 
@@ -332,9 +340,11 @@ describe("GasEstimator:e2e", () => {
                       verificationGasLimit,
                       preVerificationGas,
                     };
-                    const userOperation2 = (await smartAccount.signUserOp(
-                      unsignedUserOperation
-                    )) as UserOperationV6;
+
+                    const userOperation2 = userOperationV6Schema.parse(
+                      await smartAccount.signUserOp(unsignedUserOperation)
+                    );
+
                     const { paid } = await gasEstimator.entryPoints[
                       EntryPointVersion.v060
                     ].contract.simulateHandleOp({
@@ -349,11 +359,15 @@ describe("GasEstimator:e2e", () => {
                         },
                       },
                     });
-                  } catch (err: any) {
-                    (BigInt.prototype as any).toJSON = function () {
-                      return this.toString();
-                    };
-                    throw new Error(err.message);
+
+                    expect(paid).toBeGreaterThan(0n);
+                  } catch (err) {
+                    if (err instanceof Error) {
+                      throw new Error(err.message);
+                    } else {
+                      console.error(err);
+                      throw new Error("Unknown error");
+                    }
                   }
                 }, 20_000);
               }
@@ -368,7 +382,7 @@ describe("GasEstimator:e2e", () => {
 
             const gasEstimator = createGasEstimator({
               chainId: testChain.chainId,
-              rpcClient: viemClient,
+              rpc: viemClient,
             });
 
             beforeAll(async () => {
@@ -380,11 +394,11 @@ describe("GasEstimator:e2e", () => {
                 chain: getCustomChain(
                   testChain.name!,
                   testChain.chainId!,
-                  testChain.rpcUrl!,
+                  rpcUrl,
                   ""
                 ),
                 transport,
-                bundlerTransport: http("https://not-gonna-use-the-bundler.com"),
+                bundlerTransport: transport,
               });
 
               const { factory, factoryData } =
@@ -465,7 +479,7 @@ describe("GasEstimator:e2e", () => {
                   callGasLimit,
                   verificationGasLimit,
                   preVerificationGas,
-                  chain,
+                  viemChain,
                   testChain,
                   paymasterVerificationGasLimit,
                   paymasterPostOpGasLimit

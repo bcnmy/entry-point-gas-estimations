@@ -1,5 +1,4 @@
 import config from "config";
-import { SupportedChain } from "../../shared/config";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 import { createPublicClient, Hex, http, toHex, zeroAddress } from "viem";
@@ -7,6 +6,7 @@ import { createNexusClient, getCustomChain, NexusClient } from "@biconomy/sdk";
 import { UserOperationV7, userOperationV7Schema } from "./UserOperationV7";
 import { EntryPointV7Simulations } from "./EntryPointV7Simulations";
 import { isExecutionResultV7 } from "./types";
+import { supportedChains } from "../../chains/chains";
 
 // Hardcoded gas values for gas estimation, to ensure user op completeness
 const defaultCallGasLimit = BigInt(5_000_000);
@@ -14,6 +14,8 @@ const defaultVerificationGasLimit = BigInt(5_000_000);
 const defaultPreVerificationGas = BigInt(5_000_000);
 
 describe("EntryPointV7Simulations", () => {
+  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
+
   (BigInt.prototype as any).toJSON = function () {
     return this.toString();
   };
@@ -21,13 +23,8 @@ describe("EntryPointV7Simulations", () => {
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
 
-  const supportedChains =
-    config.get<Record<number, SupportedChain>>("supportedChains");
-
   const includeChainIds = config.get<number[]>("includeInTests");
   const excludeChainIds = config.get<number[]>("excludeFromTests");
-
-  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
@@ -37,8 +34,18 @@ describe("EntryPointV7Simulations", () => {
   );
 
   for (const testChain of testChains) {
+    let rpcUrl: string;
+    try {
+      rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
+    } catch (err) {
+      console.warn(
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+      );
+      continue;
+    }
+
     describe(`${testChain.name} (${testChain.chainId})`, () => {
-      const transport = testChain.rpcUrl ? http(testChain.rpcUrl) : http();
+      const transport = http(rpcUrl);
 
       const viemClient = createPublicClient({
         chain: {
@@ -57,12 +64,7 @@ describe("EntryPointV7Simulations", () => {
           k1ValidatorAddress: "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
           factoryAddress: "0x00000024115AA990F0bAE0B6b0D5B8F68b684cd6",
           signer: account,
-          chain: getCustomChain(
-            testChain.name!,
-            testChain.chainId!,
-            testChain.rpcUrl!,
-            ""
-          ),
+          chain: getCustomChain(testChain.name, testChain.chainId, rpcUrl, ""),
           transport,
           bundlerTransport: http("https://not-gonna-use-the-bundler.com"),
         });
@@ -94,14 +96,9 @@ describe("EntryPointV7Simulations", () => {
         factory = factoryArgs.factory;
         factoryData = factoryArgs.factoryData;
 
-        const vitalik = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
         const unSignedUserOperation = {
           sender: nexusClient.account.address,
-          callData: await nexusClient.account.encodeExecute({
-            to: vitalik,
-            data: "0x",
-            value: 1n,
-          }),
+          callData,
           callGasLimit: defaultCallGasLimit,
           maxFeePerGas,
           maxPriorityFeePerGas,

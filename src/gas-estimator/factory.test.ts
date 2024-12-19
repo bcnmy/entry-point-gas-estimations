@@ -3,10 +3,10 @@ import { arbitrum, mainnet, mantle, optimism } from "viem/chains";
 import { createGasEstimator } from "./GasEstimator";
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
-import { MantleGasEstimator } from "./MantleGasEstimator.ts";
 import { EVMGasEstimator } from "./EVMGasEstimator";
-import { ChainStack } from "../shared/types";
 import { EntryPointVersion } from "../entrypoint/shared/types";
+import { MantleGasEstimator } from "./MantleGasEstimator";
+import { ChainStack, SupportedChain } from "../chains/types";
 
 describe("factory", () => {
   describe("createGasEstimator", () => {
@@ -20,7 +20,7 @@ describe("factory", () => {
 
       const gasEstimator = createGasEstimator({
         chainId: optimism.id,
-        rpcClient,
+        rpc: rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
@@ -34,7 +34,7 @@ describe("factory", () => {
 
       const gasEstimator = createGasEstimator({
         chainId: arbitrum.id,
-        rpcClient,
+        rpc: rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(ArbitrumGasEstimator);
@@ -48,7 +48,7 @@ describe("factory", () => {
 
       const gasEstimator = createGasEstimator({
         chainId: mantle.id,
-        rpcClient,
+        rpc: rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(MantleGasEstimator);
@@ -62,23 +62,25 @@ describe("factory", () => {
 
       const gasEstimator = createGasEstimator({
         chainId: mainnet.id,
-        rpcClient,
+        rpc: rpcClient,
       });
 
       expect(gasEstimator).toBeInstanceOf(EVMGasEstimator);
     });
 
-    it("should create a custom gas estimator with the params passed", () => {
+    it("should create a custom gas estimator with a custom chain", () => {
       const rpcClient = createPublicClient({
         chain: mainnet,
         transport: http(rpcUrl),
       });
 
-      const chainId = 654321;
-      const gasEstimator = createGasEstimator({
+      const chainId = 4337;
+      const customChain: SupportedChain = {
         chainId,
-        rpcClient,
+        name: "Biconomy Mainnet",
+        isTestnet: false,
         stack: ChainStack.Optimism,
+        eip1559: true,
         entryPoints: {
           [EntryPointVersion.v060]: {
             address: "0x006",
@@ -87,11 +89,25 @@ describe("factory", () => {
             address: "0x007",
           },
         },
-        simulationOptions: {
+        stateOverrideSupport: {
+          balance: true,
+          bytecode: true,
+        },
+        smartAccountSupport: {
+          smartAccountsV2: true,
+          nexus: true,
+        },
+        simulation: {
           preVerificationGas: 1n,
           verificationGasLimit: 2n,
           callGasLimit: 3n,
         },
+      };
+
+      const gasEstimator = createGasEstimator({
+        chainId,
+        rpc: rpcClient,
+        chain: customChain,
       });
 
       expect(gasEstimator.chainId).toBe(chainId);
@@ -102,11 +118,7 @@ describe("factory", () => {
       expect(
         gasEstimator.entryPoints[EntryPointVersion.v070].contract.address
       ).toBe("0x007");
-      expect(gasEstimator.simulationOptions).toEqual({
-        preVerificationGas: 1n,
-        verificationGasLimit: 2n,
-        callGasLimit: 3n,
-      });
+      expect(gasEstimator.simulationOptions).toEqual(customChain.simulation);
     });
   });
 });

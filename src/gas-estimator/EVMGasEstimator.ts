@@ -20,22 +20,32 @@ import {
   EntryPoints,
   EstimateUserOperationGasResult,
   ExecutionResult,
-  GasEstimatorRpcClient,
 } from "./types";
 import { EntryPointVersion } from "../entrypoint/shared/types";
-import { defaultGasOverheads, INNER_GAS_OVERHEAD } from "./constants";
+import {
+  defaultGasOverheads,
+  INNER_GAS_OVERHEAD,
+  SIMULATION_CALL_GAS_LIMIT,
+  SIMULATION_PRE_VERIFICATION_GAS,
+  SIMULATION_VERIFICATION_GAS_LIMIT,
+} from "./constants";
 import {
   validateUserOperation,
   UserOperation,
   isUserOperationV6,
 } from "./UserOperation";
+import { GasEstimatorRpcClient } from "./GasEstimator";
 
 export class EVMGasEstimator {
   constructor(
     public chainId: number,
     protected rpcClient: GasEstimatorRpcClient,
     public entryPoints: EntryPoints,
-    public simulationOptions: SimulationOptions
+    public simulationOptions: SimulationOptions = {
+      callGasLimit: SIMULATION_CALL_GAS_LIMIT,
+      preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
+      verificationGasLimit: SIMULATION_VERIFICATION_GAS_LIMIT,
+    }
   ) {}
 
   async estimateUserOperationGas({

@@ -30,10 +30,3 @@ export const hexData32Schema = z
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
   [P in K]?: T[P];
 };
-
-export enum ChainStack {
-  EVM = "evm",
-  Optimism = "optimism",
-  Arbitrum = "arbitrum",
-  Mantle = "mantle",
-}
