@@ -159,6 +159,9 @@ out
 
 .vscode-test
 
+# .vscode config
+.vscode
+
 # yarn v2
 
 .yarn/cache

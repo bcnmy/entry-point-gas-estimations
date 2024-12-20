@@ -1,8 +1,6 @@
 import { EVMGasEstimator } from "../evm/EVMGasEstimator";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
 import { Hex } from "viem";
-import { EntryPointV6 } from "../../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Simulations";
 import {
   isUserOperationV6,
   UserOperation,
@@ -11,6 +9,7 @@ import {
 import z from "zod";
 import { NODE_INTERFACE_ARBITRUM_ADDRESS } from "./constants";
 import { ARBITRUM_L1_FEE_GAS_PRICE_ORACLE_ABI } from "./abi";
+import { IEntryPointV6, IEntryPointV7Simulations } from "../types";
 
 export class ArbitrumGasEstimator extends EVMGasEstimator {
   override async estimatePreVerificationGas(
@@ -28,7 +27,7 @@ export class ArbitrumGasEstimator extends EVMGasEstimator {
 
   private async getL1Fee(userOperation: UserOperation): Promise<bigint> {
     let handleOpsData: Hex;
-    let entryPoint: EntryPointV6 | EntryPointV7Simulations;
+    let entryPoint: IEntryPointV6 | IEntryPointV7Simulations;
     if (isUserOperationV6(userOperation)) {
       entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
       handleOpsData = entryPoint.encodeHandleOpsFunctionData(

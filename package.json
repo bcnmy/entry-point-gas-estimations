@@ -21,7 +21,11 @@
     "zod-validation-error": "^2.1.0"
   },
   "jest": {
+    "testMatch": [
+      "**/?(*.)+(spec|test).ts"
+    ],
     "coveragePathIgnorePatterns": [
+      "dist",
       "src/legacy",
       "src/scripts",
       "src/dont-commit"
