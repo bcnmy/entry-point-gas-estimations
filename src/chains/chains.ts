@@ -823,7 +823,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: true,
     },
   },
   "1328": {
@@ -841,9 +841,9 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: false,
     },
     simulation: {
-      preVerificationGas: 1000000,
-      callGasLimit: 5000000,
-      verificationGasLimit: 2000000,
+      preVerificationGas: 1000000n,
+      callGasLimit: 5000000n,
+      verificationGasLimit: 2000000n,
     },
   },
   "1329": {
@@ -861,9 +861,9 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: false,
     },
     simulation: {
-      preVerificationGas: 1000000,
-      callGasLimit: 5000000,
-      verificationGasLimit: 2000000,
+      preVerificationGas: 1000000n,
+      callGasLimit: 5000000n,
+      verificationGasLimit: 2000000n,
     },
   },
   "995": {
@@ -941,9 +941,9 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: false,
     },
     simulation: {
-      preVerificationGas: 1000000,
-      callGasLimit: 2000000,
-      verificationGasLimit: 2000000,
+      preVerificationGas: 1000000n,
+      callGasLimit: 2000000n,
+      verificationGasLimit: 2000000n,
     },
   },
   "1750": {

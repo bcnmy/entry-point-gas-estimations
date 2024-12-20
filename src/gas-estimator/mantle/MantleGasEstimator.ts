@@ -1,15 +1,11 @@
-import { EVMGasEstimator } from "./EVMGasEstimator";
 import { Hex, toRlp } from "viem";
-import { EntryPointVersion } from "../entrypoint/shared/types";
-import { UserOperationV6 } from "../entrypoint/v0.6.0/UserOperationV6";
-import { UserOperationV7 } from "../entrypoint/v0.7.0/UserOperationV7";
-import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
+import { EntryPointVersion } from "../../entrypoint/shared/types";
+import { EVMGasEstimator } from "../evm/EVMGasEstimator";
 import {
   isUserOperationV6,
   UserOperation,
   validateUserOperation,
-} from "./UserOperation";
+} from "../UserOperation";
 import {
   MANTLE_BVM_GAS_PRICE_ORACLE_ADDRESS,
   MANTLE_L1_ROLL_UP_FEE_DIVISION_FACTOR,
@@ -32,20 +28,17 @@ export class MantleGasEstimator extends EVMGasEstimator {
     return l2Fee + l1Fee / l2MaxFee;
   }
 
-  private async getL1Fee(
-    userOperation: UserOperationV6 | UserOperationV7
-  ): Promise<bigint> {
-    let entryPoint: EntryPointV6 | EntryPointV7Simulations;
+  private async getL1Fee(userOperation: UserOperation): Promise<bigint> {
     let handleOpsData: Hex;
 
     if (isUserOperationV6(userOperation)) {
-      entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
+      const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
       handleOpsData = entryPoint.encodeHandleOpsFunctionData(
         userOperation,
         userOperation.sender
       );
     } else {
-      entryPoint = this.entryPoints[EntryPointVersion.v070].contract;
+      const entryPoint = this.entryPoints[EntryPointVersion.v070].contract;
       handleOpsData = entryPoint.encodeHandleOpsFunctionData(
         userOperation,
         userOperation.sender

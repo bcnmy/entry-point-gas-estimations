@@ -4,6 +4,8 @@ import {
   http,
   zeroAddress,
   Address,
+  parseEther,
+  toHex,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
@@ -145,6 +147,11 @@ describe("EntryPointV6Simulations", () => {
           const estimateResult =
             await epv6Simulator.estimateVerificationGasLimit({
               userOperation,
+              stateOverrides: {
+                [userOperation.sender]: {
+                  balance: toHex(parseEther("10000")),
+                },
+              },
             });
 
           expect(estimateResult).toBeDefined();
@@ -158,6 +165,11 @@ describe("EntryPointV6Simulations", () => {
         it("should return a value greater than 0", async () => {
           const estimateResult = await epv6Simulator.estimateCallGasLimit({
             userOperation,
+            stateOverrides: {
+              [userOperation.sender]: {
+                balance: toHex(parseEther("10000")),
+              },
+            },
           });
           expect(estimateResult).toBeDefined();
           expect(estimateResult).toBeGreaterThan(0n);

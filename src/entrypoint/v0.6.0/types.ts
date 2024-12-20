@@ -71,13 +71,3 @@ export class SimulateHandleOpError extends Error {
     super(message);
   }
 }
-
-export type StateOverrideSet = {
-  [key: Address]: {
-    balance?: Hex;
-    nonce?: Hex;
-    code?: Hex;
-    state?: object;
-    stateDiff?: object;
-  };
-};

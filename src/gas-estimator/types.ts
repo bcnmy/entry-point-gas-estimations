@@ -10,11 +10,11 @@ export type ExecutionResult = ExecutionResultV6 | ExecutionResultV7;
 
 export type EntryPoints = {
   [EntryPointVersion.v060]: {
-    contract: EntryPointV6;
-    simulations: EntryPointV6Simulations;
+    contract: IEntryPointV6;
+    simulations: IEntryPointV6Simulations;
   };
   [EntryPointVersion.v070]: {
-    contract: EntryPointV7Simulations;
+    contract: IEntryPointV7Simulations;
   };
 };
 

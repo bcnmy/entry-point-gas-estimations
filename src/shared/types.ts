@@ -1,4 +1,4 @@
-import { getAddress, Hash, Hex } from "viem";
+import { Address, getAddress, Hash, Hex } from "viem";
 import z from "zod";
 
 const hexDataPattern = /^0x[0-9A-Fa-f]*$/;
@@ -29,4 +29,14 @@ export const hexData32Schema = z
 
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
   [P in K]?: T[P];
+};
+
+export type StateOverrideSet = {
+  [key: Address]: {
+    balance?: Hex;
+    nonce?: Hex;
+    code?: Hex;
+    state?: object;
+    stateDiff?: object;
+  };
 };

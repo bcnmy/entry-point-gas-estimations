@@ -7,12 +7,12 @@ import {
   ExecutionResultV6,
   executionResultSchema,
   ParseError,
-  StateOverrideSet,
 } from "./types";
 import { ENTRYPOINT_V6_ABI } from "./abi";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
 import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
 import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
+import { StateOverrideSet } from "../../shared/types";
 
 export class EntryPointV6 {
   public version = EntryPointVersion.v060;
@@ -23,7 +23,6 @@ export class EntryPointV6 {
     public address: Address = ENTRYPOINT_V6_ADDRESS
   ) {}
 
-  // TODO: Add support for additional state overrides provided by the user
   /**
    * SimulateHandleOp always reverts
    * When it's successful it reverts with an "ExecutionResult" error that we need to parse.
@@ -53,7 +52,6 @@ export class EntryPointV6 {
     ];
 
     if (stateOverrides) {
-      // console.log(stateOverrides);
       simulateHandleOpParams.push(stateOverrides);
     }
 

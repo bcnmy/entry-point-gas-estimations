@@ -23,8 +23,6 @@ import {
   UserOperationV6,
   userOperationV6Schema,
 } from "../entrypoint/v0.6.0/UserOperationV6";
-import { createGasEstimator } from "./GasEstimator";
-import { getRequiredPrefundV6, getRequiredPrefundV7 } from "../shared/utils";
 import { createNexusClient, NexusClient } from "@biconomy/sdk";
 import { EntryPointVersion } from "../entrypoint/shared/types";
 import { BenchmarkResults } from "./utils";
@@ -38,6 +36,8 @@ import {
 } from "./types";
 import { supportedChains } from "../chains/chains";
 import { SupportedChain } from "../chains/types";
+import { getRequiredPrefund } from "../shared/utils";
+import { createGasEstimator } from "./createGasEstimator";
 
 describe("GasEstimator", () => {
   (BigInt.prototype as any).toJSON = function () {
@@ -467,8 +467,6 @@ describe("GasEstimator", () => {
                 expect(paymasterPostOpGasLimit).toBe(0n);
                 expect(paymasterVerificationGasLimit).toBe(0n);
 
-                // console.log(`Entry point v0.7.0 gas estimate:`);
-                // console.log(estimate);
                 const {
                   requiredPrefundEth,
                   requiredPrefundWei,
@@ -514,7 +512,7 @@ describe("GasEstimator", () => {
                   targetCallData: userOperation.callData,
                   stateOverrides: {
                     [userOperation.sender]: {
-                      balance: toHex(requiredPrefundWei),
+                      balance: toHex(parseEther("10000000000000")),
                     },
                   },
                 });
@@ -537,13 +535,7 @@ function calculateRequiredPrefundV6(
   chain: chains.Chain,
   testChain: SupportedChain
 ) {
-  const requiredPrefundWei = getRequiredPrefundV6({
-    paymasterAndData: userOperation.paymasterAndData,
-    callGasLimit,
-    verificationGasLimit,
-    preVerificationGas,
-    maxFeePerGas: userOperation.maxFeePerGas,
-  });
+  const requiredPrefundWei = getRequiredPrefund(userOperation);
 
   const requiredPrefundEth = formatEther(requiredPrefundWei);
 
@@ -576,14 +568,7 @@ function calculateRequiredPrefundV7(
   paymasterVerificationGasLimit?: bigint,
   paymasterPostOpGasLimit?: bigint
 ) {
-  const requiredPrefundWei = getRequiredPrefundV7({
-    callGasLimit,
-    verificationGasLimit,
-    preVerificationGas,
-    paymasterVerificationGasLimit: paymasterVerificationGasLimit || 0n,
-    paymasterPostOpGasLimit: paymasterPostOpGasLimit || 0n,
-    maxFeePerGas: userOperation.maxFeePerGas,
-  });
+  const requiredPrefundWei = getRequiredPrefund(userOperation);
 
   const requiredPrefundEth = formatEther(requiredPrefundWei);
 

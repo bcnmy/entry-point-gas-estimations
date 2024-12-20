@@ -19,6 +19,7 @@ import {
   entryPointExecutionErrorSchema,
 } from "../types";
 import { fromZodError } from "zod-validation-error";
+import { cleanUpRevertReason } from "../../../entrypoint/shared/utils";
 
 export class RpcError extends Error {
   code?: number;
@@ -115,7 +116,7 @@ export function getVerificationGasEstimationSimulatorResult(
 }
 
 export function handleFailedOp(revertReason: string) {
-  revertReason = removeSpecialCharacters(revertReason);
+  revertReason = cleanUpRevertReason(revertReason);
   if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
     throw new RpcError(
       revertReason,
@@ -146,25 +147,6 @@ export function handleFailedOp(revertReason: string) {
     "UserOperation reverted during execution phase",
     VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
   );
-}
-
-function removeSpecialCharacters(input: string): string {
-  const match = input.match(/AA(\d+)\s(.+)/);
-
-  if (match) {
-    const errorCode = match[1]; // e.g., "25"
-    const errorMessage = match[2]; // e.g., "invalid account nonce"
-    const newMatch = `AA${errorCode} ${errorMessage}`.match(
-      // eslint-disable-next-line no-control-regex
-      /AA.*?(?=\\u|\u0000)/
-    );
-    if (newMatch) {
-      const extractedString = newMatch[0];
-      return extractedString;
-    }
-    return `AA${errorCode} ${errorMessage}`;
-  }
-  return input;
 }
 
 export function getSimulationResult(
@@ -227,20 +209,20 @@ export function getSimulationResult(
 }
 
 function encode(
-  typevalues: Array<{ type: string; val: any }>,
+  typeValues: Array<{ type: string; val: any }>,
   forSignature: boolean
 ): string {
   const types = parseAbiParameters(
-    typevalues
-      .map((typevalue) =>
-        typevalue.type === "bytes" && forSignature ? "bytes32" : typevalue.type
+    typeValues
+      .map((typeValue) =>
+        typeValue.type === "bytes" && forSignature ? "bytes32" : typeValue.type
       )
       .toString()
   );
-  const values = typevalues.map((typevalue: any) =>
-    typevalue.type === "bytes" && forSignature
-      ? keccak256(typevalue.val)
-      : typevalue.val
+  const values = typeValues.map((typeValue: any) =>
+    typeValue.type === "bytes" && forSignature
+      ? keccak256(typeValue.val)
+      : typeValue.val
   );
   return encodeAbiParameters(types, values);
 }
@@ -314,12 +296,12 @@ export function packUserOp(userOp: UserOperation, forSignature = true): string {
     return encoded;
   }
 
-  const typevalues = (userOpType as any).components.map(
+  const typeValues = (userOpType as any).components.map(
     (c: { name: keyof typeof userOp; type: string }) => ({
       type: c.type,
       val: userOp[c.name],
     })
   );
 
-  return encode(typevalues, forSignature);
+  return encode(typeValues, forSignature);
 }

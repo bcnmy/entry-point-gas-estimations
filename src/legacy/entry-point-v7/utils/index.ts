@@ -40,7 +40,7 @@ const panicCodes: { [key: number]: string } = {
 };
 
 export function toPackedUserOperation(
-  unpackedUserOperation: UserOperation,
+  unpackedUserOperation: UserOperation
 ): PackedUserOperation {
   return {
     sender: unpackedUserOperation.sender,
@@ -109,7 +109,7 @@ export function parseFailedOpWithRevert(data: Hex) {
           type: "string",
         },
       ],
-      dataParams,
+      dataParams
     );
 
     return err;
@@ -123,7 +123,7 @@ export function parseFailedOpWithRevert(data: Hex) {
           type: "uint256",
         },
       ],
-      dataParams,
+      dataParams
     );
 
     return panicCodes[Number(code)] ?? `${code}`;
@@ -191,7 +191,7 @@ export function packUserOp(op: PackedUserOperation): `0x${string}` {
       op.gasFees, // need non zero bytes to get better estimations for preVerificationGas
       op.paymasterAndData,
       op.signature,
-    ],
+    ]
   );
 }
 
@@ -200,32 +200,32 @@ export function handleFailedOp(revertReason: string) {
   if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
     throw new RpcError(
       revertReason,
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
     );
   } else if (revertReason.includes("AA3")) {
     throw new RpcError(
       revertReason,
-      VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED,
+      VALIDATION_ERRORS.SIMULATE_PAYMASTER_VALIDATION_FAILED
     );
   } else if (revertReason.includes("AA9")) {
     throw new RpcError(
       revertReason,
-      VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED,
+      VALIDATION_ERRORS.WALLET_TRANSACTION_REVERTED
     );
   } else if (revertReason.includes("AA4")) {
     throw new RpcError(
       revertReason,
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
     );
   } else if (revertReason.includes("AA")) {
     throw new RpcError(
       revertReason,
-      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+      VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
     );
   }
   throw new RpcError(
     "UserOperation reverted during execution phase",
-    VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
+    VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED
   );
 }
 
@@ -237,7 +237,7 @@ function removeSpecialCharacters(input: string): string {
     const errorMessage = match[2]; // e.g., "invalid account nonce"
     const newMatch = `AA${errorCode} ${errorMessage}`.match(
       // eslint-disable-next-line no-control-regex
-      /AA.*?(?=\\u|\u0000)/,
+      /AA.*?(?=\\u|\u0000)/
     );
     if (newMatch) {
       const extractedString = newMatch[0];

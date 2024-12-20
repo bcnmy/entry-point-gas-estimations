@@ -4,7 +4,7 @@ import {
   encodeFunctionData,
   Hex,
   RpcError,
-  toHex,
+  RpcStateOverride,
 } from "viem";
 import { EntryPointV6 } from "./EntryPointV6";
 import { ExecutionResultV6 } from "./types";
@@ -24,13 +24,14 @@ import {
   CALL_GAS_LIMIT_BINARY_SEARCH_BYTECODE,
   VERIFICATION_GAS_LIMIT_BINARY_SEARCH_BYTECODE,
 } from "./bytecode";
-import { removeSpecialCharacters } from "./utils";
 import {
   CALL_GAS_ESTIMATION_SIMULATOR,
   VERIFICATION_GAS_ESTIMATION_SIMULATOR,
 } from "./abi";
 import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
 import { EntryPointRpcClient } from "../shared/types";
+import { cleanUpRevertReason, mergeStateOverrides } from "../shared/utils";
+import { StateOverrideSet } from "../../shared/types";
 
 export class EntryPointV6Simulations extends EntryPointV6 {
   constructor(
@@ -52,20 +53,26 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     super(client, address);
   }
 
-  // TODO: Add support for passing custom state overrides
   async estimateVerificationGasLimit({
     userOperation,
+    stateOverrides,
+    entryPointAddress,
   }: EstimateVerificationGasLimitParams): Promise<EstimateVerificationGasLimitResult> {
     if (userOperation.initCode !== "0x") {
       throw new Error(
         "binary search is not supported when initCode is not 0x, because it will throw AA20 account not deployed"
       );
     }
+    // check if userOperation is valid
     userOperation = userOperationV6Schema.parse(userOperation);
+
+    // Allow custom entry point address passed by the client
+    const targetEntryPointAddress = entryPointAddress || this.address;
 
     // first iteration should run at max vgl
     userOperation.verificationGasLimit = INITIAL_VGL_UPPER_BOUND;
 
+    // encode the function data for eth_call of our custom verification gas limit (VGL) binary search contract
     const data = encodeFunctionData({
       abi: VERIFICATION_GAS_ESTIMATION_SIMULATOR,
       functionName: "estimateVerificationGas",
@@ -80,20 +87,24 @@ export class EntryPointV6Simulations extends EntryPointV6 {
       ],
     });
 
+    // Allow custom state overrides passed by the client
+    const finalStateOverrideSet = mergeStateOverrides(
+      // Override the entry point code with the VGL simulator code
+      {
+        [targetEntryPointAddress]: {
+          code: this.verificationGasEstimationSimulatorByteCode,
+        },
+      },
+      stateOverrides
+    );
+
     try {
       await this.client.request({
         method: "eth_call",
         params: [
-          { to: this.address, data },
+          { to: targetEntryPointAddress, data },
           "latest",
-          {
-            [userOperation.sender]: {
-              balance: toHex(100000_000000000000000000n),
-            },
-            [this.address]: {
-              code: this.verificationGasEstimationSimulatorByteCode,
-            },
-          },
+          finalStateOverrideSet as RpcStateOverride,
         ],
       });
 
@@ -106,6 +117,8 @@ export class EntryPointV6Simulations extends EntryPointV6 {
 
   async estimateCallGasLimit({
     userOperation,
+    stateOverrides,
+    entryPointAddress,
   }: EstimateVerificationGasLimitParams): Promise<bigint> {
     if (userOperation.initCode !== "0x") {
       throw new Error(
@@ -113,10 +126,14 @@ export class EntryPointV6Simulations extends EntryPointV6 {
       );
     }
 
+    // Allow custom entry point address passed by the client
+    const targetEntryPointAddress = entryPointAddress || this.address;
+
     // Setting callGasLimit to 0 to make sure call data is not executed by the Entry Point code and only
     // done inside the CallGasSimulationExecutor contract
     userOperation.callGasLimit = BigInt(0);
 
+    // encode the function data for eth_call of our custom call gas limit (CGL) binary search contract
     const estimateCallGasLimitCallData = encodeFunctionData({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
       functionName: "estimateCallGas",
@@ -132,18 +149,22 @@ export class EntryPointV6Simulations extends EntryPointV6 {
       ],
     });
 
-    const executionResult = await this.simulateHandleOp({
-      userOperation,
-      targetAddress: this.address,
-      targetCallData: estimateCallGasLimitCallData,
-      stateOverrides: {
-        [userOperation.sender]: {
-          balance: toHex(100000_000000000000000000n),
-        },
-        [this.address]: {
+    // Allow custom state overrides passed by the client
+    const finalStateOverrideSet = mergeStateOverrides(
+      // Override the entry point code with the CGL simulator code
+      {
+        [targetEntryPointAddress]: {
           code: this.callGasEstimationSimulatorByteCode,
         },
       },
+      stateOverrides
+    );
+
+    const executionResult = await this.simulateHandleOp({
+      userOperation,
+      targetAddress: targetEntryPointAddress,
+      targetCallData: estimateCallGasLimitCallData,
+      stateOverrides: finalStateOverrideSet,
     });
 
     return this.parseEstimateCallGasLimitResult(executionResult);
@@ -228,7 +249,7 @@ export class EntryPointV6Simulations extends EntryPointV6 {
   }
 
   private handleFailedOp(revertReason: string) {
-    revertReason = removeSpecialCharacters(revertReason);
+    revertReason = cleanUpRevertReason(revertReason);
     if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
       throw new RpcError(new Error(revertReason), {
         code: VALIDATION_ERRORS.SIMULATE_VALIDATION_FAILED,
@@ -270,6 +291,8 @@ class UnknownError extends Error {
 
 interface EstimateVerificationGasLimitParams {
   userOperation: UserOperationV6;
+  stateOverrides?: StateOverrideSet;
+  entryPointAddress?: Address;
 }
 
 interface EstimateVerificationGasLimitResult {

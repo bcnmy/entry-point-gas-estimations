@@ -10,7 +10,6 @@ import {
   errorWithCauseSchema,
   errorWithNestedCauseSchema,
   ParseError,
-  StateOverrideSet,
 } from "../v0.6.0/types";
 import { ENTRYPOINT_V7_SIMULATIONS_ABI } from "./abi";
 import {
@@ -22,6 +21,8 @@ import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
 import { ENTRYPOINT_V7_ADDRESS } from "./constants";
 import { ExecutionResultV7 } from "./types";
 import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
+import { mergeStateOverrides } from "../shared/utils";
+import { StateOverrideSet } from "../../shared/types";
 
 interface SimulateHandleOpParams {
   userOperation: UserOperationV7;
@@ -39,7 +40,6 @@ export class EntryPointV7Simulations {
     public address: Address = ENTRYPOINT_V7_ADDRESS
   ) {}
 
-  // TODO: Add support for additional state overrides provided by the user
   /**
    * SimulateHandleOp always reverts
    * When it's successful it reverts with an "ExecutionResult" error that we need to parse.
@@ -70,22 +70,14 @@ export class EntryPointV7Simulations {
       "latest",
     ];
 
-    let finalStateOverrideSet: StateOverrideSet = {};
-
-    const simulationsBytecodeStateOverride = {
-      [this.address]: {
-        code: ENTRYPOINT_V7_SIMULATIONS_BYTECODE as Hex,
+    const finalStateOverrideSet = mergeStateOverrides(
+      {
+        [this.address]: {
+          code: ENTRYPOINT_V7_SIMULATIONS_BYTECODE as Hex,
+        },
       },
-    };
-
-    if (stateOverrides) {
-      finalStateOverrideSet = {
-        ...simulationsBytecodeStateOverride,
-        ...stateOverrides,
-      };
-    } else {
-      finalStateOverrideSet = { ...simulationsBytecodeStateOverride };
-    }
+      stateOverrides
+    );
 
     simulateHandleOpParams.push(finalStateOverrideSet);
 
@@ -103,7 +95,6 @@ export class EntryPointV7Simulations {
 
       return decodedResult;
     } catch (err: any) {
-      // TODO: Handle AA23 reverted by writing a test without a balance override
       const data = this.parseRpcRequestErrorData(err);
 
       const decodedError = decodeErrorResult({

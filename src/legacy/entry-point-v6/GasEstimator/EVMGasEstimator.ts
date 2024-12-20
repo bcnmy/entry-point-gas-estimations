@@ -261,8 +261,6 @@ export class GasEstimator implements IGasEstimator {
       stateOverrideSet,
     });
 
-    console.log("old execution result", error);
-
     if (error.result === "failed") {
       throw new RpcError(
         `UserOperation reverted during simulation with reason: ${error.data}`,
@@ -484,8 +482,6 @@ export class GasEstimator implements IGasEstimator {
           throw new Error(JSON.stringify(err.cause));
         }
       }
-
-      console.log("old", causeParseResult);
 
       const cause = causeParseResult.data;
 

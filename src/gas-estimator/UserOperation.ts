@@ -9,12 +9,6 @@ import {
 
 export type UserOperation = UserOperationV6 | UserOperationV7;
 
-export function isUserOperation(
-  userOperation: UserOperationV6 | UserOperationV7
-): userOperation is UserOperation {
-  return isUserOperationV6(userOperation) || isUserOperationV7(userOperation);
-}
-
 export function isUserOperationV6(
   userOp: UserOperation
 ): userOp is UserOperationV6 {

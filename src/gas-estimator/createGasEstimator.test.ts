@@ -1,82 +1,55 @@
-import { createPublicClient, http } from "viem";
 import { arbitrum, mainnet, mantle, optimism } from "viem/chains";
-import { createGasEstimator } from "./GasEstimator";
-import { OptimismGasEstimator } from "./OptimismGasEstimator";
-import { ArbitrumGasEstimator } from "./ArbitrumGasEstimator";
-import { EVMGasEstimator } from "./EVMGasEstimator";
+import { OptimismGasEstimator } from "./optimism/OptimismGasEstimator";
+import { ArbitrumGasEstimator } from "./arbitrum/ArbitrumGasEstimator";
+import { EVMGasEstimator } from "./evm/EVMGasEstimator";
 import { EntryPointVersion } from "../entrypoint/shared/types";
-import { MantleGasEstimator } from "./MantleGasEstimator";
 import { ChainStack, SupportedChain } from "../chains/types";
+import { createGasEstimator, mergeChainConfig } from "./createGasEstimator";
+import { MantleGasEstimator } from "./mantle/MantleGasEstimator";
 
-describe("factory", () => {
-  describe("createGasEstimator", () => {
-    const rpcUrl = "http://rpc.url";
+describe("createGasEstimator", () => {
+  const rpcUrl = "http://rpc.url";
 
+  describe("test different chain stacks", () => {
     it("should create an OptimismGasEstimator", () => {
-      const rpcClient = createPublicClient({
-        chain: optimism,
-        transport: http(rpcUrl),
-      });
-
       const gasEstimator = createGasEstimator({
         chainId: optimism.id,
-        rpc: rpcClient,
+        rpc: rpcUrl,
       });
 
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
     });
 
     it("should create an ArbitrumGasEstimator", () => {
-      const rpcClient = createPublicClient({
-        chain: arbitrum,
-        transport: http(rpcUrl),
-      });
-
       const gasEstimator = createGasEstimator({
         chainId: arbitrum.id,
-        rpc: rpcClient,
+        rpc: rpcUrl,
       });
 
       expect(gasEstimator).toBeInstanceOf(ArbitrumGasEstimator);
     });
 
     it("should create a MantleGasEstimator", () => {
-      const rpcClient = createPublicClient({
-        chain: mantle,
-        transport: http(rpcUrl),
-      });
-
       const gasEstimator = createGasEstimator({
         chainId: mantle.id,
-        rpc: rpcClient,
+        rpc: rpcUrl,
       });
 
       expect(gasEstimator).toBeInstanceOf(MantleGasEstimator);
     });
 
     it("should create a EVMGasEstimator", () => {
-      const rpcClient = createPublicClient({
-        chain: mainnet,
-        transport: http(rpcUrl),
-      });
-
       const gasEstimator = createGasEstimator({
         chainId: mainnet.id,
-        rpc: rpcClient,
+        rpc: rpcUrl,
       });
 
       expect(gasEstimator).toBeInstanceOf(EVMGasEstimator);
     });
 
-    it("should create a custom gas estimator with a custom chain", () => {
-      const rpcClient = createPublicClient({
-        chain: mainnet,
-        transport: http(rpcUrl),
-      });
-
-      const chainId = 4337;
+    it("should create a custom gas estimator with a full custom chain", () => {
       const customChain: SupportedChain = {
-        chainId,
+        chainId: 4337,
         name: "Biconomy Mainnet",
         isTestnet: false,
         stack: ChainStack.Optimism,
@@ -105,12 +78,12 @@ describe("factory", () => {
       };
 
       const gasEstimator = createGasEstimator({
-        chainId,
-        rpc: rpcClient,
+        chainId: customChain.chainId,
+        rpc: rpcUrl,
         chain: customChain,
       });
 
-      expect(gasEstimator.chainId).toBe(chainId);
+      expect(gasEstimator.chainId).toBe(customChain.chainId);
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
       expect(
         gasEstimator.entryPoints[EntryPointVersion.v060].contract.address
@@ -119,6 +92,26 @@ describe("factory", () => {
         gasEstimator.entryPoints[EntryPointVersion.v070].contract.address
       ).toBe("0x007");
       expect(gasEstimator.simulationOptions).toEqual(customChain.simulation);
+    });
+  });
+
+  describe("mergeChainConfig", () => {
+    it("should merge a partial chain config with the default chain config correctly", () => {
+      const chain = optimism;
+
+      const partialChain: Partial<SupportedChain> = {
+        entryPoints: {
+          [EntryPointVersion.v060]: {
+            address: "0x006",
+          },
+        },
+      };
+
+      const merged = mergeChainConfig(chain.id, partialChain);
+
+      expect(merged.entryPoints![EntryPointVersion.v060]?.address).toBe(
+        "0x006"
+      );
     });
   });
 });

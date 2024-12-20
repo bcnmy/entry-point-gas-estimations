@@ -25,12 +25,12 @@ import {
   MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE,
 } from "./constants";
 import { userOperationV6Schema } from "./UserOperationV6";
+import { supportedChains } from "../../chains/chains";
 import {
   SIMULATION_CALL_GAS_LIMIT,
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
-} from "../../gas-estimator/constants";
-import { supportedChains } from "../../chains/chains";
+} from "../../gas-estimator/evm/constants";
 
 describe("DefaultEntryPointV6", () => {
   it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});

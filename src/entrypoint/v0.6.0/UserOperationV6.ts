@@ -104,31 +104,31 @@ export function packUserOpV6(
     return encoded;
   }
 
-  const typevalues = (userOpType as any).components.map(
+  const typeValues = (userOpType as any).components.map(
     (c: { name: keyof typeof userOp; type: string }) => ({
       type: c.type,
       val: userOp[c.name],
     })
   );
 
-  return encode(typevalues, forSignature);
+  return encode(typeValues, forSignature);
 }
 
 function encode(
-  typevalues: Array<{ type: string; val: any }>,
+  typeValues: Array<{ type: string; val: any }>,
   forSignature: boolean
 ): string {
   const types = parseAbiParameters(
-    typevalues
-      .map((typevalue) =>
-        typevalue.type === "bytes" && forSignature ? "bytes32" : typevalue.type
+    typeValues
+      .map((typeValue) =>
+        typeValue.type === "bytes" && forSignature ? "bytes32" : typeValue.type
       )
       .toString()
   );
-  const values = typevalues.map((typevalue: any) =>
-    typevalue.type === "bytes" && forSignature
-      ? keccak256(typevalue.val)
-      : typevalue.val
+  const values = typeValues.map((typeValue: any) =>
+    typeValue.type === "bytes" && forSignature
+      ? keccak256(typeValue.val)
+      : typeValue.val
   );
   return encodeAbiParameters(types, values);
 }
