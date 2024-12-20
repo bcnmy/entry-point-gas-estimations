@@ -177,3 +177,6 @@ dist
 
 # Random stuff I don't want to commit
 dont-commit/
+
+# Config directory used for test config
+config/test.json

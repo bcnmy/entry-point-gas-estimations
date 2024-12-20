@@ -1,0 +1,105 @@
+{
+  "testChains": {
+    "1": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "10": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "56": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "97": {
+      "testAddresses": { "v2": "0x850031776766eDbA9C2b99CB602f38F1F4500883" }
+    },
+    "100": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "137": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "204": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "1115": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "1116": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "1740": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "1750": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "2810": {
+      "testAddresses": { "v2": "0xE39F18c70762e55be410bf7D3CBd29247f9D4CF8" }
+    },
+    "2818": {
+      "testAddresses": { "v2": "0x02f6a7658EbD7ea31ae55546430c40Cf86711097" }
+    },
+    "3799": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "5000": {
+      "testAddresses": { "v2": "0x4c893375253bdf31001a96dcf93cbfeba96253db" }
+    },
+    "5611": {
+      "testAddresses": { "v2": "0x4E4bB49854ecc9b8Feea7B76144c4A55cc809e93" }
+    },
+    "8453": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "10200": {
+      "testAddresses": { "v2": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4" }
+    },
+    "42161": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "43114": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "80002": {
+      "testAddresses": { "v2": "0xAAe74D4B759AEe3EF7fF4524BD2D6dcb6d09F526" }
+    },
+    "80084": {
+      "testAddresses": { "v2": "0x025B1575E36605d59A10982A747ec3274bcb116b" }
+    },
+    "88882": {
+      "testAddresses": { "v2": "0x88d8a7761798c720d7365a9d5112ad7a737173a6" }
+    },
+    "88888": {
+      "testAddresses": { "v2": "0x1876530c69b9f9c28eef169ab6ef294a00638ef9" }
+    },
+    "534351": {
+      "testAddresses": { "v2": "0xB8C4253F8Ed4F613Ccb2FaBB3D70CF1b5E7B217F" }
+    },
+    "534352": {
+      "testAddresses": { "v2": "0x6f65cC3002885937E90d123727116f721A567c25" }
+    },
+    "11155420": {
+      "testAddresses": { "v2": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a" }
+    }
+  },
+  "benchmarkPricesUSD": {
+    "ETH": 3868,
+    "DEGEN": 0.01497,
+    "CHZ": 0.1104,
+    "BERA": 0,
+    "POL": 0.5987,
+    "AVAX": 49.76,
+    "xDAI": 0.9856,
+    "XDAI": 0.9856,
+    "BNB": 715.91,
+    "tBNB": 715.91,
+    "SEI": 0.5831,
+    "OKB": 53.84,
+    "MNT": 1.21
+  },
+  "excludeFromTests": [
+    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611, 10200
+  ],
+  "includeInTests": [],
+  "skipSecondSimulation": [1101, 666666666, 196]
+}

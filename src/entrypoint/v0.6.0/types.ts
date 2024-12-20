@@ -1,0 +1,73 @@
+import { Hex } from "viem";
+import { z } from "zod";
+
+/**
+ * An Execution result returned by simulateHandleOp call
+ */
+export const executionResultSchema = z
+  .tuple([
+    z.bigint(),
+    z.bigint(),
+    z.number(),
+    z.number(),
+    z.boolean(),
+    z.string(),
+  ])
+  .transform((val) => ({
+    preOpGas: val[0],
+    paid: val[1],
+    validAfter: val[2],
+    validUntil: val[3],
+    targetSuccess: val[4],
+    targetResult: val[5] as Hex,
+  }));
+
+export type ExecutionResultV6 = z.infer<typeof executionResultSchema>;
+
+export function isExecutionResultV6(data: unknown): data is ExecutionResultV6 {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "validUntil" in data &&
+    "validAfter" in data
+  );
+}
+
+/**
+ * An error returned by simulateHandleOp call containing a cause
+ */
+export const errorWithCauseSchema = z.object({
+  cause: z.object({
+    data: z.string(),
+  }),
+});
+
+/**
+ * An error returned by simulateHandleOp on some chains contains a nested
+ * error.cause.cause object for whatever reason 🤷🏻‍♂️
+ */
+export const errorWithNestedCauseSchema = z.object({
+  cause: z.object({
+    cause: z.object({
+      data: z.string(),
+    }),
+  }),
+});
+
+/**
+ * An error that we throw when we're unable to parse the error returned by simulateHandleOp
+ */
+export class ParseError extends Error {
+  constructor(public readonly cause: any) {
+    super("Failed to parse error", cause?.message);
+  }
+}
+
+/**
+ * An actual error returned by simulateHandleOp that is not the ExecutionResult
+ */
+export class SimulateHandleOpError extends Error {
+  constructor(public readonly message: string) {
+    super(message);
+  }
+}
