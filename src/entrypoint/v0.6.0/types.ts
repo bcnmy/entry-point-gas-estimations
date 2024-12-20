@@ -1,4 +1,4 @@
-import { Address, Hex } from "viem";
+import { Hex } from "viem";
 import { z } from "zod";
 
 /**
@@ -58,8 +58,8 @@ export const errorWithNestedCauseSchema = z.object({
  * An error that we throw when we're unable to parse the error returned by simulateHandleOp
  */
 export class ParseError extends Error {
-  constructor(public readonly cause: unknown) {
-    super("Failed to parse error");
+  constructor(public readonly cause: any) {
+    super("Failed to parse error", cause?.message);
   }
 }
 

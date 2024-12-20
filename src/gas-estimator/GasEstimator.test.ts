@@ -218,10 +218,19 @@ describe("GasEstimator", () => {
                   validUntil,
                 } = gasEstimate;
 
+                console.log(gasEstimate);
+
                 expect(callGasLimit).toBeGreaterThan(0n);
                 expect(verificationGasLimit).toBeGreaterThan(0n);
                 expect(preVerificationGas).toBeGreaterThan(0n);
                 expect(validUntil).toBeGreaterThan(0n);
+
+                userOperation = {
+                  ...userOperation,
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                };
 
                 var {
                   requiredPrefundEth,
@@ -229,9 +238,6 @@ describe("GasEstimator", () => {
                   requiredPrefundUsd,
                 } = calculateRequiredPrefundV6(
                   userOperation,
-                  callGasLimit,
-                  verificationGasLimit,
-                  preVerificationGas,
                   viemChain,
                   testChain
                 );
@@ -240,17 +246,10 @@ describe("GasEstimator", () => {
                   testChain.name!
                 ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
 
-                // try running simulateHandleOp again with the returned values
-                userOperation = {
-                  ...userOperation,
-                  callGasLimit,
-                  verificationGasLimit,
-                  preVerificationGas,
-                };
-
                 const entryPoint =
                   gasEstimator.entryPoints[EntryPointVersion.v060].contract;
 
+                // try running simulateHandleOp again with the returned values
                 if (!skipSecondSimulation.includes(testChain.chainId)) {
                   const { paid } = await entryPoint.simulateHandleOp({
                     userOperation,
@@ -316,23 +315,6 @@ describe("GasEstimator", () => {
                     expect(verificationGasLimit).toBeGreaterThan(0n);
                     expect(preVerificationGas).toBeGreaterThan(0n);
 
-                    const {
-                      requiredPrefundEth,
-                      nativeCurrencySymbol,
-                      requiredPrefundUsd,
-                    } = calculateRequiredPrefundV6(
-                      userOperation as UserOperationV6,
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                      viemChain,
-                      testChain
-                    );
-
-                    benchmarkResults[EntryPointVersion.v060][
-                      testChain.name!
-                    ].nativeTransfer = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
                     // try running simulateHandleOp again with the returned values
                     unsignedUserOperation = {
                       ...unsignedUserOperation,
@@ -340,6 +322,20 @@ describe("GasEstimator", () => {
                       verificationGasLimit,
                       preVerificationGas,
                     };
+
+                    const {
+                      requiredPrefundEth,
+                      nativeCurrencySymbol,
+                      requiredPrefundUsd,
+                    } = calculateRequiredPrefundV6(
+                      userOperation as UserOperationV6,
+                      viemChain,
+                      testChain
+                    );
+
+                    benchmarkResults[EntryPointVersion.v060][
+                      testChain.name!
+                    ].nativeTransfer = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
 
                     const userOperation2 = userOperationV6Schema.parse(
                       await smartAccount.signUserOp(unsignedUserOperation)
@@ -467,26 +463,6 @@ describe("GasEstimator", () => {
                 expect(paymasterPostOpGasLimit).toBe(0n);
                 expect(paymasterVerificationGasLimit).toBe(0n);
 
-                const {
-                  requiredPrefundEth,
-                  requiredPrefundWei,
-                  nativeCurrencySymbol,
-                  requiredPrefundUsd,
-                } = calculateRequiredPrefundV7(
-                  userOperation,
-                  callGasLimit,
-                  verificationGasLimit,
-                  preVerificationGas,
-                  viemChain,
-                  testChain,
-                  paymasterVerificationGasLimit,
-                  paymasterPostOpGasLimit
-                );
-
-                benchmarkResults[EntryPointVersion.v070][
-                  testChain.name!
-                ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
                 userOperation = {
                   ...userOperation,
                   callGasLimit,
@@ -495,6 +471,21 @@ describe("GasEstimator", () => {
                   paymasterPostOpGasLimit,
                   paymasterVerificationGasLimit,
                 };
+
+                const {
+                  requiredPrefundEth,
+                  requiredPrefundWei,
+                  nativeCurrencySymbol,
+                  requiredPrefundUsd,
+                } = calculateRequiredPrefundV7(
+                  userOperation,
+                  viemChain,
+                  testChain
+                );
+
+                benchmarkResults[EntryPointVersion.v070][
+                  testChain.name!
+                ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
 
                 const signature = await nexusClient.account.signUserOperation(
                   userOperation as any
@@ -529,9 +520,6 @@ describe("GasEstimator", () => {
 
 function calculateRequiredPrefundV6(
   userOperation: UserOperationV6,
-  callGasLimit: bigint,
-  verificationGasLimit: bigint,
-  preVerificationGas: bigint,
   chain: chains.Chain,
   testChain: SupportedChain
 ) {
@@ -560,13 +548,8 @@ function calculateRequiredPrefundV6(
 
 function calculateRequiredPrefundV7(
   userOperation: UserOperationV7,
-  callGasLimit: bigint,
-  verificationGasLimit: bigint,
-  preVerificationGas: bigint,
   chain: chains.Chain,
-  testChain: SupportedChain,
-  paymasterVerificationGasLimit?: bigint,
-  paymasterPostOpGasLimit?: bigint
+  testChain: SupportedChain
 ) {
   const requiredPrefundWei = getRequiredPrefund(userOperation);
 

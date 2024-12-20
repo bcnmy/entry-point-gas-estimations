@@ -7,7 +7,7 @@ import {
   RpcStateOverride,
 } from "viem";
 import { EntryPointV6 } from "./EntryPointV6";
-import { ExecutionResultV6 } from "./types";
+import { ExecutionResultV6, SimulateHandleOpError } from "./types";
 import {
   CALL_DATA_EXECUTION_AT_MAX_GAS,
   CGL_ROUNDING,
@@ -203,6 +203,13 @@ export class EntryPointV6Simulations extends EntryPointV6 {
   parseEstimateVerificationGasLimitResult(
     data: Hex
   ): EstimateVerificationGasLimitResult {
+    // This was observed on Gnosis (sometimes), most of the time it works fine
+    if (data.includes("Incorrect parameters count")) {
+      throw new SimulateHandleOpError(
+        `RPC failed to perform a state override with message: ${data}`
+      );
+    }
+
     const decodedError = decodeErrorResult({
       abi: VERIFICATION_GAS_ESTIMATION_SIMULATOR,
       data,

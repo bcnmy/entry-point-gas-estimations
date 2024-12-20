@@ -126,6 +126,12 @@ export class EntryPointV6 {
    * @returns ExecutionResult
    */
   protected parseSimulateHandleOpExecutionResult(data: Hex): ExecutionResultV6 {
+    if (data.includes("Incorrect parameters count")) {
+      throw new SimulateHandleOpError(
+        `RPC failed to perform a state override with message: ${data}. This is likely temporary, try again later.`
+      );
+    }
+
     const decodedError = decodeErrorResult({
       abi: this.abi,
       data: data as Hex,
