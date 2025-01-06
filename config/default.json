@@ -80,6 +80,9 @@
     },
     "11155420": {
       "testAddresses": { "v2": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a" }
+    },
+    "100010": {
+      "testAddresses": { "v2": "0xaa0eFc1986faeEBCB2f4406a5D2c717ce0429EcD" }
     }
   },
   "benchmarkPricesUSD": {

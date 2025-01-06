@@ -382,133 +382,144 @@ describe("GasEstimator", () => {
             });
 
             beforeAll(async () => {
-              nexusClient = await createNexusClient({
-                k1ValidatorAddress:
-                  "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
-                factoryAddress: "0x00000024115AA990F0bAE0B6b0D5B8F68b684cd6",
-                signer: account,
-                chain: getCustomChain(
-                  testChain.name!,
-                  testChain.chainId!,
-                  rpcUrl,
-                  ""
-                ),
-                transport,
-                bundlerTransport: transport,
-              });
-
-              const { factory, factoryData } =
-                await nexusClient.account.getFactoryArgs();
-
-              if (!factory) {
-                fail("Factory address is not defined");
+              try {
+                nexusClient = await createNexusClient({
+                  k1ValidatorAddress:
+                    "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
+                  factoryAddress: "0x00000024115AA990F0bAE0B6b0D5B8F68b684cd6",
+                  signer: account,
+                  chain: getCustomChain(
+                    testChain.name!,
+                    testChain.chainId!,
+                    rpcUrl,
+                    ""
+                  ),
+                  transport,
+                  bundlerTransport: transport,
+                });
+  
+                const { factory, factoryData } =
+                  await nexusClient.account.getFactoryArgs();
+  
+                if (!factory) {
+                  fail("Factory address is not defined");
+                }
+  
+                if (!factoryData) {
+                  fail("Factory data is not defined");
+                }
+  
+                const unsignedUserOperation = {
+                  sender: nexusClient.account.address,
+                  callData: await nexusClient.account.encodeExecute({
+                    to: zeroAddress,
+                    data: "0x",
+                    value: 1n,
+                  }),
+                  callGasLimit: 1n,
+                  maxFeePerGas,
+                  maxPriorityFeePerGas,
+                  nonce: await nexusClient.account.getNonce(),
+                  preVerificationGas: 1n,
+                  verificationGasLimit: 1n,
+                  factory,
+                  factoryData,
+                  signature: "0x" as Hex,
+                };
+  
+                const signature = await nexusClient.account.signUserOperation(
+                  unsignedUserOperation
+                );
+  
+                unsignedUserOperation.signature = signature;
+  
+                userOperation = userOperationV7Schema.parse(
+                  unsignedUserOperation
+                );
+              } catch (err: any) {
+                console.error(err);
+                throw err.message;
               }
-
-              if (!factoryData) {
-                fail("Factory data is not defined");
-              }
-
-              const unsignedUserOperation = {
-                sender: nexusClient.account.address,
-                callData: await nexusClient.account.encodeExecute({
-                  to: zeroAddress,
-                  data: "0x",
-                  value: 1n,
-                }),
-                callGasLimit: 1n,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-                nonce: await nexusClient.account.getNonce(),
-                preVerificationGas: 1n,
-                verificationGasLimit: 1n,
-                factory,
-                factoryData,
-                signature: "0x" as Hex,
-              };
-
-              const signature = await nexusClient.account.signUserOperation(
-                unsignedUserOperation
-              );
-
-              unsignedUserOperation.signature = signature;
-
-              userOperation = userOperationV7Schema.parse(
-                unsignedUserOperation
-              );
+              
             }, 20_000);
 
             describe("estimateUserOperationGas", () => {
               it("should return a gas estimate for a smart account deployment", async () => {
-                const estimate = await gasEstimator.estimateUserOperationGas({
-                  unEstimatedUserOperation: userOperation,
-                  baseFeePerGas,
-                });
-
-                if (!isEstimateUserOperationGasResultV7(estimate)) {
-                  throw new Error("Expected EstimateUserOperationGasResultV7");
-                }
-
-                expect(estimate).toBeDefined();
-                const {
-                  callGasLimit,
-                  verificationGasLimit,
-                  preVerificationGas,
-                  paymasterPostOpGasLimit,
-                  paymasterVerificationGasLimit,
-                } = estimate;
-
-                expect(callGasLimit).toBeGreaterThan(0n);
-                expect(verificationGasLimit).toBeGreaterThan(0n);
-                expect(preVerificationGas).toBeGreaterThan(0n);
-                expect(paymasterPostOpGasLimit).toBe(0n);
-                expect(paymasterVerificationGasLimit).toBe(0n);
-
-                userOperation = {
-                  ...userOperation,
-                  callGasLimit,
-                  verificationGasLimit,
-                  preVerificationGas,
-                  paymasterPostOpGasLimit,
-                  paymasterVerificationGasLimit,
-                };
-
-                const {
-                  requiredPrefundEth,
-                  requiredPrefundWei,
-                  nativeCurrencySymbol,
-                  requiredPrefundUsd,
-                } = calculateRequiredPrefundV7(
-                  userOperation,
-                  viemChain,
-                  testChain
-                );
-
-                benchmarkResults[EntryPointVersion.v070][
-                  testChain.name!
-                ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
-                const signature = await nexusClient.account.signUserOperation(
-                  userOperation as any
-                );
-
-                userOperation.signature = signature;
-
-                // try running simulateHandleOp again with the returned values
-                const entryPoint =
-                  gasEstimator.entryPoints[EntryPointVersion.v070].contract;
-
-                const { paid } = await entryPoint.simulateHandleOp({
-                  userOperation,
-                  targetAddress: entryPoint.address,
-                  targetCallData: userOperation.callData,
-                  stateOverrides: {
-                    [userOperation.sender]: {
-                      balance: toHex(parseEther("10000000000000")),
+                try {
+                  const estimate = await gasEstimator.estimateUserOperationGas({
+                    unEstimatedUserOperation: userOperation,
+                    baseFeePerGas,
+                  });
+  
+                  if (!isEstimateUserOperationGasResultV7(estimate)) {
+                    throw new Error("Expected EstimateUserOperationGasResultV7");
+                  }
+  
+                  expect(estimate).toBeDefined();
+                  const {
+                    callGasLimit,
+                    verificationGasLimit,
+                    preVerificationGas,
+                    paymasterPostOpGasLimit,
+                    paymasterVerificationGasLimit,
+                  } = estimate;
+  
+                  expect(callGasLimit).toBeGreaterThan(0n);
+                  expect(verificationGasLimit).toBeGreaterThan(0n);
+                  expect(preVerificationGas).toBeGreaterThan(0n);
+                  expect(paymasterPostOpGasLimit).toBe(0n);
+                  expect(paymasterVerificationGasLimit).toBe(0n);
+  
+                  userOperation = {
+                    ...userOperation,
+                    callGasLimit,
+                    verificationGasLimit,
+                    preVerificationGas,
+                    paymasterPostOpGasLimit,
+                    paymasterVerificationGasLimit,
+                  };
+  
+                  const {
+                    requiredPrefundEth,
+                    requiredPrefundWei,
+                    nativeCurrencySymbol,
+                    requiredPrefundUsd,
+                  } = calculateRequiredPrefundV7(
+                    userOperation,
+                    viemChain,
+                    testChain
+                  );
+  
+                  benchmarkResults[EntryPointVersion.v070][
+                    testChain.name!
+                  ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+  
+                  const signature = await nexusClient.account.signUserOperation(
+                    userOperation as any
+                  );
+  
+                  userOperation.signature = signature;
+  
+                  // try running simulateHandleOp again with the returned values
+                  const entryPoint =
+                    gasEstimator.entryPoints[EntryPointVersion.v070].contract;
+  
+                  const { paid } = await entryPoint.simulateHandleOp({
+                    userOperation,
+                    targetAddress: entryPoint.address,
+                    targetCallData: userOperation.callData,
+                    stateOverrides: {
+                      [userOperation.sender]: {
+                        balance: toHex(parseEther("10000000000000")),
+                      },
                     },
-                  },
-                });
-
-                expect(paid).toBeGreaterThan(0n);
+                  });
+  
+                  expect(paid).toBeGreaterThan(0n);
+                } catch (err: any) {
+                  console.error(err);
+                  throw err.message;
+                }
               }, 10_000);
             });
           });

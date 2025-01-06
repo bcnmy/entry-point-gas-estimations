@@ -1008,4 +1008,25 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: false,
     },
   },
+  "100010": {
+    chainId: 100010,
+    name: "VeChain Testnet",
+    isTestnet: true,
+    stack: ChainStack.EVM,
+    nativeCurrency: "VTHO",
+    eip1559: true,
+    entryPoints: {
+      v060: {
+        address: "0xf9188E94783Ca505886488F04249DD7f6a36770B",
+      },
+    },
+    stateOverrideSupport: {
+      balance: false,
+      bytecode: false
+    },
+    smartAccountSupport: {
+      smartAccountsV2: true,
+      nexus: false
+    }
+  }
 };
