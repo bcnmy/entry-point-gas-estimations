@@ -1,6 +1,6 @@
 import { EVMGasEstimator } from "../evm/EVMGasEstimator";
 import { EntryPointVersion } from "../../entrypoint/shared/types";
-import { Hex } from "viem";
+import { formatEther, Hex } from "viem";
 import {
   validateUserOperation,
   UserOperation,
@@ -33,7 +33,9 @@ export class OptimismGasEstimator extends EVMGasEstimator {
 
     const l2Price = l2MaxFee < l2PriorityFee ? l2MaxFee : l2PriorityFee;
 
-    return l2Fee + l1Fee / l2Price;
+    const pvg = l2Fee + l1Fee / l2Price;
+
+    return pvg;
   }
 
   private async getL1Fee(userOperation: UserOperation): Promise<bigint> {

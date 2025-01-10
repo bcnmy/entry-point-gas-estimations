@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@adraffy/ens-normalize@1.11.0", "@adraffy/ens-normalize@^1.10.1":
+"@adraffy/ens-normalize@^1.10.1":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.11.0.tgz#42cc67c5baa407ac25059fcd7d405cc5ecdb0c33"
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
@@ -952,12 +952,10 @@
   dependencies:
     merkletreejs "^0.4.0"
 
-"@biconomy/sdk@^0.0.17":
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/@biconomy/sdk/-/sdk-0.0.17.tgz#6244472fe8b571c634de7818cbf227fb7ae1b635"
-  integrity sha512-7vuLhq5raY2GUiZlXmfgI1P9dnBdCDjx8a7WvqpkWFeZwgx0ODmmQSr2zDwc/C1F3JsdfX9j9YXHQVUWgUG/ag==
-  dependencies:
-    "@silencelaboratories/walletprovider-sdk" "^0.3.0"
+"@biconomy/sdk@^0.0.24":
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/@biconomy/sdk/-/sdk-0.0.24.tgz#3369d5e39374c5ab0b07221449d08f18a6bb72d6"
+  integrity sha512-svCQe/xrGqwBgjjlQGOaIzmZvjMqrL6WIyM9xnceMRGAoH2Dm8PpOYOu3vF53ySXvFG6hCD6zquDzA7TzQPS8A==
 
 "@eslint-community/eslint-utils@^4.2.0":
   version "4.4.0"
@@ -1375,15 +1373,6 @@
   dependencies:
     "@noble/hashes" "~1.5.0"
     "@scure/base" "~1.1.8"
-
-"@silencelaboratories/walletprovider-sdk@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@silencelaboratories/walletprovider-sdk/-/walletprovider-sdk-0.3.0.tgz#c637fd3413e532fe6bd5f10eab9f194f56c1f6c6"
-  integrity sha512-5+yS95DwIufP0qOPuk81cXZ8gepcARXwuKRDAtjtf50JVX0MOMy6pR8f/1j5PATPdImzgI8905x3ZBgXfi+FKw==
-  dependencies:
-    "@noble/curves" "^1.6.0"
-    js-base64 "^3.7.7"
-    viem "2.21.32"
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
@@ -3475,11 +3464,6 @@ jju@~1.4.0:
   resolved "https://registry.yarnpkg.com/jju/-/jju-1.4.0.tgz#a3abe2718af241a2b2904f84a625970f389ae32a"
   integrity sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==
 
-js-base64@^3.7.7:
-  version "3.7.7"
-  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.7.tgz#e51b84bf78fbf5702b9541e2cb7bfcb893b43e79"
-  integrity sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==
-
 js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -4527,21 +4511,6 @@ v8-to-istanbul@^9.0.1:
     "@jridgewell/trace-mapping" "^0.3.12"
     "@types/istanbul-lib-coverage" "^2.0.1"
     convert-source-map "^2.0.0"
-
-viem@2.21.32:
-  version "2.21.32"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.21.32.tgz#b7f43b2004967036f83500260290cee45189f62a"
-  integrity sha512-2oXt5JNIb683oy7C8wuIJ/SeL3XtHVMEQpy1U2TA6WMnJQ4ScssRvyPwYLcaP6mKlrGXE/cR/V7ncWpvLUVPYQ==
-  dependencies:
-    "@adraffy/ens-normalize" "1.11.0"
-    "@noble/curves" "1.6.0"
-    "@noble/hashes" "1.5.0"
-    "@scure/bip32" "1.5.0"
-    "@scure/bip39" "1.4.0"
-    abitype "1.0.6"
-    isows "1.0.6"
-    webauthn-p256 "0.0.10"
-    ws "8.18.0"
 
 viem@^2.21.49:
   version "2.21.49"

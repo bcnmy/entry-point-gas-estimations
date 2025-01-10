@@ -10,9 +10,8 @@
     "lint": "eslint . --ext .ts",
     "format": "eslint 'src' --ext .ts --fix",
     "build": "tsc",
-    "test": "jest --verbose --testPathIgnorePatterns smoke-test",
-    "test:smoke": "jest --verbose --silent=false -t smoke-test",
-    "test:coverage": "jest --collect-coverage --testPathIgnorePatterns smoke-test"
+    "test": "jest --verbose",
+    "test:coverage": "jest --collect-coverage"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -36,7 +35,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
     "@biconomy/account": "^4.5.7",
-    "@biconomy/sdk": "^0.0.17",
+    "@biconomy/sdk": "^0.0.24",
     "@rhinestone/module-sdk": "^0.1.28",
     "@types/config": "^3.3.5",
     "@types/jest": "^29.5.14",

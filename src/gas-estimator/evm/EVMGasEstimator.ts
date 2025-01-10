@@ -210,6 +210,7 @@ export class EVMGasEstimator implements GasEstimator {
       );
     }
 
+    // To avoid problems with variable baseFeePerGas
     userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
 
     const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;

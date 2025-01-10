@@ -253,7 +253,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: true,
     },
   },
   "59144": {
