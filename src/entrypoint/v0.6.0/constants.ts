@@ -3,6 +3,9 @@ import { Address } from "viem";
 export const ENTRYPOINT_V6_ADDRESS: Address =
   "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789";
 
+export const ENTRYPOINT_V6_PAYMASTER_BALANCE_STATE_DIFF_KEY =
+  "0x7b1db62eb517aa7a8fe6a2f7090eb1290f2456d50cda5e14582fc6f6ff7bd478";
+
 // Constants for verification gas limit binary search
 export const INITIAL_VGL_LOWER_BOUND = 0n;
 export const INITIAL_VGL_UPPER_BOUND = 30_000_000n;

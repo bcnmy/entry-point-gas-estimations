@@ -17,6 +17,7 @@ export interface EstimateUserOperationGasOptions {
   entryPointAddress: Address;
   useBinarySearch: boolean;
   overrideSenderBalance: boolean;
+  supportsStateDiff: boolean;
 }
 
 export interface GasEstimator {
@@ -24,11 +25,11 @@ export interface GasEstimator {
   entryPoints: EntryPoints;
   simulationOptions: SimulationOptions;
   estimateUserOperationGas: (
-    params: EstimateUserOperationGasParams
+    params: EstimateUserOperationGasParams,
   ) => Promise<EstimateUserOperationGasResult>;
   estimatePreVerificationGas: (
     userOperation: UserOperation,
-    baseFeePerGas: bigint
+    baseFeePerGas: bigint,
   ) => Promise<bigint>;
 }
 export interface SimulationOptions {

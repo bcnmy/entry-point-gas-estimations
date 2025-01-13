@@ -32,6 +32,7 @@ export const SupportedChainSchema = z.object({
   stateOverrideSupport: z.object({
     balance: z.boolean(),
     bytecode: z.boolean(),
+    stateDiff: z.boolean(),
   }),
   smartAccountSupport: z.object({
     smartAccountsV2: z.boolean(),

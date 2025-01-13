@@ -10,6 +10,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -25,6 +26,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -40,6 +42,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -55,6 +58,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -70,6 +74,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -85,6 +90,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -100,6 +106,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -115,6 +122,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -130,6 +138,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -145,6 +154,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -160,6 +170,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -175,6 +186,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -190,6 +202,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -205,6 +218,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -220,6 +234,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -235,6 +250,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -250,6 +266,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -265,6 +282,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -280,6 +298,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -295,6 +314,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -310,6 +330,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -325,6 +346,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -345,6 +367,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -365,6 +388,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -380,6 +404,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -395,6 +420,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -410,6 +436,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -425,6 +452,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -440,6 +468,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -456,6 +485,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -472,6 +502,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -487,10 +518,11 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: true,
     },
   },
   "168587773": {
@@ -502,10 +534,11 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: true,
     },
   },
   "534352": {
@@ -517,6 +550,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -532,6 +566,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -548,6 +583,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -564,6 +600,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -578,7 +615,8 @@ export const supportedChains: Record<string, SupportedChain> = {
     eip1559: true,
     stateOverrideSupport: {
       balance: false,
-      bytecode: true,
+      bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -594,6 +632,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -610,6 +649,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -625,6 +665,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -640,6 +681,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -655,6 +697,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -670,6 +713,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -685,6 +729,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -700,6 +745,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -715,6 +761,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -730,6 +777,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -745,6 +793,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -760,6 +809,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: true,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -775,6 +825,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -790,6 +841,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -805,6 +857,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -820,6 +873,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -835,6 +889,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -855,6 +910,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -875,6 +931,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -890,6 +947,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -905,6 +963,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -920,6 +979,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -935,6 +995,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -956,6 +1017,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -972,6 +1034,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
+      stateDiff: true,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -987,6 +1050,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
@@ -1002,6 +1066,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
+      stateDiff: false,
     },
     smartAccountSupport: {
       smartAccountsV2: true,
