@@ -20,6 +20,7 @@ import { EntryPointV6Simulations } from "./EntryPointV6Simulations";
 import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
 import { supportedChains } from "../../chains/chains";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
+import { describe, it, beforeAll } from "vitest";
 
 describe("EntryPointV6Simulations", () => {
   const privateKey = generatePrivateKey();
@@ -35,7 +36,7 @@ describe("EntryPointV6Simulations", () => {
       chain.stateOverrideSupport.balance &&
       chain.stateOverrideSupport.bytecode &&
       !excludeChainIds.includes(chain.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),
   );
 
   for (const testChain of testChains) {
@@ -44,7 +45,7 @@ describe("EntryPointV6Simulations", () => {
       rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
     } else {
       console.warn(
-        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`,
       );
       continue;
     }
@@ -52,11 +53,11 @@ describe("EntryPointV6Simulations", () => {
     let testSender: Address;
     if (config.has(`testChains.${testChain.chainId}.testAddresses.v2`)) {
       testSender = config.get<Address>(
-        `testChains.${testChain.chainId}.testAddresses.v2`
+        `testChains.${testChain.chainId}.testAddresses.v2`,
       );
     } else {
       console.warn(
-        `No V2 test sender set in test.json. Skipping ${testChain.name} (${testChain.chainId}), or binary search will throw AA20 account not deployed`
+        `No V2 test sender set in test.json. Skipping ${testChain.name} (${testChain.chainId}), or binary search will throw AA20 account not deployed`,
       );
       continue;
     }
@@ -90,7 +91,7 @@ describe("EntryPointV6Simulations", () => {
 
       const epv6Simulator = new EntryPointV6Simulations(
         viemClient,
-        entryPointContractAddress
+        entryPointContractAddress,
       );
 
       let maxFeePerGas: bigint, maxPriorityFeePerGas: bigint;
@@ -103,7 +104,7 @@ describe("EntryPointV6Simulations", () => {
             testChain.name,
             testChain.chainId,
             rpcUrl,
-            ""
+            "",
           ),
         });
 
@@ -115,7 +116,7 @@ describe("EntryPointV6Simulations", () => {
 
         if (nonce === 0n) {
           fail(
-            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`
+            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`,
           );
         }
 
@@ -138,7 +139,7 @@ describe("EntryPointV6Simulations", () => {
         };
 
         userOperation = userOperationV6Schema.parse(
-          await smartAccount.signUserOp(unsignedUserOperation)
+          await smartAccount.signUserOp(unsignedUserOperation),
         );
       }, 10_000);
 

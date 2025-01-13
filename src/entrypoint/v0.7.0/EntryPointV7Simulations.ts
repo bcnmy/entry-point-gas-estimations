@@ -37,7 +37,7 @@ export class EntryPointV7Simulations {
 
   constructor(
     protected client: EntryPointRpcClient,
-    public address: Address = ENTRYPOINT_V7_ADDRESS
+    public address: Address = ENTRYPOINT_V7_ADDRESS,
   ) {}
 
   /**
@@ -55,6 +55,13 @@ export class EntryPointV7Simulations {
     stateOverrides,
   }: SimulateHandleOpParams): Promise<ExecutionResultV7> {
     userOperation = userOperationV7Schema.parse(userOperation);
+
+    if (userOperation.paymaster) {
+      userOperation.paymasterVerificationGasLimit =
+        userOperation.verificationGasLimit;
+      userOperation.paymasterPostOpGasLimit =
+        userOperation.verificationGasLimit;
+    }
 
     const packedUserOperation = toPackedUserOperation(userOperation);
 
@@ -76,8 +83,10 @@ export class EntryPointV7Simulations {
           code: ENTRYPOINT_V7_SIMULATIONS_BYTECODE as Hex,
         },
       },
-      stateOverrides
+      stateOverrides,
     );
+
+    // console.log("finalStateOverrideSet", finalStateOverrideSet);
 
     simulateHandleOpParams.push(finalStateOverrideSet);
 
@@ -108,7 +117,7 @@ export class EntryPointV7Simulations {
 
   encodeHandleOpsFunctionData(
     userOperation: UserOperationV7,
-    beneficiary: Address
+    beneficiary: Address,
   ): Hex {
     const packed = toPackedUserOperation(userOperation);
     return encodeFunctionData({

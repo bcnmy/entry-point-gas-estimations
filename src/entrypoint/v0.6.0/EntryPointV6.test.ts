@@ -31,10 +31,9 @@ import {
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
 } from "../../gas-estimator/evm/constants";
+import { describe, it, beforeAll, expect } from "vitest";
 
 describe("DefaultEntryPointV6", () => {
-  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
-
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
 
@@ -44,7 +43,7 @@ describe("DefaultEntryPointV6", () => {
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
       !excludeChainIds.includes(chain.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),
   );
 
   for (const testChain of testChains) {
@@ -53,7 +52,7 @@ describe("DefaultEntryPointV6", () => {
       rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
     } catch (err) {
       console.warn(
-        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`,
       );
       continue;
     }
@@ -93,7 +92,7 @@ describe("DefaultEntryPointV6", () => {
             testChain.name,
             testChain.chainId,
             rpcUrl,
-            ""
+            "",
           ),
           signer,
           bundlerUrl,
@@ -128,7 +127,7 @@ describe("DefaultEntryPointV6", () => {
         };
 
         const signedUserOperation = await smartAccount.signUserOp(
-          unsignedUserOperation
+          unsignedUserOperation,
         );
 
         const userOperation = userOperationV6Schema.parse(signedUserOperation);
@@ -147,7 +146,7 @@ describe("DefaultEntryPointV6", () => {
           } else {
             throw new Error(
               "Expected an error with a message, received: ",
-              err
+              err,
             );
           }
         }
@@ -180,7 +179,7 @@ describe("DefaultEntryPointV6", () => {
           };
 
           const signedUserOperation = await smartAccount.signUserOp(
-            unsignedUserOperation
+            unsignedUserOperation,
           );
 
           const userOperation =
@@ -213,7 +212,7 @@ describe("DefaultEntryPointV6", () => {
           const initCode = "0x";
 
           const testSender = config.get<Address>(
-            `testChains.${testChain.chainId}.testAddresses.v2`
+            `testChains.${testChain.chainId}.testAddresses.v2`,
           );
 
           let unsignedUserOperation: Partial<UserOperationStruct> = {
@@ -235,7 +234,7 @@ describe("DefaultEntryPointV6", () => {
           };
 
           const signedUserOperation = await smartAccount.signUserOp(
-            unsignedUserOperation
+            unsignedUserOperation,
           );
 
           const userOperation =

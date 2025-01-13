@@ -38,5 +38,6 @@ export type StateOverrideSet = {
     code?: Hex;
     state?: object;
     stateDiff?: object;
+    storage?: object;
   };
 };

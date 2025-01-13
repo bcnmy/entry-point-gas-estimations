@@ -6,6 +6,7 @@ import { EntryPointVersion } from "../entrypoint/shared/types";
 import { ChainStack, SupportedChain } from "../chains/types";
 import { createGasEstimator, mergeChainConfig } from "./createGasEstimator";
 import { MantleGasEstimator } from "./mantle/MantleGasEstimator";
+import { describe, it, expect } from "vitest";
 
 describe("createGasEstimator", () => {
   const rpcUrl = "http://rpc.url";
@@ -86,12 +87,21 @@ describe("createGasEstimator", () => {
       expect(gasEstimator.chainId).toBe(customChain.chainId);
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
       expect(
-        gasEstimator.entryPoints[EntryPointVersion.v060].contract.address
+        gasEstimator.entryPoints[EntryPointVersion.v060].contract.address,
       ).toBe("0x006");
       expect(
-        gasEstimator.entryPoints[EntryPointVersion.v070].contract.address
+        gasEstimator.entryPoints[EntryPointVersion.v070].contract.address,
       ).toBe("0x007");
       expect(gasEstimator.simulationOptions).toEqual(customChain.simulation);
+    });
+
+    it("should default to the EVM if the chain ID is not supported", () => {
+      const gasEstimator = createGasEstimator({
+        chainId: 123643,
+        rpc: rpcUrl,
+      });
+
+      expect(gasEstimator).toBeInstanceOf(EVMGasEstimator);
     });
   });
 
@@ -110,7 +120,7 @@ describe("createGasEstimator", () => {
       const merged = mergeChainConfig(chain.id, partialChain);
 
       expect(merged.entryPoints![EntryPointVersion.v060]?.address).toBe(
-        "0x006"
+        "0x006",
       );
     });
   });

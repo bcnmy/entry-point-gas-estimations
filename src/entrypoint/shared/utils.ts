@@ -23,8 +23,29 @@ export function mergeStateOverrides(
   destination: StateOverrideSet,
   source?: StateOverrideSet
 ): StateOverrideSet {
-  return {
-    ...destination,
-    ...source,
-  };
+  if (!source) return destination;
+
+  const merged: StateOverrideSet = { ...destination };
+
+  // Use Object.entries to properly type the keyss
+  Object.entries(source).forEach(([key, value]) => {
+    const hexKey = key as `0x${string}`;
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      destination[hexKey] &&
+      typeof destination[hexKey] === "object" &&
+      !Array.isArray(destination[hexKey])
+    ) {
+      merged[hexKey] = mergeStateOverrides(
+        destination[hexKey] as StateOverrideSet,
+        value as StateOverrideSet
+      );
+    } else {
+      merged[hexKey] = value;
+    }
+  });
+
+  return merged;
 }

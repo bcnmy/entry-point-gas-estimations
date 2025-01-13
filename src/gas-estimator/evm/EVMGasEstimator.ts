@@ -151,6 +151,12 @@ export class EVMGasEstimator implements GasEstimator {
   ) {
     const entryPoint = this.entryPoints[EntryPointVersion.v070].contract;
 
+    // const constantGasFeeUserOperation = {
+    //   ...userOperation,
+    //   maxFeePerGas: 1n,
+    //   maxPriorityFeePerGas: 1n,
+    // };
+
     const [executionResult, preVerificationGas, executionGas] =
       await Promise.all([
         entryPoint.simulateHandleOp({
@@ -211,13 +217,18 @@ export class EVMGasEstimator implements GasEstimator {
     }
 
     // To avoid problems with variable baseFeePerGas
-    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
+    // userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
+    const constantGasFeeUserOperation = {
+      ...userOperation,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+    };
 
     const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
 
     const [executionResult, preVerificationGas] = await Promise.all([
       entryPoint.simulateHandleOp({
-        userOperation,
+        userOperation: constantGasFeeUserOperation,
         targetAddress: options.entryPointAddress,
         targetCallData: "0x",
         stateOverrides,
@@ -226,7 +237,10 @@ export class EVMGasEstimator implements GasEstimator {
     ]);
 
     let { callGasLimit, verificationGasLimit, validAfter, validUntil } =
-      this.estimateVerificationAndCallGasLimits(userOperation, executionResult);
+      this.estimateVerificationAndCallGasLimits(
+        constantGasFeeUserOperation,
+        executionResult
+      );
 
     return {
       callGasLimit: bumpBigIntPercent(callGasLimit, 10),

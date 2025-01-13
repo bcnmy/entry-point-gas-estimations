@@ -1,5 +1,6 @@
 import { supportedChains } from "./chains";
 import { SupportedChainSchema } from "./types";
+import { describe, it } from "vitest";
 
 describe("supportedChains", () => {
   for (const [chainId, chain] of Object.entries(supportedChains)) {

@@ -36,7 +36,7 @@ export function createGasEstimator({
   const entryPointContracts = createEntryPoints(chain, rpcClient);
 
   let gasEstimator: GasEstimator;
-  switch (chain.stack) {
+  switch (chain?.stack) {
     case ChainStack.Optimism:
       gasEstimator = new OptimismGasEstimator(
         chainId,
@@ -61,16 +61,14 @@ export function createGasEstimator({
         chain.simulation
       );
       break;
-    case ChainStack.EVM:
+    default:
       gasEstimator = new EVMGasEstimator(
         chainId,
         rpcClient,
         entryPointContracts,
-        chain.simulation
+        chain?.simulation
       );
       break;
-    default:
-      throw new Error(`Unsupported chain stack: ${chain.stack}`);
   }
 
   return gasEstimator;
@@ -118,7 +116,7 @@ export function createEntryPoints(
   rpcClient: GasEstimatorRpcClient
 ): EntryPoints {
   const entryPointV6Address =
-    (chain.entryPoints?.[EntryPointVersion.v060]?.address as Address) ||
+    (chain?.entryPoints?.[EntryPointVersion.v060]?.address as Address) ||
     ENTRYPOINT_V6_ADDRESS;
 
   const entryPointV6 = new EntryPointV6(rpcClient, entryPointV6Address);
@@ -129,7 +127,7 @@ export function createEntryPoints(
   );
 
   const entryPointV7Address =
-    (chain.entryPoints?.[EntryPointVersion.v070]?.address as Address) ||
+    (chain?.entryPoints?.[EntryPointVersion.v070]?.address as Address) ||
     ENTRYPOINT_V7_ADDRESS;
 
   const entryPointV7Simulations = new EntryPointV7Simulations(

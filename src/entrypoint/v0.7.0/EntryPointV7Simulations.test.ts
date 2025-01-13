@@ -7,7 +7,7 @@ import { UserOperationV7, userOperationV7Schema } from "./UserOperationV7";
 import { EntryPointV7Simulations } from "./EntryPointV7Simulations";
 import { isExecutionResultV7 } from "./types";
 import { supportedChains } from "../../chains/chains";
-
+import { describe, it, beforeAll, expect } from "vitest";
 // Hardcoded gas values for gas estimation, to ensure user op completeness
 const defaultCallGasLimit = BigInt(5_000_000);
 const defaultVerificationGasLimit = BigInt(5_000_000);
@@ -30,7 +30,7 @@ describe("EntryPointV7Simulations", () => {
     (chain) =>
       chain.smartAccountSupport.nexus &&
       !excludeChainIds.includes(chain.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),
   );
 
   for (const testChain of testChains) {
@@ -39,7 +39,7 @@ describe("EntryPointV7Simulations", () => {
       rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
     } catch (err) {
       console.warn(
-        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`,
       );
       continue;
     }
@@ -111,7 +111,7 @@ describe("EntryPointV7Simulations", () => {
         };
 
         const signature = await nexusClient.account.signUserOperation(
-          unSignedUserOperation as any
+          unSignedUserOperation as any,
         );
         unSignedUserOperation.signature = signature;
 
