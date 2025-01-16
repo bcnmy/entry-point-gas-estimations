@@ -142,19 +142,18 @@ export class EVMGasEstimator implements GasEstimator {
         .build();
     }
 
-    // // To avoid problems with variable fees per gas
-    // const constantGasFeeUserOperation = {
-    //   ...userOperation,
-    //   maxFeePerGas: 1n,
-    //   maxPriorityFeePerGas: 1n,
-    // };
-    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
+    // To avoid problems with variable fees per gas
+    const constantGasFeeUserOperation = {
+      ...userOperation,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+    };
 
     const [executionResult, preVerificationGas, executionGas] =
       await Promise.all([
         entryPoint.simulateHandleOp({
-          // userOperation: constantGasFeeUserOperation,
-          userOperation,
+          userOperation: constantGasFeeUserOperation,
+          // userOperation,
           targetAddress: options.entryPointAddress,
           targetCallData: "0x",
           stateOverrides,
@@ -171,8 +170,7 @@ export class EVMGasEstimator implements GasEstimator {
     // userOperation.preVerificationGas = preVerificationGas;
 
     let { verificationGasLimit } = this.estimateVerificationAndCallGasLimits(
-      // constantGasFeeUserOperation,
-      userOperation,
+      constantGasFeeUserOperation,
       executionResult,
     );
 
@@ -215,13 +213,11 @@ export class EVMGasEstimator implements GasEstimator {
       );
     }
 
-    // // To avoid problems with variable baseFeePerGas
-    // const constantGasFeeUserOperation = {
-    //   ...userOperation,
-    //   maxFeePerGas: 1n,
-    //   maxPriorityFeePerGas: 1n,
-    // };
-    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
+    // To avoid problems with variable baseFeePerGas
+    const constantGasFeeUserOperation = {
+      ...userOperation,
+      maxPriorityFeePerGas: userOperation.maxFeePerGas,
+    };
 
     const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
 
@@ -242,8 +238,7 @@ export class EVMGasEstimator implements GasEstimator {
 
     const [executionResult, preVerificationGas] = await Promise.all([
       entryPoint.simulateHandleOp({
-        // userOperation: constantGasFeeUserOperation,
-        userOperation,
+        userOperation: constantGasFeeUserOperation,
         targetAddress: options.entryPointAddress,
         targetCallData: "0x",
         stateOverrides,
@@ -253,8 +248,7 @@ export class EVMGasEstimator implements GasEstimator {
 
     let { callGasLimit, verificationGasLimit, validAfter, validUntil } =
       this.estimateVerificationAndCallGasLimits(
-        // constantGasFeeUserOperation,
-        userOperation,
+        constantGasFeeUserOperation,
         executionResult,
       );
 
