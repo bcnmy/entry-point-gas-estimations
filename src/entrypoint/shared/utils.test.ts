@@ -1,12 +1,5 @@
 import { StateOverrideSet } from "../../shared/types";
-import { ENTRYPOINT_V6_ADDRESS } from "../v0.6.0";
-import { ENTRYPOINT_V7_ADDRESS } from "../v0.7.0";
-import {
-  calculateMappingSlot,
-  calculateMappingStorageKey,
-  calculateNestedMappingSlot,
-  mergeStateOverrides,
-} from "./utils";
+import { calculateMappingStorageKey, mergeStateOverrides } from "./utils";
 import { describe, it, expect } from "vitest";
 
 describe("mergeStateOverrides", () => {
