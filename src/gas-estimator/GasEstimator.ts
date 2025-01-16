@@ -1,29 +1,29 @@
 import { Address, PublicClient } from "viem";
 import { EntryPoints, EstimateUserOperationGasResult } from "./types";
-import { EntryPointRpcClient } from "../entrypoint/shared/types";
+import { EntryPointRpcClient } from "../entrypoint/shared";
 import { UserOperation } from "./UserOperation";
-import { MakeOptional, StateOverrideSet } from "../shared/types";
-import { UserOperationV6 } from "../entrypoint/v0.6.0/UserOperationV6";
-import { UserOperationV7 } from "../entrypoint/v0.7.0/UserOperationV7";
+import { MakeOptional, StateOverrideSet } from "../shared";
+import { UserOperationV6 } from "../entrypoint/v0.6.0";
+import { UserOperationV7 } from "../entrypoint/v0.7.0";
+import { SupportedChain } from "../chains";
 
 export interface EstimateUserOperationGasParams {
   unEstimatedUserOperation: UnEstimatedUserOperation;
   baseFeePerGas: bigint;
   stateOverrides?: StateOverrideSet;
-  partialOptions?: Partial<EstimateUserOperationGasOptions>;
+  options?: Partial<EstimateUserOperationGasOptions>;
 }
 
 export interface EstimateUserOperationGasOptions {
   entryPointAddress: Address;
   useBinarySearch: boolean;
-  overrideSenderBalance: boolean;
-  supportsStateDiff: boolean;
+  simulation: boolean;
 }
 
 export interface GasEstimator {
-  chainId: number;
+  chain: SupportedChain;
   entryPoints: EntryPoints;
-  simulationOptions: SimulationOptions;
+  simulationLimits: SimulationLimits;
   estimateUserOperationGas: (
     params: EstimateUserOperationGasParams,
   ) => Promise<EstimateUserOperationGasResult>;
@@ -32,7 +32,7 @@ export interface GasEstimator {
     baseFeePerGas: bigint,
   ) => Promise<bigint>;
 }
-export interface SimulationOptions {
+export interface SimulationLimits {
   preVerificationGas: bigint;
   verificationGasLimit: bigint;
   callGasLimit: bigint;

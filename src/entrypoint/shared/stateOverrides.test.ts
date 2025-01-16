@@ -1,4 +1,4 @@
-import { Hex, toHex } from "viem";
+import { Hex } from "viem";
 import { StateOverrideBuilder } from "./stateOverrides";
 
 import { expect, describe, it } from "vitest";
@@ -30,8 +30,6 @@ describe("StateOverrideBuilder", () => {
     const entryPointAddress = ENTRYPOINT_V6_ADDRESS;
     const paymasterAddress =
       DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS;
-
-    const balance = 10000000000000000000n;
 
     builder.overridePaymasterDeposit(entryPointAddress, paymasterAddress);
 

@@ -87,7 +87,7 @@ describe("createGasEstimator", () => {
         chain: customChain,
       });
 
-      expect(gasEstimator.chainId).toBe(customChain.chainId);
+      expect(gasEstimator.chain).toEqual(customChain);
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
       expect(
         gasEstimator.entryPoints[EntryPointVersion.v060].contract.address,
@@ -95,7 +95,7 @@ describe("createGasEstimator", () => {
       expect(
         gasEstimator.entryPoints[EntryPointVersion.v070].contract.address,
       ).toBe("0x007");
-      expect(gasEstimator.simulationOptions).toEqual(customChain.simulation);
+      expect(gasEstimator.simulationLimits).toEqual(customChain.simulation);
     });
 
     it("should default to the EVM if the chain ID is not supported", () => {

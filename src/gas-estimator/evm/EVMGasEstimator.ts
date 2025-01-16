@@ -3,7 +3,7 @@ import {
   packUserOpV6,
   UserOperationV6,
 } from "../../entrypoint/v0.6.0/UserOperationV6";
-import { Address, ByteArray, parseEther, toBytes, toHex } from "viem";
+import { ByteArray, parseEther, toBytes } from "viem";
 
 import {
   packUserOpV7,
@@ -28,7 +28,7 @@ import {
   EstimateUserOperationGasParams,
   GasEstimator,
   GasEstimatorRpcClient,
-  SimulationOptions,
+  SimulationLimits,
   UnEstimatedUserOperation,
 } from "../GasEstimator";
 import { INNER_GAS_OVERHEAD } from "../../entrypoint/v0.7.0/constants";
@@ -38,16 +38,16 @@ import {
   SIMULATION_PRE_VERIFICATION_GAS,
   SIMULATION_VERIFICATION_GAS_LIMIT,
 } from "./constants";
-import { supportedChains } from "../../chains/chains";
-import { ENTRYPOINT_V6_PAYMASTER_BALANCE_STATE_DIFF_KEY } from "../../entrypoint/v0.6.0/constants";
-import { ENTRYPOINT_PAYMASTER_BALANCE_STATE_DIFF_VALUE } from "../../entrypoint/shared/constants";
+import { SupportedChain } from "../../chains/types";
+import { StateOverrideBuilder } from "../../entrypoint/shared/stateOverrides";
+import { getPaymasterAddressFromPaymasterAndData } from "../../paymaster/utils";
 
 export class EVMGasEstimator implements GasEstimator {
   constructor(
-    public chainId: number,
+    public chain: SupportedChain,
     protected rpcClient: GasEstimatorRpcClient,
     public entryPoints: EntryPoints,
-    public simulationOptions: SimulationOptions = {
+    public simulationLimits: SimulationLimits = {
       callGasLimit: SIMULATION_CALL_GAS_LIMIT,
       preVerificationGas: SIMULATION_PRE_VERIFICATION_GAS,
       verificationGasLimit: SIMULATION_VERIFICATION_GAS_LIMIT,
@@ -58,7 +58,7 @@ export class EVMGasEstimator implements GasEstimator {
     unEstimatedUserOperation,
     baseFeePerGas,
     stateOverrides,
-    partialOptions,
+    options,
   }: EstimateUserOperationGasParams): Promise<EstimateUserOperationGasResult> {
     // Override the user operation with the simulation options
     const unsafeUserOperation = this.overrideUserOperationForSimulation(
@@ -72,19 +72,17 @@ export class EVMGasEstimator implements GasEstimator {
     let entryPointVersion = this.determineEntryPointVersion(userOperation);
 
     // Merge the default options with the partial options provided by the user
-    const options = this.mergeEstimateUserOperationGasOptions(
+    const fullOptions = this.mergeEstimateUserOperationGasOptions(
       entryPointVersion,
-      partialOptions,
+      options,
     );
 
     // if the target chain supports state overrides,
     // override the sender balance so simulation doesn't throw balance errors
-    if (options.overrideSenderBalance) {
-      stateOverrides = this.overrideSenderBalance(
-        stateOverrides,
-        userOperation.sender,
-        parseEther("100000000"),
-      );
+    if (!fullOptions.simulation && this.chain.stateOverrideSupport.balance) {
+      stateOverrides = new StateOverrideBuilder(stateOverrides)
+        .overrideBalance(userOperation.sender, parseEther("100000000"))
+        .build();
     }
 
     // Estimate the gas based on the EP version
@@ -93,7 +91,7 @@ export class EVMGasEstimator implements GasEstimator {
         userOperation,
         stateOverrides,
         baseFeePerGas,
-        options,
+        fullOptions,
       );
     }
 
@@ -101,48 +99,8 @@ export class EVMGasEstimator implements GasEstimator {
       userOperation,
       stateOverrides,
       baseFeePerGas,
-      options,
+      fullOptions,
     );
-  }
-
-  private overrideSenderBalance(
-    stateOverrides: StateOverrideSet | undefined,
-    senderAddress: Address,
-    balance: bigint,
-  ) {
-    const balanceOverride = {
-      [senderAddress]: {
-        balance: toHex(balance),
-      },
-    };
-
-    return stateOverrides
-      ? {
-          ...stateOverrides,
-          ...balanceOverride,
-        }
-      : balanceOverride;
-  }
-
-  private overridePaymasterBalance(
-    stateOverrides: StateOverrideSet | undefined,
-    entryPointContractAddress: Address,
-    stateDiffKey: string,
-  ) {
-    const balanceOverride = {
-      [entryPointContractAddress]: {
-        stateDiff: {
-          [stateDiffKey]: ENTRYPOINT_PAYMASTER_BALANCE_STATE_DIFF_VALUE,
-        },
-      },
-    };
-
-    return stateOverrides
-      ? {
-          ...stateOverrides,
-          ...balanceOverride,
-        }
-      : balanceOverride;
   }
 
   private determineEntryPointVersion(
@@ -158,9 +116,9 @@ export class EVMGasEstimator implements GasEstimator {
   ): UserOperation {
     const userOperation: UserOperation = {
       ...unEstimatedUserOperation,
-      preVerificationGas: this.simulationOptions.preVerificationGas,
-      verificationGasLimit: this.simulationOptions.verificationGasLimit,
-      callGasLimit: this.simulationOptions.callGasLimit,
+      preVerificationGas: this.simulationLimits.preVerificationGas,
+      verificationGasLimit: this.simulationLimits.verificationGasLimit,
+      callGasLimit: this.simulationLimits.callGasLimit,
     };
 
     return userOperation;
@@ -174,38 +132,34 @@ export class EVMGasEstimator implements GasEstimator {
   ) {
     const entryPoint = this.entryPoints[EntryPointVersion.v070].contract;
 
-    if (userOperation.paymaster && options.supportsStateDiff) {
-      const deposits =
-        supportedChains[this.chainId]?.entryPoints?.v070?.state?.deposits;
-
-      const depositsStateKey =
-        deposits?.[userOperation.paymaster.toLowerCase()]?.stateKey ||
-        deposits?.[userOperation.paymaster]?.stateKey;
-
-      if (depositsStateKey) {
-        stateOverrides = this.overridePaymasterBalance(
-          stateOverrides,
-          entryPoint.address,
-          depositsStateKey,
-        );
-      }
+    if (
+      !options.simulation &&
+      userOperation.paymaster &&
+      this.chain.stateOverrideSupport.stateDiff
+    ) {
+      stateOverrides = new StateOverrideBuilder(stateOverrides)
+        .overridePaymasterDeposit(entryPoint.address, userOperation.paymaster)
+        .build();
     }
 
-    // To avoid problems with variable baseFeePerGas
-    const constantGasFeeUserOperation = {
-      ...userOperation,
-      maxFeePerGas: userOperation.maxFeePerGas,
-      maxPriorityFeePerGas: userOperation.maxFeePerGas,
-    };
+    // // To avoid problems with variable fees per gas
+    // const constantGasFeeUserOperation = {
+    //   ...userOperation,
+    //   maxFeePerGas: 1n,
+    //   maxPriorityFeePerGas: 1n,
+    // };
+    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
 
     const [executionResult, preVerificationGas, executionGas] =
       await Promise.all([
         entryPoint.simulateHandleOp({
-          userOperation: constantGasFeeUserOperation,
+          // userOperation: constantGasFeeUserOperation,
+          userOperation,
           targetAddress: options.entryPointAddress,
           targetCallData: "0x",
           stateOverrides,
         }),
+        // use the actual user operation to estimate the preVerificationGas, because it depends on maxFeePerGas
         this.estimatePreVerificationGas(userOperation, baseFeePerGas),
         this.rpcClient.estimateGas({
           account: options.entryPointAddress,
@@ -214,10 +168,11 @@ export class EVMGasEstimator implements GasEstimator {
         }),
       ]);
 
-    userOperation.preVerificationGas = preVerificationGas;
+    // userOperation.preVerificationGas = preVerificationGas;
 
     let { verificationGasLimit } = this.estimateVerificationAndCallGasLimits(
-      constantGasFeeUserOperation,
+      // constantGasFeeUserOperation,
+      userOperation,
       executionResult,
     );
 
@@ -225,7 +180,10 @@ export class EVMGasEstimator implements GasEstimator {
       ? verificationGasLimit
       : 0n;
 
-    const paymasterPostOpGasLimit = userOperation.paymaster ? 50000n : 0n;
+    const paymasterPostOpGasLimit = userOperation.paymaster
+      ? this.chain.paymasters?.v070?.[userOperation.paymaster]
+          ?.postOpGasLimit || verificationGasLimit
+      : 0n;
 
     let callGasLimit = executionGas;
 
@@ -257,25 +215,35 @@ export class EVMGasEstimator implements GasEstimator {
       );
     }
 
-    // To avoid problems with variable baseFeePerGas
-    const constantGasFeeUserOperation = {
-      ...userOperation,
-      maxPriorityFeePerGas: userOperation.maxFeePerGas,
-    };
+    // // To avoid problems with variable baseFeePerGas
+    // const constantGasFeeUserOperation = {
+    //   ...userOperation,
+    //   maxFeePerGas: 1n,
+    //   maxPriorityFeePerGas: 1n,
+    // };
+    userOperation.maxPriorityFeePerGas = userOperation.maxFeePerGas;
 
     const entryPoint = this.entryPoints[EntryPointVersion.v060].contract;
 
-    if (userOperation.paymasterAndData !== "0x" && options.supportsStateDiff) {
-      stateOverrides = this.overridePaymasterBalance(
-        stateOverrides,
-        entryPoint.address,
-        ENTRYPOINT_V6_PAYMASTER_BALANCE_STATE_DIFF_KEY,
-      );
+    if (
+      !options.simulation &&
+      userOperation.paymasterAndData !== "0x" &&
+      this.chain.stateOverrideSupport.stateDiff
+    ) {
+      stateOverrides = new StateOverrideBuilder(stateOverrides)
+        .overridePaymasterDeposit(
+          entryPoint.address,
+          getPaymasterAddressFromPaymasterAndData(
+            userOperation.paymasterAndData,
+          ),
+        )
+        .build();
     }
 
     const [executionResult, preVerificationGas] = await Promise.all([
       entryPoint.simulateHandleOp({
-        userOperation: constantGasFeeUserOperation,
+        // userOperation: constantGasFeeUserOperation,
+        userOperation,
         targetAddress: options.entryPointAddress,
         targetCallData: "0x",
         stateOverrides,
@@ -285,7 +253,8 @@ export class EVMGasEstimator implements GasEstimator {
 
     let { callGasLimit, verificationGasLimit, validAfter, validUntil } =
       this.estimateVerificationAndCallGasLimits(
-        constantGasFeeUserOperation,
+        // constantGasFeeUserOperation,
+        userOperation,
         executionResult,
       );
 
@@ -396,30 +365,21 @@ export class EVMGasEstimator implements GasEstimator {
     entryPointVersion: EntryPointVersion,
     options?: Partial<EstimateUserOperationGasOptions>,
   ): EstimateUserOperationGasOptions {
-    const chain = supportedChains[this.chainId];
-
     const entryPointAddress =
       options?.entryPointAddress ||
       this.entryPoints[entryPointVersion].contract.address;
 
+    const simulation = options?.simulation || false;
+
     const useBinarySearch =
-      options?.useBinarySearch ||
-      (chain.stateOverrideSupport.balance &&
-        chain.stateOverrideSupport.bytecode);
-
-    const overrideSenderBalance =
-      options?.overrideSenderBalance || chain.stateOverrideSupport.balance;
-
-    const supportsStateDiff =
-      options?.supportsStateDiff ||
-      chain.stateOverrideSupport.stateDiff ||
-      false;
+      options?.useBinarySearch != null
+        ? options.useBinarySearch
+        : this.chain.stateOverrideSupport.bytecode;
 
     return {
       entryPointAddress,
+      simulation,
       useBinarySearch,
-      overrideSenderBalance,
-      supportsStateDiff,
     };
   }
 }

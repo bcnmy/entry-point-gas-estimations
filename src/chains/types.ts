@@ -70,6 +70,7 @@ export const SupportedChainSchema = z.object({
         z.object({
           dummyPaymasterData: z.string(),
           type: z.string(),
+          postOpGasLimit: z.bigint(),
         }),
       )
       .optional(),

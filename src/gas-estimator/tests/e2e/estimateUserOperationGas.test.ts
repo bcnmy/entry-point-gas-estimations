@@ -101,11 +101,9 @@ describe("e2e", () => {
       } else {
         const gasPrice = await viemClient.getGasPrice();
         maxFeePerGas = gasPrice;
-        maxPriorityFeePerGas = 1n;
+        maxPriorityFeePerGas = gasPrice;
         baseFeePerGas = gasPrice;
       }
-
-      console.log("maxFeePerGas", maxFeePerGas);
 
       benchmarkResults[EntryPointVersion.v060][testChain.name!] = {
         smartAccountDeployment: "",
@@ -224,6 +222,7 @@ describe("e2e", () => {
                     }
 
                     expect(gasEstimate).toBeDefined();
+
                     const {
                       callGasLimit,
                       verificationGasLimit,
@@ -243,10 +242,10 @@ describe("e2e", () => {
 
                     // 💡 simulateHandleOp throws 'return data out of bounds' on some chains
                     // if we provide the legacy gas price as a maxFeePerGas
-                    if (!testChain.eip1559) {
-                      estimatedUserOperation.maxFeePerGas = 1n;
-                      estimatedUserOperation.maxPriorityFeePerGas = 1n;
-                    }
+                    // if (!testChain.eip1559) {
+                    //   estimatedUserOperation.maxFeePerGas = 1n;
+                    //   estimatedUserOperation.maxPriorityFeePerGas = 1n;
+                    // }
 
                     var {
                       requiredPrefundEth,
@@ -503,6 +502,8 @@ describe("e2e", () => {
                   callGasLimit,
                   verificationGasLimit,
                   preVerificationGas,
+                  maxFeePerGas,
+                  maxPriorityFeePerGas,
                 };
 
                 const {
@@ -849,7 +850,6 @@ function filterTestChains() {
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
-      !chain.isTestnet &&
       chain.stateOverrideSupport.balance &&
       !excludeChainIds.includes(chain.chainId) &&
       (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),

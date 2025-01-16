@@ -6,9 +6,10 @@ import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Sim
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { EntryPoints } from "../types";
 import config from "config";
-import { GasEstimatorRpcClient, SimulationOptions } from "../GasEstimator";
+import { GasEstimatorRpcClient, SimulationLimits } from "../GasEstimator";
 import { createGasEstimator } from "../createGasEstimator";
 import { describe, it, vitest, expect } from "vitest";
+import { supportedChains } from "../../chains";
 
 describe("OptimismGasEstimator", () => {
   describe("unit", () => {
@@ -33,10 +34,10 @@ describe("OptimismGasEstimator", () => {
 
     it("should take the L1 fee into account when calculating the pre-verification gas", async () => {
       const opGasEstimator = new OptimismGasEstimator(
-        10,
+        supportedChains[10],
         mockRpcClient,
         mockEntryPoints,
-        {} as SimulationOptions,
+        {} as SimulationLimits,
       );
 
       const pvg = await opGasEstimator.estimatePreVerificationGas(

@@ -129,7 +129,7 @@ describe("e2e", () => {
 
             beforeAll(() => {
               stateOverrides = new StateOverrideBuilder()
-                .overrideBalance(userOperation.sender, parseEther("1"))
+                .overrideBalance(userOperation.sender, parseEther("10"))
                 .build();
             });
 
