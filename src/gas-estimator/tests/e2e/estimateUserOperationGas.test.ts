@@ -38,390 +38,179 @@ import { supportedChains } from "../../../chains/chains";
 import { SupportedChain } from "../../../chains/types";
 import { getRequiredPrefund } from "../../../shared/utils";
 import { createGasEstimator } from "../../createGasEstimator";
-import { describe, it, afterAll, beforeAll } from "vitest";
+import { describe, it, afterAll, beforeAll, expect } from "vitest";
+import { StateOverrideBuilder } from "../../../entrypoint/shared/stateOverrides";
+import { getPaymasterAddressFromPaymasterAndData } from "../../../paymaster/utils";
 
 describe("e2e", () => {
-  describe("estimateUserOperationGas", () => {
-    const benchmarkResults: BenchmarkResults = {
-      [EntryPointVersion.v060]: {},
-      [EntryPointVersion.v070]: {},
-    };
+  const benchmarkResults: BenchmarkResults = {
+    [EntryPointVersion.v060]: {},
+    [EntryPointVersion.v070]: {},
+  };
 
-    afterAll(() => {
-      console.log(JSON.stringify(benchmarkResults, null, 2));
+  afterAll(() => {
+    console.log(JSON.stringify(benchmarkResults, null, 2));
+  });
+
+  const privateKey = generatePrivateKey();
+  const account = privateKeyToAccount(privateKey);
+
+  const testChains = filterTestChains();
+
+  describe.each(testChains)("On $name ($chainId)", (testChain) => {
+    const rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
+
+    // This bundler URL is never called, but the format has to be correct or the createSmartAccountClient function will throw an error
+    const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
+
+    const viemChain = extractChain({
+      chains: Object.values(chains),
+      id: testChain.chainId as any,
     });
 
-    const privateKey = generatePrivateKey();
-    const account = privateKeyToAccount(privateKey);
+    const transport = http(rpcUrl);
+    const viemClient = createPublicClient({
+      chain:
+        viemChain ||
+        ({
+          id: testChain.chainId,
+        } as chains.Chain),
+      transport,
+    });
 
-    const includeChainIds = config.get<number[]>(`includeInTests`);
-    const excludeChainIds = config.get<number[]>(`excludeFromTests`);
-    const skipSecondSimulation = config.get<number[]>(`skipSecondSimulation`);
+    let maxFeePerGas: bigint;
+    let maxPriorityFeePerGas: bigint;
+    let baseFeePerGas: bigint;
 
-    const testChains = Object.values(supportedChains).filter(
-      (chain) =>
-        config.get<string>(`testChains.${chain.chainId}.rpcUrl`) &&
-        !excludeChainIds.includes(chain.chainId) &&
-        (includeChainIds.length === 0 ||
-          includeChainIds.includes(chain.chainId)),
-    );
+    beforeAll(async () => {
+      if (testChain.eip1559) {
+        const [fees, latestBlock] = await Promise.all([
+          viemClient.estimateFeesPerGas(),
+          viemClient.getBlock({
+            blockTag: "latest",
+          }),
+        ]);
 
-    // This test exists for 2 reasons:
-    // 1. So the test runner doesn't throw "Your test suite must contain at least one test" if there are no testChains specified
-    // 2. A sanity check that the e2e tests are setup properly
-    it("should setup the e2e tests properly", async () => {});
+        maxFeePerGas = fees.maxFeePerGas || 1n;
+        maxPriorityFeePerGas = fees.maxPriorityFeePerGas || 1n;
 
-    for (const testChain of testChains) {
-      let rpcUrl: string;
-      try {
-        rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
-      } catch (err) {
-        console.warn(
-          `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`,
-        );
-        continue;
-      }
-      // This bundler URL is never called, but the format has to be correct or the createSmartAccountClient function will throw an error
-      const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
-
-      describe("e2e tests", () => {
-        let paymasters: any;
-
-        if (config.has(`testChains.${testChain.chainId}.paymasters`)) {
-          paymasters = config.get<any>(
-            `testChains.${testChain.chainId}.paymasters`,
-          );
+        if (!latestBlock.baseFeePerGas) {
+          throw new Error(`baseFeePerGas is null`);
         }
+        baseFeePerGas = latestBlock.baseFeePerGas;
+      } else {
+        const gasPrice = await viemClient.getGasPrice();
+        maxFeePerGas = gasPrice;
+        maxPriorityFeePerGas = 1n;
+        baseFeePerGas = gasPrice;
+      }
 
-        const viemChain = extractChain({
-          chains: Object.values(chains),
-          id: testChain.chainId as any,
-        });
+      console.log("maxFeePerGas", maxFeePerGas);
 
-        const transport = http(rpcUrl);
-        const viemClient = createPublicClient({
-          chain:
-            viemChain ||
-            ({
-              id: testChain.chainId,
-            } as chains.Chain),
+      benchmarkResults[EntryPointVersion.v060][testChain.name!] = {
+        smartAccountDeployment: "",
+        nativeTransfer: "",
+      };
+      benchmarkResults[EntryPointVersion.v070][testChain.name!] = {
+        smartAccountDeployment: "",
+        nativeTransfer: "",
+      };
+    }, 20_000);
+
+    describe.runIf(testChain.smartAccountSupport.smartAccountsV2)(
+      "Using EntryPoint v0.6.0",
+      () => {
+        const signer = createWalletClient({
+          account,
+          chain: {
+            id: testChain.chainId,
+          } as chains.Chain,
           transport,
         });
 
-        let maxFeePerGas: bigint;
-        let maxPriorityFeePerGas: bigint;
-        let baseFeePerGas: bigint;
+        let smartAccount: BiconomySmartAccountV2;
+        let nativeTransferCallData: Hex;
+
+        const gasEstimator = createGasEstimator({
+          chainId: testChain.chainId,
+          rpc: viemClient,
+        });
+
+        const entryPoint =
+          gasEstimator.entryPoints[EntryPointVersion.v060].contract;
+
+        const paymasters = testChain?.paymasters?.v060;
+
+        const sponsorshipPaymaster = paymasters
+          ? Object.values(paymasters).find(
+              (paymaster) => paymaster.type === "sponsorship",
+            )
+          : undefined;
+
+        const tokenPaymaster = paymasters
+          ? Object.values(paymasters).find(
+              (paymaster) => paymaster.type === "token",
+            )
+          : undefined;
+
+        let userOperation: UserOperationV6;
 
         beforeAll(async () => {
-          if (testChain.eip1559) {
-            const [fees, latestBlock] = await Promise.all([
-              viemClient.estimateFeesPerGas(),
-              viemClient.getBlock({
-                blockTag: "latest",
-              }),
+          try {
+            smartAccount = await createSmartAccountClient({
+              customChain: getCustomChain(
+                testChain.name,
+                testChain.chainId,
+                rpcUrl,
+                "",
+              ),
+              signer,
+              bundlerUrl,
+            });
+
+            nativeTransferCallData = await smartAccount.encodeExecute(
+              zeroAddress,
+              1n,
+              "0x",
+            );
+
+            let [sender, initCode, nonce] = await Promise.all([
+              smartAccount.getAddress(),
+              smartAccount.getInitCode(),
+              smartAccount.getNonce(),
             ]);
 
-            maxFeePerGas = fees.maxFeePerGas || 1n;
-            maxPriorityFeePerGas = fees.maxPriorityFeePerGas || 1n;
+            let unsignedUserOperation: Partial<UserOperationStruct> = {
+              sender,
+              initCode,
+              nonce,
+              callGasLimit: 1n,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
+              preVerificationGas: 1n,
+              verificationGasLimit: 1n,
+              paymasterAndData: "0x",
+              callData: nativeTransferCallData,
+            };
 
-            if (!latestBlock.baseFeePerGas) {
-              throw new Error(`baseFeePerGas is null`);
-            }
-            baseFeePerGas = latestBlock.baseFeePerGas;
-          } else {
-            const gasPrice = await viemClient.getGasPrice();
-            maxFeePerGas = gasPrice;
-            maxPriorityFeePerGas = 1n;
-            baseFeePerGas = gasPrice;
+            const signedUserOperation = await smartAccount.signUserOp(
+              unsignedUserOperation,
+            );
+
+            userOperation = userOperationV6Schema.parse(signedUserOperation);
+          } catch (err: any) {
+            console.error(err);
+            throw err.message;
           }
-
-          benchmarkResults[EntryPointVersion.v060][testChain.name!] = {
-            smartAccountDeployment: "",
-            nativeTransfer: "",
-          };
-          benchmarkResults[EntryPointVersion.v070][testChain.name!] = {
-            smartAccountDeployment: "",
-            nativeTransfer: "",
-          };
         }, 20_000);
 
-        describe(`${testChain.name} (${testChain.chainId})`, () => {
-          if (testChain.smartAccountSupport.smartAccountsV2) {
-            describe("EntryPoint v0.6.0", () => {
-              const signer = createWalletClient({
-                account,
-                chain: {
-                  id: testChain.chainId,
-                } as chains.Chain,
-                transport,
-              });
-
-              let smartAccount: BiconomySmartAccountV2;
-              let nativeTransferCallData: Hex;
-
-              const gasEstimator = createGasEstimator({
-                chainId: testChain.chainId,
-                rpc: viemClient,
-              });
-
-              beforeAll(async () => {
-                try {
-                  smartAccount = await createSmartAccountClient({
-                    customChain: getCustomChain(
-                      testChain.name,
-                      testChain.chainId,
-                      rpcUrl,
-                      "",
-                    ),
-                    signer,
-                    bundlerUrl,
-                  });
-
-                  nativeTransferCallData = await smartAccount.encodeExecute(
-                    zeroAddress,
-                    1n,
-                    "0x",
-                  );
-                } catch (err: any) {
-                  console.error(err);
-                  throw err.message;
-                }
-              }, 20_000);
-
-              describe("estimateUserOperationGas", () => {
-                it("should return a gas estimate for a smart account deployment", async () => {
-                  let [sender, initCode, nonce] = await Promise.all([
-                    smartAccount.getAddress(),
-                    smartAccount.getInitCode(),
-                    smartAccount.getNonce(),
-                  ]);
-
-                  let unsignedUserOperation: Partial<UserOperationStruct> = {
-                    sender,
-                    initCode,
-                    nonce,
-                    callGasLimit: 1n,
-                    maxFeePerGas,
-                    maxPriorityFeePerGas,
-                    preVerificationGas: 1n,
-                    verificationGasLimit: 1n,
-                    paymasterAndData: "0x",
-                    callData: nativeTransferCallData,
-                  };
-
-                  const signedUserOperation = await smartAccount.signUserOp(
-                    unsignedUserOperation,
-                  );
-
-                  let userOperation =
-                    userOperationV6Schema.parse(signedUserOperation);
-
-                  const gasEstimate =
-                    await gasEstimator.estimateUserOperationGas({
-                      unEstimatedUserOperation: userOperation,
-                      baseFeePerGas,
-                    });
-
-                  if (!isEstimateUserOperationGasResultV6(gasEstimate)) {
-                    throw new Error(
-                      "Expected EstimateUserOperationGasResultV6",
-                    );
-                  }
-
-                  expect(gasEstimate).toBeDefined();
-                  const {
-                    callGasLimit,
-                    verificationGasLimit,
-                    preVerificationGas,
-                    validUntil,
-                  } = gasEstimate;
-
-                  console.log(gasEstimate);
-
-                  expect(callGasLimit).toBeGreaterThan(0n);
-                  expect(verificationGasLimit).toBeGreaterThan(0n);
-                  expect(preVerificationGas).toBeGreaterThan(0n);
-                  // expect(validUntil).toBeGreaterThan(0n);
-
-                  userOperation = {
-                    ...userOperation,
-                    callGasLimit,
-                    verificationGasLimit,
-                    preVerificationGas,
-                  };
-
-                  var {
-                    requiredPrefundEth,
-                    nativeCurrencySymbol,
-                    requiredPrefundUsd,
-                  } = calculateRequiredPrefundV6(
-                    userOperation,
-                    viemChain,
-                    testChain,
-                  );
-
-                  benchmarkResults[EntryPointVersion.v060][
-                    testChain.name!
-                  ].smartAccountDeployment =
-                    `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
-                  const entryPoint =
-                    gasEstimator.entryPoints[EntryPointVersion.v060].contract;
-
-                  // try running simulateHandleOp again with the returned values
-                  if (!skipSecondSimulation.includes(testChain.chainId)) {
-                    const { paid } = await entryPoint.simulateHandleOp({
-                      userOperation,
-                      targetAddress: entryPoint.address,
-                      targetCallData: userOperation.callData,
-                      stateOverrides: {
-                        [userOperation.sender]: {
-                          balance: toHex(parseEther("1000")),
-                        },
-                      },
-                    });
-
-                    expect(paid).toBeGreaterThan(0n);
-                  }
-                }, 20_000);
-
-                if (
-                  config.has(`testChains.${testChain.chainId}.testAddresses.v2`)
-                ) {
-                  it("should return a gas estimate for a deployed smart account", async () => {
-                    try {
-                      const testSender = config.get<Address>(
-                        `testChains.${testChain.chainId}.testAddresses.v2`,
-                      );
-
-                      // we are using an existing deployed account so we don't get AA20 account not deployed
-                      const sender = testSender;
-
-                      const entryPoint =
-                        gasEstimator.entryPoints[EntryPointVersion.v060]
-                          .contract;
-
-                      let unsignedUserOperation: Partial<UserOperationStruct> =
-                        {
-                          sender,
-                          initCode: "0x",
-                          nonce: await entryPoint.getNonce(sender),
-                          maxFeePerGas,
-                          maxPriorityFeePerGas,
-                          callGasLimit: 1n,
-                          verificationGasLimit: 1n,
-                          preVerificationGas: 1n,
-                          paymasterAndData: "0x",
-                          callData: nativeTransferCallData,
-                        };
-
-                      const userOperation = userOperationV6Schema.parse(
-                        await smartAccount.signUserOp(unsignedUserOperation),
-                      );
-
-                      const gasEstimate =
-                        await gasEstimator.estimateUserOperationGas({
-                          unEstimatedUserOperation: userOperation,
-                          baseFeePerGas,
-                        });
-                      expect(gasEstimate).toBeDefined();
-
-                      const {
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                      } = gasEstimate;
-
-                      expect(callGasLimit).toBeGreaterThan(0n);
-                      expect(verificationGasLimit).toBeGreaterThan(0n);
-                      expect(preVerificationGas).toBeGreaterThan(0n);
-
-                      // try running simulateHandleOp again with the returned values
-                      unsignedUserOperation = {
-                        ...unsignedUserOperation,
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                      };
-
-                      const {
-                        requiredPrefundEth,
-                        nativeCurrencySymbol,
-                        requiredPrefundUsd,
-                      } = calculateRequiredPrefundV6(
-                        userOperation as UserOperationV6,
-                        viemChain,
-                        testChain,
-                      );
-
-                      benchmarkResults[EntryPointVersion.v060][
-                        testChain.name!
-                      ].nativeTransfer =
-                        `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
-                      const userOperation2 = userOperationV6Schema.parse(
-                        await smartAccount.signUserOp(unsignedUserOperation),
-                      );
-
-                      const { paid } = await gasEstimator.entryPoints[
-                        EntryPointVersion.v060
-                      ].contract.simulateHandleOp({
-                        userOperation: userOperation2,
-                        targetAddress:
-                          gasEstimator.entryPoints[EntryPointVersion.v060]
-                            .contract.address,
-                        targetCallData: userOperation2.callData,
-                        stateOverrides: {
-                          [userOperation2.sender]: {
-                            balance: toHex(1000000000000000000n),
-                          },
-                        },
-                      });
-
-                      expect(paid).toBeGreaterThan(0n);
-                    } catch (err) {
-                      if (err instanceof Error) {
-                        throw new Error(err.message);
-                      } else {
-                        console.error(err);
-                        throw new Error("Unknown error");
-                      }
-                    }
-                  }, 20_000);
-                }
-
-                if (paymasters?.EntryPointV6.sponsorship) {
-                  it("should return a gas estimate when using a sponsorship paymaster", async () => {
-                    const paymasterAndData =
-                      paymasters?.EntryPointV6.sponsorship
-                        .dummyPaymasterAndData;
-
-                    let [sender, initCode, nonce] = await Promise.all([
-                      smartAccount.getAddress(),
-                      smartAccount.getInitCode(),
-                      smartAccount.getNonce(),
-                    ]);
-
-                    let unsignedUserOperation: Partial<UserOperationStruct> = {
-                      sender,
-                      initCode,
-                      nonce,
-                      callGasLimit: 1n,
-                      maxFeePerGas,
-                      maxPriorityFeePerGas,
-                      preVerificationGas: 1n,
-                      verificationGasLimit: 1n,
-                      paymasterAndData,
-                      callData: nativeTransferCallData,
-                    };
-
-                    const signedUserOperation = await smartAccount.signUserOp(
-                      unsignedUserOperation,
-                    );
-
-                    let userOperation =
-                      userOperationV6Schema.parse(signedUserOperation);
-
+        describe("Given an undeployed smart account", () => {
+          describe.runIf(testChain.stateOverrideSupport.balance)(
+            "If we can override the sender's balance",
+            () => {
+              describe("Without a paymaster", () => {
+                describe("estimateUserOperationGas", () => {
+                  it("should return a gas estimate that doesn't revert", async () => {
                     const gasEstimate =
                       await gasEstimator.estimateUserOperationGas({
                         unEstimatedUserOperation: userOperation,
@@ -439,520 +228,635 @@ describe("e2e", () => {
                       callGasLimit,
                       verificationGasLimit,
                       preVerificationGas,
-                      validUntil,
                     } = gasEstimate;
-
-                    console.log(gasEstimate);
 
                     expect(callGasLimit).toBeGreaterThan(0n);
                     expect(verificationGasLimit).toBeGreaterThan(0n);
                     expect(preVerificationGas).toBeGreaterThan(0n);
-                    expect(validUntil).toBeGreaterThan(0n);
 
-                    userOperation = {
+                    const estimatedUserOperation = {
                       ...userOperation,
                       callGasLimit,
                       verificationGasLimit,
                       preVerificationGas,
                     };
+
+                    // 💡 simulateHandleOp throws 'return data out of bounds' on some chains
+                    // if we provide the legacy gas price as a maxFeePerGas
+                    if (!testChain.eip1559) {
+                      estimatedUserOperation.maxFeePerGas = 1n;
+                      estimatedUserOperation.maxPriorityFeePerGas = 1n;
+                    }
 
                     var {
                       requiredPrefundEth,
                       nativeCurrencySymbol,
                       requiredPrefundUsd,
-                      requiredPrefundWei,
                     } = calculateRequiredPrefundV6(
-                      userOperation,
+                      estimatedUserOperation,
                       viemChain,
                       testChain,
                     );
 
-                    // expect the requiredPrefundWei to be greater then 0
-                    expect(requiredPrefundWei).toBeGreaterThan(0n);
-
-                    console.log(
-                      `requiredPrefund: ${requiredPrefundEth} ETH [${requiredPrefundUsd} USD]`,
-                    );
-
-                    // Sanity check: if the native currency is ETH, expect the required prefund to be less than 0.1 ETH
-                    // check using wei values to avoid floating point precision issues
-                    if (nativeCurrencySymbol === "ETH") {
-                      expect(requiredPrefundWei).toBeLessThan(
-                        parseEther("0.1"),
-                      );
-                    }
-                  });
-                }
-
-                if (paymasters?.EntryPointV6.token) {
-                  it("should return a gas estimate when using a token paymaster", async () => {
-                    const paymasterAndData =
-                      paymasters?.EntryPointV6.token.dummyPaymasterAndData;
-                    console.log(`paymasterAndData=${paymasterAndData}`);
-
-                    let [sender, initCode, nonce] = await Promise.all([
-                      smartAccount.getAddress(),
-                      smartAccount.getInitCode(),
-                      smartAccount.getNonce(),
-                    ]);
-
-                    let unsignedUserOperation: Partial<UserOperationStruct> = {
-                      sender,
-                      initCode,
-                      nonce,
-                      callGasLimit: 1n,
-                      maxFeePerGas,
-                      maxPriorityFeePerGas,
-                      preVerificationGas: 1n,
-                      verificationGasLimit: 1n,
-                      paymasterAndData,
-                      callData: nativeTransferCallData,
-                    };
-
-                    const signedUserOperation = await smartAccount.signUserOp(
-                      unsignedUserOperation,
-                    );
-
-                    let userOperation =
-                      userOperationV6Schema.parse(signedUserOperation);
-
-                    const gasEstimate =
-                      await gasEstimator.estimateUserOperationGas({
-                        unEstimatedUserOperation: userOperation,
-                        baseFeePerGas,
-                      });
-
-                    if (!isEstimateUserOperationGasResultV6(gasEstimate)) {
-                      throw new Error(
-                        "Expected EstimateUserOperationGasResultV6",
-                      );
-                    }
-
-                    expect(gasEstimate).toBeDefined();
-                    const {
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                      validUntil,
-                    } = gasEstimate;
-
-                    console.log(gasEstimate);
-
-                    expect(callGasLimit).toBeGreaterThan(0n);
-                    expect(verificationGasLimit).toBeGreaterThan(0n);
-                    expect(preVerificationGas).toBeGreaterThan(0n);
-                    expect(validUntil).toBeGreaterThan(0n);
-
-                    userOperation = {
-                      ...userOperation,
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                    };
-
-                    var {
-                      requiredPrefundEth,
-                      nativeCurrencySymbol,
-                      requiredPrefundUsd,
-                      requiredPrefundWei,
-                    } = calculateRequiredPrefundV6(
-                      userOperation,
-                      viemChain,
-                      testChain,
-                    );
-
-                    // expect the requiredPrefundWei to be greater then 0
-                    expect(requiredPrefundWei).toBeGreaterThan(0n);
-
-                    console.log(
-                      `requiredPrefund: ${requiredPrefundEth} ETH [${requiredPrefundUsd} USD]`,
-                    );
-
-                    // Sanity check: if the native currency is ETH, expect the required prefund to be less than 0.1 ETH
-                    // check using wei values to avoid floating point precision issues
-                    if (nativeCurrencySymbol === "ETH") {
-                      expect(requiredPrefundWei).toBeLessThan(
-                        parseEther("0.1"),
-                      );
-                    }
-                  });
-                }
-              });
-            });
-          }
-
-          if (testChain.smartAccountSupport.nexus) {
-            describe("EntryPoint v0.7.0", () => {
-              let nexusClient: NexusClient;
-              let userOperation: UserOperationV7;
-
-              const gasEstimator = createGasEstimator({
-                chainId: testChain.chainId,
-                rpc: viemClient,
-              });
-
-              let paymasters: any;
-
-              if (config.has(`testChains.${testChain.chainId}.paymasters`)) {
-                paymasters = config.get<any>(
-                  `testChains.${testChain.chainId}.paymasters`,
-                );
-              }
-
-              beforeAll(async () => {
-                try {
-                  const chain =
-                    viemChain ||
-                    getCustomChain(
-                      testChain.name!,
-                      testChain.chainId,
-                      rpcUrl,
-                      "",
-                    );
-
-                  nexusClient = await createNexusClient({
-                    signer: account,
-                    chain,
-                    transport,
-                    bundlerTransport: transport,
-                  });
-
-                  const { factory, factoryData } =
-                    await nexusClient.account.getFactoryArgs();
-
-                  if (!factory) {
-                    fail("Factory address is not defined");
-                  }
-
-                  if (!factoryData) {
-                    fail("Factory data is not defined");
-                  }
-
-                  const unsignedUserOperation = {
-                    sender: nexusClient.account.address,
-                    callData: await nexusClient.account.encodeExecute({
-                      to: zeroAddress,
-                      data: "0x",
-                      value: 1n,
-                    }),
-                    callGasLimit: 1n,
-                    maxFeePerGas,
-                    maxPriorityFeePerGas,
-                    nonce: await nexusClient.account.getNonce(),
-                    preVerificationGas: 1n,
-                    verificationGasLimit: 1n,
-                    factory,
-                    factoryData,
-                    signature: "0x" as Hex,
-                  };
-
-                  const signature = await nexusClient.account.signUserOperation(
-                    unsignedUserOperation,
-                  );
-
-                  unsignedUserOperation.signature = signature;
-
-                  userOperation = userOperationV7Schema.parse(
-                    unsignedUserOperation,
-                  );
-                } catch (err: any) {
-                  console.error(err);
-                  throw err.message;
-                }
-              }, 20_000);
-
-              describe("estimateUserOperationGas", () => {
-                it("should return a gas estimate for a smart account deployment", async () => {
-                  try {
-                    const estimate =
-                      await gasEstimator.estimateUserOperationGas({
-                        unEstimatedUserOperation: userOperation,
-                        baseFeePerGas,
-                      });
-
-                    if (!isEstimateUserOperationGasResultV7(estimate)) {
-                      throw new Error(
-                        "Expected EstimateUserOperationGasResultV7",
-                      );
-                    }
-
-                    expect(estimate).toBeDefined();
-                    const {
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                      paymasterPostOpGasLimit,
-                      paymasterVerificationGasLimit,
-                    } = estimate;
-
-                    console.log(estimate);
-
-                    expect(callGasLimit).toBeGreaterThan(0n);
-                    expect(verificationGasLimit).toBeGreaterThan(0n);
-                    expect(preVerificationGas).toBeGreaterThan(0n);
-                    expect(paymasterPostOpGasLimit).toBe(0n);
-                    expect(paymasterVerificationGasLimit).toBe(0n);
-
-                    userOperation = {
-                      ...userOperation,
-                      callGasLimit,
-                      verificationGasLimit,
-                      preVerificationGas,
-                      paymasterPostOpGasLimit,
-                      paymasterVerificationGasLimit,
-                    };
-
-                    const {
-                      requiredPrefundEth,
-                      requiredPrefundWei,
-                      nativeCurrencySymbol,
-                      requiredPrefundUsd,
-                    } = calculateRequiredPrefundV7(
-                      userOperation,
-                      viemChain,
-                      testChain,
-                    );
-
-                    benchmarkResults[EntryPointVersion.v070][
+                    benchmarkResults[EntryPointVersion.v060][
                       testChain.name!
                     ].smartAccountDeployment =
                       `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
 
-                    const signature =
-                      await nexusClient.account.signUserOperation(
-                        userOperation as any,
-                      );
-
-                    userOperation.signature = signature;
-
-                    // try running simulateHandleOp again with the returned values
-                    const entryPoint =
-                      gasEstimator.entryPoints[EntryPointVersion.v070].contract;
-
                     const { paid } = await entryPoint.simulateHandleOp({
-                      userOperation,
+                      userOperation: estimatedUserOperation,
                       targetAddress: entryPoint.address,
-                      targetCallData: userOperation.callData,
-                      stateOverrides: {
-                        [userOperation.sender]: {
-                          balance: toHex(parseEther("10000000000000")),
-                        },
-                      },
+                      targetCallData: estimatedUserOperation.callData,
+                      stateOverrides: new StateOverrideBuilder()
+                        .overrideBalance(
+                          estimatedUserOperation.sender,
+                          parseEther("100"),
+                        )
+                        .build(),
                     });
 
                     expect(paid).toBeGreaterThan(0n);
-                  } catch (err: any) {
-                    console.error(err);
-                    throw err.message;
+                  }, 20_000);
+                });
+              });
+
+              describe.runIf(testChain.stateOverrideSupport.stateDiff)(
+                "If we can override the paymaster's deposit",
+                () => {
+                  describe.runIf(sponsorshipPaymaster)(
+                    "Given a sponsorship paymaster",
+                    () => {
+                      let paymasterAndData: Hex | undefined;
+
+                      beforeAll(() => {
+                        paymasterAndData = sponsorshipPaymaster!
+                          .dummyPaymasterAndData as Hex;
+                      });
+
+                      describe("estimateUserOperationGas", () => {
+                        it("should return a gas estimate that doesn't revert", async () => {
+                          const unEstimatedUserOperation = {
+                            ...userOperation,
+                            paymasterAndData: paymasterAndData!,
+                          };
+
+                          const gasEstimate =
+                            await gasEstimator.estimateUserOperationGas({
+                              unEstimatedUserOperation,
+                              baseFeePerGas,
+                            });
+
+                          if (
+                            !isEstimateUserOperationGasResultV6(gasEstimate)
+                          ) {
+                            throw new Error(
+                              "Expected EstimateUserOperationGasResultV6",
+                            );
+                          }
+
+                          expect(gasEstimate).toBeDefined();
+                          const {
+                            callGasLimit,
+                            verificationGasLimit,
+                            preVerificationGas,
+                            validUntil,
+                          } = gasEstimate;
+
+                          expect(callGasLimit).toBeGreaterThan(0n);
+                          expect(verificationGasLimit).toBeGreaterThan(0n);
+                          expect(preVerificationGas).toBeGreaterThan(0n);
+                          expect(validUntil).toBeGreaterThan(0n);
+
+                          const estimatedUserOperation = {
+                            ...userOperation,
+                            callGasLimit,
+                            verificationGasLimit,
+                            preVerificationGas,
+                          };
+
+                          var { nativeCurrencySymbol, requiredPrefundWei } =
+                            calculateRequiredPrefundV6(
+                              estimatedUserOperation,
+                              viemChain,
+                              testChain,
+                            );
+
+                          // expect the requiredPrefundWei to be greater then 0
+                          expect(requiredPrefundWei).toBeGreaterThan(0n);
+
+                          const { paid } = await entryPoint.simulateHandleOp({
+                            userOperation: estimatedUserOperation,
+                            targetAddress: entryPoint.address,
+                            targetCallData: estimatedUserOperation.callData,
+                            stateOverrides: new StateOverrideBuilder()
+                              .overrideBalance(
+                                estimatedUserOperation.sender,
+                                parseEther("1000"),
+                              )
+                              .overridePaymasterDeposit(
+                                entryPoint.address,
+                                getPaymasterAddressFromPaymasterAndData(
+                                  paymasterAndData!,
+                                ),
+                              )
+                              .build(),
+                          });
+
+                          expect(paid).toBeGreaterThan(0n);
+                        });
+                      });
+                    },
+                  );
+
+                  describe.runIf(tokenPaymaster)(
+                    "Given a token paymaster",
+                    () => {
+                      let paymasterAndData: Hex | undefined;
+
+                      beforeAll(() => {
+                        paymasterAndData = tokenPaymaster!
+                          .dummyPaymasterAndData as Hex;
+                      });
+
+                      describe("estimateUserOperationGas", () => {
+                        it("should return a gas estimate that doesn't revert", async () => {
+                          const unEstimatedUserOperation = {
+                            ...userOperation,
+                            paymasterAndData: paymasterAndData!,
+                          };
+
+                          const gasEstimate =
+                            await gasEstimator.estimateUserOperationGas({
+                              unEstimatedUserOperation,
+                              baseFeePerGas,
+                            });
+
+                          if (
+                            !isEstimateUserOperationGasResultV6(gasEstimate)
+                          ) {
+                            throw new Error(
+                              "Expected EstimateUserOperationGasResultV6",
+                            );
+                          }
+
+                          expect(gasEstimate).toBeDefined();
+                          const {
+                            callGasLimit,
+                            verificationGasLimit,
+                            preVerificationGas,
+                            validUntil,
+                          } = gasEstimate;
+
+                          expect(callGasLimit).toBeGreaterThan(0n);
+                          expect(verificationGasLimit).toBeGreaterThan(0n);
+                          expect(preVerificationGas).toBeGreaterThan(0n);
+                          expect(validUntil).toBeGreaterThan(0n);
+
+                          const estimatedUserOperation = {
+                            ...userOperation,
+                            paymasterAndData: paymasterAndData!,
+                            callGasLimit,
+                            verificationGasLimit,
+                            preVerificationGas,
+                          };
+
+                          var { nativeCurrencySymbol, requiredPrefundWei } =
+                            calculateRequiredPrefundV6(
+                              estimatedUserOperation,
+                              viemChain,
+                              testChain,
+                            );
+
+                          // expect the requiredPrefundWei to be greater then 0
+                          expect(requiredPrefundWei).toBeGreaterThan(0n);
+
+                          const { paid } = await entryPoint.simulateHandleOp({
+                            userOperation: estimatedUserOperation,
+                            targetAddress: entryPoint.address,
+                            targetCallData: estimatedUserOperation.callData,
+                            stateOverrides: new StateOverrideBuilder()
+                              .overrideBalance(
+                                estimatedUserOperation.sender,
+                                parseEther("1000"),
+                              )
+                              .overridePaymasterDeposit(
+                                entryPoint.address,
+                                getPaymasterAddressFromPaymasterAndData(
+                                  paymasterAndData!,
+                                ),
+                              )
+                              .build(),
+                          });
+                        }, 20_000);
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        });
+
+        let testSender: Address | undefined;
+        if (config.has(`testChains.${testChain.chainId}.testAddresses.v2`)) {
+          testSender = config.get<Address>(
+            `testChains.${testChain.chainId}.testAddresses.v2`,
+          );
+        }
+
+        describe.runIf(testSender)("Given a deployed smart account", () => {
+          describe("Without a paymaster", () => {
+            describe("estimateUserOperationGas", () => {
+              it("should return a gas estimate that doesn't revert", async () => {
+                // we are using an existing deployed account so we don't get AA20 account not deployed
+                const sender = testSender!;
+                const nonce = await entryPoint.getNonce(sender);
+                const initCode: Hex = "0x";
+
+                const unEstimatedUserOperation = {
+                  ...userOperation,
+                  sender,
+                  nonce,
+                  initCode,
+                };
+
+                const gasEstimate = await gasEstimator.estimateUserOperationGas(
+                  {
+                    unEstimatedUserOperation,
+                    baseFeePerGas,
+                  },
+                );
+                expect(gasEstimate).toBeDefined();
+
+                const {
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                } = gasEstimate;
+
+                expect(callGasLimit).toBeGreaterThan(0n);
+                expect(verificationGasLimit).toBeGreaterThan(0n);
+                expect(preVerificationGas).toBeGreaterThan(0n);
+
+                const estimatedUserOperation = {
+                  ...unEstimatedUserOperation,
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                };
+
+                const {
+                  requiredPrefundEth,
+                  nativeCurrencySymbol,
+                  requiredPrefundUsd,
+                } = calculateRequiredPrefundV6(
+                  estimatedUserOperation,
+                  viemChain,
+                  testChain,
+                );
+
+                benchmarkResults[EntryPointVersion.v060][
+                  testChain.name!
+                ].nativeTransfer =
+                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+
+                const { paid } = await gasEstimator.entryPoints[
+                  EntryPointVersion.v060
+                ].contract.simulateHandleOp({
+                  userOperation: estimatedUserOperation,
+                  targetAddress:
+                    gasEstimator.entryPoints[EntryPointVersion.v060].contract
+                      .address,
+                  targetCallData: estimatedUserOperation.callData,
+                  stateOverrides: new StateOverrideBuilder()
+                    .overrideBalance(
+                      estimatedUserOperation.sender,
+                      1000000000000000000n,
+                    )
+                    .build(),
+                });
+
+                expect(paid).toBeGreaterThan(0n);
+              }, 20_000);
+            });
+          });
+        });
+      },
+    );
+
+    describe.runIf(testChain.smartAccountSupport.nexus)(
+      "Using EntryPoint v0.7.0",
+      () => {
+        const gasEstimator = createGasEstimator({
+          chainId: testChain.chainId,
+          rpc: viemClient,
+        });
+
+        const entryPoint =
+          gasEstimator.entryPoints[EntryPointVersion.v070].contract;
+
+        let nexusClient: NexusClient;
+        let userOperation: UserOperationV7;
+
+        const paymasters = testChain?.paymasters?.v070;
+
+        const sponsorshipPaymaster = paymasters
+          ? Object.entries(paymasters).find(
+              ([_, paymasterDetails]) =>
+                paymasterDetails.type === "sponsorship",
+            )
+          : undefined;
+
+        const tokenPaymaster = paymasters
+          ? Object.entries(paymasters).find(
+              ([_, paymasterDetails]) => paymasterDetails.type === "token",
+            )
+          : undefined;
+
+        beforeAll(async () => {
+          try {
+            const chain =
+              viemChain ||
+              getCustomChain(testChain.name!, testChain.chainId, rpcUrl, "");
+
+            nexusClient = await createNexusClient({
+              signer: account,
+              chain,
+              transport,
+              bundlerTransport: transport,
+            });
+
+            const { factory, factoryData } =
+              await nexusClient.account.getFactoryArgs();
+
+            if (!factory) {
+              throw new Error("Factory address is not defined");
+            }
+
+            if (!factoryData) {
+              throw new Error("Factory data is not defined");
+            }
+
+            const unsignedUserOperation = {
+              sender: nexusClient.account.address,
+              callData: await nexusClient.account.encodeExecute({
+                to: zeroAddress,
+                data: "0x",
+                value: 1n,
+              }),
+              callGasLimit: 1n,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
+              nonce: await nexusClient.account.getNonce(),
+              preVerificationGas: 1n,
+              verificationGasLimit: 1n,
+              factory,
+              factoryData,
+              signature: "0x" as Hex,
+            };
+
+            const signature = await nexusClient.account.signUserOperation(
+              unsignedUserOperation,
+            );
+
+            unsignedUserOperation.signature = signature;
+
+            userOperation = userOperationV7Schema.parse(unsignedUserOperation);
+          } catch (err: any) {
+            console.error(err);
+            throw err.message;
+          }
+        }, 20_000);
+
+        describe("Given an undeployed smart account", () => {
+          describe("Without a paymaster", () => {
+            describe("estimateUserOperationGas", () => {
+              it("should return a gas estimate that doesn't revert", async () => {
+                const estimate = await gasEstimator.estimateUserOperationGas({
+                  unEstimatedUserOperation: userOperation,
+                  baseFeePerGas,
+                });
+
+                if (!isEstimateUserOperationGasResultV7(estimate)) {
+                  throw new Error("Expected EstimateUserOperationGasResultV7");
+                }
+
+                expect(estimate).toBeDefined();
+                const {
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                  paymasterPostOpGasLimit,
+                  paymasterVerificationGasLimit,
+                } = estimate;
+
+                expect(callGasLimit).toBeGreaterThan(0n);
+                expect(verificationGasLimit).toBeGreaterThan(0n);
+                expect(preVerificationGas).toBeGreaterThan(0n);
+                expect(paymasterPostOpGasLimit).toBe(0n);
+                expect(paymasterVerificationGasLimit).toBe(0n);
+
+                const estimatedUserOperation = {
+                  ...userOperation,
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                };
+
+                const {
+                  requiredPrefundEth,
+                  nativeCurrencySymbol,
+                  requiredPrefundUsd,
+                } = calculateRequiredPrefundV7(
+                  estimatedUserOperation,
+                  viemChain,
+                  testChain,
+                );
+
+                benchmarkResults[EntryPointVersion.v070][
+                  testChain.name!
+                ].smartAccountDeployment =
+                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+
+                const { paid } = await entryPoint.simulateHandleOp({
+                  userOperation: estimatedUserOperation,
+                  targetAddress: entryPoint.address,
+                  targetCallData: estimatedUserOperation.callData,
+                  stateOverrides: new StateOverrideBuilder()
+                    .overrideBalance(
+                      estimatedUserOperation.sender,
+                      1000000000000000000n,
+                    )
+                    .build(),
+                });
+
+                expect(paid).toBeGreaterThan(0n);
+              }, 10_000);
+            });
+          });
+
+          describe.runIf(sponsorshipPaymaster)(
+            "Given a sponsorship paymaster",
+            () => {
+              let paymaster: Address;
+              let paymasterData: Hex;
+
+              beforeAll(() => {
+                paymaster = sponsorshipPaymaster![0] as Address;
+                paymasterData = sponsorshipPaymaster![1]
+                  .dummyPaymasterData as Hex;
+              });
+
+              describe("estimateUserOperationGas", () => {
+                it("should return a gas estimate that doesn't revert", async () => {
+                  const unEstimatedUserOperation = {
+                    ...userOperation,
+                    paymaster,
+                    paymasterData,
+                  };
+
+                  const estimate = await gasEstimator.estimateUserOperationGas({
+                    unEstimatedUserOperation,
+                    baseFeePerGas,
+                  });
+
+                  if (!isEstimateUserOperationGasResultV7(estimate)) {
+                    throw new Error(
+                      "Expected EstimateUserOperationGasResultV7",
+                    );
                   }
-                }, 10_000);
 
-                if (paymasters?.EntryPointV7.sponsorship) {
-                  // this test currently fails on Base Sepolia because the paymaster has 0
-                  it("should return a gas estimate when using a sponsorship paymaster", async () => {
-                    const paymaster =
-                      paymasters?.EntryPointV7.sponsorship.paymaster;
+                  expect(estimate).toBeDefined();
+                  const {
+                    callGasLimit,
+                    verificationGasLimit,
+                    preVerificationGas,
+                    paymasterPostOpGasLimit,
+                    paymasterVerificationGasLimit,
+                  } = estimate;
 
-                    const paymasterData =
-                      paymasters?.EntryPointV7.sponsorship.dummyPaymasterData;
+                  expect(callGasLimit).toBeGreaterThan(0n);
+                  expect(verificationGasLimit).toBeGreaterThan(0n);
+                  expect(preVerificationGas).toBeGreaterThan(0n);
+                  expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
+                  expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
 
-                    console.log(`paymaster=${paymaster}`);
-                    console.log(`paymasterData=${paymasterData}`);
+                  const estimatedUserOperation = {
+                    ...userOperation,
+                    callGasLimit,
+                    verificationGasLimit,
+                    preVerificationGas,
+                    paymasterPostOpGasLimit,
+                    paymasterVerificationGasLimit,
+                  };
 
-                    try {
-                      const unEstimatedUserOperation = {
-                        ...userOperation,
-                        paymaster,
-                        paymasterData,
-                      };
-
-                      const entryPointAddress =
-                        gasEstimator.entryPoints[EntryPointVersion.v070]
-                          .contract.address;
-
-                      console.log("entryPointAddress", entryPointAddress);
-
-                      const estimate =
-                        await gasEstimator.estimateUserOperationGas({
-                          unEstimatedUserOperation,
-                          baseFeePerGas,
-                          stateOverrides: {
-                            [entryPointAddress]: {
-                              stateDiff: {
-                                "0x354335c2702ea6531294c3a1571e6565fa3ef5f6c44a98e1b0c28dacf8c2a9ba":
-                                  "0x000000ffffffffffffffffffffffffffff00ffffffffffffffffffffffffffff",
-                              },
-                            },
-                          },
-                        });
-
-                      if (!isEstimateUserOperationGasResultV7(estimate)) {
-                        throw new Error(
-                          "Expected EstimateUserOperationGasResultV7",
-                        );
-                      }
-
-                      expect(estimate).toBeDefined();
-                      const {
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                        paymasterPostOpGasLimit,
-                        paymasterVerificationGasLimit,
-                      } = estimate;
-
-                      console.log(estimate);
-
-                      expect(callGasLimit).toBeGreaterThan(0n);
-                      expect(verificationGasLimit).toBeGreaterThan(0n);
-                      expect(preVerificationGas).toBeGreaterThan(0n);
-                      expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
-                      expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
-
-                      userOperation = {
-                        ...userOperation,
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                        paymasterPostOpGasLimit,
-                        paymasterVerificationGasLimit,
-                      };
-
-                      const {
-                        requiredPrefundEth,
-                        requiredPrefundWei,
-                        nativeCurrencySymbol,
-                        requiredPrefundUsd,
-                      } = calculateRequiredPrefundV7(
-                        userOperation,
-                        viemChain,
-                        testChain,
-                      );
-
-                      console.log(
-                        `requiredPrefund: ${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`,
-                      );
-
-                      // benchmarkResults[EntryPointVersion.v070][
-                      //   testChain.name!
-                      // ].smartAccountDeployment = `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
-
-                      // const signature =
-                      //   await nexusClient.account.signUserOperation(
-                      //     userOperation as any
-                      //   );
-
-                      // userOperation.signature = signature;
-
-                      // // try running simulateHandleOp again with the returned values
-                      // const entryPoint =
-                      //   gasEstimator.entryPoints[EntryPointVersion.v070]
-                      //     .contract;
-
-                      // const { paid } = await entryPoint.simulateHandleOp({
-                      //   userOperation,
-                      //   targetAddress: entryPoint.address,
-                      //   targetCallData: userOperation.callData,
-                      //   stateOverrides: {
-                      //     [userOperation.sender]: {
-                      //       balance: toHex(parseEther("10000000000000")),
-                      //     },
-                      //   },
-                      // });
-
-                      // expect(paid).toBeGreaterThan(0n);
-                    } catch (err: any) {
-                      console.error(err);
-                      throw err.message;
-                    }
+                  const { paid } = await entryPoint.simulateHandleOp({
+                    userOperation: estimatedUserOperation,
+                    targetAddress: entryPoint.address,
+                    targetCallData: estimatedUserOperation.callData,
+                    stateOverrides: new StateOverrideBuilder()
+                      .overrideBalance(
+                        estimatedUserOperation.sender,
+                        parseEther("1000"),
+                      )
+                      .overridePaymasterDeposit(entryPoint.address, paymaster)
+                      .build(),
                   });
+
+                  expect(paid).toBeGreaterThan(0n);
+                });
+              });
+            },
+          );
+
+          describe.runIf(tokenPaymaster)("Given a token paymaster", () => {
+            let paymaster: Address;
+            let paymasterData: Hex;
+
+            beforeAll(() => {
+              paymaster = tokenPaymaster![0] as Address;
+              paymasterData = tokenPaymaster![1].dummyPaymasterData as Hex;
+            });
+
+            describe("estimateUserOperationGas", () => {
+              it("should return a gas estimate that doesn't revert", async () => {
+                const unEstimatedUserOperation = {
+                  ...userOperation,
+                  paymaster,
+                  paymasterData,
+                };
+
+                const estimate = await gasEstimator.estimateUserOperationGas({
+                  unEstimatedUserOperation,
+                  baseFeePerGas,
+                });
+
+                expect(estimate).toBeDefined();
+
+                if (!isEstimateUserOperationGasResultV7(estimate)) {
+                  throw new Error("Expected EstimateUserOperationGasResultV7");
                 }
 
-                if (paymasters?.EntryPointV7.token) {
-                  it("should return a gas estimate when using a token paymaster", async () => {
-                    const paymaster = paymasters?.EntryPointV7.token.paymaster;
+                const {
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                  paymasterPostOpGasLimit,
+                  paymasterVerificationGasLimit,
+                } = estimate;
 
-                    const paymasterData =
-                      paymasters?.EntryPointV7.token.dummyPaymasterData;
+                expect(callGasLimit).toBeGreaterThan(0n);
+                expect(verificationGasLimit).toBeGreaterThan(0n);
+                expect(preVerificationGas).toBeGreaterThan(0n);
+                expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
+                expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
 
-                    console.log(`paymaster=${paymaster}`);
-                    console.log(`paymasterData=${paymasterData}`);
+                const estimatedUserOperation = {
+                  ...userOperation,
+                  callGasLimit,
+                  verificationGasLimit,
+                  preVerificationGas,
+                  paymasterPostOpGasLimit,
+                  paymasterVerificationGasLimit,
+                };
 
-                    const unEstimatedUserOperation = {
-                      ...userOperation,
-                      paymaster,
-                      paymasterData,
-                    };
+                const { paid } = await entryPoint.simulateHandleOp({
+                  userOperation: estimatedUserOperation,
+                  targetAddress: entryPoint.address,
+                  targetCallData: estimatedUserOperation.callData,
+                  stateOverrides: new StateOverrideBuilder()
+                    .overrideBalance(
+                      estimatedUserOperation.sender,
+                      parseEther("10"),
+                    )
+                    .overridePaymasterDeposit(entryPoint.address, paymaster)
+                    .build(),
+                });
 
-                    try {
-                      const estimate =
-                        await gasEstimator.estimateUserOperationGas({
-                          unEstimatedUserOperation,
-                          baseFeePerGas,
-                        });
-
-                      expect(estimate).toBeDefined();
-                      console.log("Token Paymaster Estimate:", estimate);
-
-                      if (!isEstimateUserOperationGasResultV7(estimate)) {
-                        throw new Error(
-                          "Expected EstimateUserOperationGasResultV7",
-                        );
-                      }
-
-                      const {
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                        paymasterPostOpGasLimit,
-                        paymasterVerificationGasLimit,
-                      } = estimate;
-
-                      expect(callGasLimit).toBeGreaterThan(0n);
-                      expect(verificationGasLimit).toBeGreaterThan(0n);
-                      expect(preVerificationGas).toBeGreaterThan(0n);
-                      expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
-                      expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
-
-                      userOperation = {
-                        ...userOperation,
-                        callGasLimit,
-                        verificationGasLimit,
-                        preVerificationGas,
-                        paymasterPostOpGasLimit,
-                        paymasterVerificationGasLimit,
-                      };
-
-                      // get required prefund
-                      const {
-                        requiredPrefundEth,
-                        requiredPrefundWei,
-                        nativeCurrencySymbol,
-                        requiredPrefundUsd,
-                      } = calculateRequiredPrefundV7(
-                        userOperation,
-                        viemChain,
-                        testChain,
-                      );
-
-                      // print it
-                      console.log(
-                        `requiredPrefund: ${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`,
-                      );
-                    } catch (err: any) {
-                      console.error(err);
-                      throw err.message;
-                    }
-                  });
-                }
+                expect(paid).toBeGreaterThan(0n);
               });
             });
-          }
+          });
         });
-      });
-    }
+      },
+    );
   });
 });
+
+function filterTestChains() {
+  const includeChainIds = config.get<number[]>(`includeInTests`);
+  const excludeChainIds = config.get<number[]>(`excludeFromTests`);
+
+  const testChains = Object.values(supportedChains).filter(
+    (chain) =>
+      !chain.isTestnet &&
+      chain.stateOverrideSupport.balance &&
+      !excludeChainIds.includes(chain.chainId) &&
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),
+  );
+
+  return testChains;
+}
 
 function calculateRequiredPrefundV6(
   userOperation: UserOperationV6,

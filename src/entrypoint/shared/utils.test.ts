@@ -1,5 +1,12 @@
 import { StateOverrideSet } from "../../shared/types";
-import { mergeStateOverrides } from "./utils";
+import { ENTRYPOINT_V6_ADDRESS } from "../v0.6.0";
+import { ENTRYPOINT_V7_ADDRESS } from "../v0.7.0";
+import {
+  calculateMappingSlot,
+  calculateMappingStorageKey,
+  calculateNestedMappingSlot,
+  mergeStateOverrides,
+} from "./utils";
 import { describe, it, expect } from "vitest";
 
 describe("mergeStateOverrides", () => {
@@ -139,5 +146,35 @@ describe("mergeStateOverrides", () => {
 
     expect(destination).toEqual(originalDestination);
     expect(source).toEqual(originalSource);
+  });
+});
+
+describe("calculateStorageKey", () => {
+  describe("Using Entrypoint v0.6.0", () => {
+    const slot = 0n; // deposits is the first mapping in the storage
+    const paymasterAddress = "0x00000f79b7faf42eebadba19acc07cd08af44789"; // Sponsorship
+
+    it("should calculate the storage key correctly", () => {
+      const expectedStorageKey =
+        "0x35354491e9a4b8d65abb845a6c94a8d38945730b9d8192aab11ca5820144763b";
+
+      const storageKey = calculateMappingStorageKey(slot, paymasterAddress);
+
+      expect(storageKey).toEqual(expectedStorageKey);
+    });
+  });
+
+  describe("Using Entrypoint v0.7.0", () => {
+    const slot = 0n;
+    const paymasterAddress = "0x00000072a5f551d6e80b2f6ad4fb256a27841bbc"; // Sponsorship
+
+    it("should calculate the storage key correctly", () => {
+      const expectedStorageKey =
+        "0x354335c2702ea6531294c3a1571e6565fa3ef5f6c44a98e1b0c28dacf8c2a9ba";
+
+      const storageKey = calculateMappingStorageKey(slot, paymasterAddress);
+
+      expect(storageKey).toEqual(expectedStorageKey);
+    });
   });
 });

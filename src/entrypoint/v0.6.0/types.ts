@@ -59,7 +59,7 @@ export const errorWithNestedCauseSchema = z.object({
  */
 export class ParseError extends Error {
   constructor(public readonly cause: any) {
-    super("Failed to parse error", cause?.message);
+    super("Failed to parse error:", cause);
   }
 }
 

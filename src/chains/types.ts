@@ -8,6 +8,7 @@ export enum ChainStack {
   Mantle = "mantle",
 }
 
+// TODO: Refactor this schema and move the nested types into separate files with their own schemas
 export const SupportedChainSchema = z.object({
   chainId: z.number(),
   name: z.string(),
@@ -25,6 +26,14 @@ export const SupportedChainSchema = z.object({
       [EntryPointVersion.v070]: z
         .object({
           address: z.string(),
+          state: z
+            .object({
+              deposits: z.record(
+                z.string(),
+                z.object({ stateKey: z.string() }),
+              ),
+            })
+            .optional(),
         })
         .optional(),
     })
@@ -45,6 +54,26 @@ export const SupportedChainSchema = z.object({
       callGasLimit: z.coerce.bigint(),
     })
     .optional(),
+  paymasters: z.object({
+    [EntryPointVersion.v060]: z
+      .record(
+        z.string(),
+        z.object({
+          dummyPaymasterAndData: z.string(),
+          type: z.string(),
+        }),
+      )
+      .optional(),
+    [EntryPointVersion.v070]: z
+      .record(
+        z.string(),
+        z.object({
+          dummyPaymasterData: z.string(),
+          type: z.string(),
+        }),
+      )
+      .optional(),
+  }),
 });
 
 export type SupportedChain = z.infer<typeof SupportedChainSchema>;

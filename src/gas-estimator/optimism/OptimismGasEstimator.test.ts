@@ -8,7 +8,7 @@ import { EntryPoints } from "../types";
 import config from "config";
 import { GasEstimatorRpcClient, SimulationOptions } from "../GasEstimator";
 import { createGasEstimator } from "../createGasEstimator";
-import { describe, it, vitest } from "vitest";
+import { describe, it, vitest, expect } from "vitest";
 
 describe("OptimismGasEstimator", () => {
   describe("unit", () => {
@@ -30,6 +30,7 @@ describe("OptimismGasEstimator", () => {
         contract: {} as EntryPointV7Simulations,
       },
     };
+
     it("should take the L1 fee into account when calculating the pre-verification gas", async () => {
       const opGasEstimator = new OptimismGasEstimator(
         10,

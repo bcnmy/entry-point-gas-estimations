@@ -7,6 +7,7 @@ import { ChainStack, SupportedChain } from "../chains/types";
 import { createGasEstimator, mergeChainConfig } from "./createGasEstimator";
 import { MantleGasEstimator } from "./mantle/MantleGasEstimator";
 import { describe, it, expect } from "vitest";
+import { DEFAULT_PAYMASTERS } from "../chains";
 
 describe("createGasEstimator", () => {
   const rpcUrl = "http://rpc.url";
@@ -66,6 +67,7 @@ describe("createGasEstimator", () => {
         stateOverrideSupport: {
           balance: true,
           bytecode: true,
+          stateDiff: true,
         },
         smartAccountSupport: {
           smartAccountsV2: true,
@@ -76,6 +78,7 @@ describe("createGasEstimator", () => {
           verificationGasLimit: 2n,
           callGasLimit: 3n,
         },
+        paymasters: DEFAULT_PAYMASTERS,
       };
 
       const gasEstimator = createGasEstimator({
