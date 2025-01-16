@@ -18,7 +18,7 @@ Here's how to setup & run a E2E for a selected network.
     },
   }
   ```
-4. 🚀 Run the tests using: `yarn test:e2e`
+4. 🚀 Run the tests using: `pnpm test`
 
 Useful options:
 - `includeInTests`: you can specify chain IDs for chains you want to test so you don't run all tests (takes a long time). By default it's an empty array and that means it will run all of the tests for all chains in the suite.
@@ -26,9 +26,9 @@ Useful options:
 
 ## Running tests
 
-You can run **all tests** by using the `yarn test` command.
+You can run **all tests** by using the `pnpm test` command.
 
 > 💡 If you've used the `includeInTests` property, it will run only the tests for that chain.
 
 Tips:
-- You can narrow down on the test tag you want to run, for example `yarn test -t 'EntryPoint v0.7.0'` will run just the tests for EPv0.7.0.
+- You can narrow down on the test tag you want to run, for example `pnpm test -t 'EntryPoint v0.7.0'` will run just the tests for EPv0.7.0.
