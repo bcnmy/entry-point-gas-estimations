@@ -683,7 +683,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     chainId: 81457,
     name: "Blast Mainnet",
     isTestnet: false,
-    stack: ChainStack.EVM,
+    stack: ChainStack.Optimism,
     eip1559: true,
     stateOverrideSupport: {
       balance: true,
@@ -701,7 +701,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     chainId: 168587773,
     name: "Blast Sepolia Testnet",
     isTestnet: true,
-    stack: ChainStack.EVM,
+    stack: ChainStack.Optimism,
     eip1559: true,
     stateOverrideSupport: {
       balance: true,
