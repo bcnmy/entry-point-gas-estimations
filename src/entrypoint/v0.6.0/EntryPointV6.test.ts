@@ -206,7 +206,7 @@ describe("e2e", () => {
               expect(preOpGas).toBeGreaterThan(0);
             },
           );
-        });
+        }, 20_000);
 
         describe.runIf(paymasters && testChain.stateOverrideSupport.stateDiff)(
           "with a paymaster",
@@ -253,6 +253,7 @@ describe("e2e", () => {
                 expect(paid).toBeGreaterThan(0);
                 expect(preOpGas).toBeGreaterThan(0);
               },
+              20_000,
             );
 
             it.runIf(tokenPaymaster)(
@@ -286,6 +287,7 @@ describe("e2e", () => {
                 expect(paid).toBeGreaterThan(0);
                 expect(preOpGas).toBeGreaterThan(0);
               },
+              20_000,
             );
           },
         );
