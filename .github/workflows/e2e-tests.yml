@@ -41,6 +41,16 @@ jobs:
           EOF
 
       - name: Run the tests
-        run: bun run test
+        run: bun run test --coverage
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+          CI: true
+          
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+
+
+
