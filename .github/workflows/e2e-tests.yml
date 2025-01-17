@@ -42,6 +42,8 @@ jobs:
           GOLD_KEY: ${{ secrets.GOLD_KEY }}
           XLAYER_KEY: ${{ secrets.XLAYER_KEY }}
           CONDUIT_KEY: ${{ secrets.CONDUIT_KEY }}
+          QUICKNODE_AVAX_TESTNET_KEY: ${{ secrets.QUICKNODE_AVAX_TESTNET_KEY }}
+          QUICKNODE_AVAX_KEY: ${{ secrets.QUICKNODE_AVAX_KEY }}
 
       - name: Run the tests
         run: bun run test --coverage
