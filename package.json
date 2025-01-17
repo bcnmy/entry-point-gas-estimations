@@ -1,16 +1,28 @@
 {
   "name": "@biconomy/gas-estimations",
-  "version": "0.2.56",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "version": "0.2.60",
   "repository": "https://github.com/bcnmy/entry-point-gas-estimations",
   "author": "Nikola Divić <nikola.divic@biconomy.io>",
   "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "format": "biome format . --write",
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
-    "build": "tsc",
+    "build": "bun run build:types && bun run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "tsup src/index.ts --format esm,cjs --dts --outDir dist --clean",
+    "build:watch": "tsup src/index.ts --format esm,cjs --dts --outDir dist --watch",
     "test": "vitest --run --reporter=verbose",
     "test:coverage": "vitest --run --reporter=verbose --coverage",
     "changeset": "changeset",
@@ -18,7 +30,8 @@
     "changeset:version": "changeset version && bun install --lockfile-only",
     "changeset:release:canary": "original_name=$(bun run scripts/publish:canary.ts | grep ORIGINAL_NAME | cut -d'=' -f2) && npm publish && git checkout package.json && git tag -l '*-canary.*' | xargs git tag -d && git fetch --tags && git reset --hard && git clean -fd && echo \"Published canary version of $original_name as latest\"",
     "docs": "typedoc --tsconfig ./tsconfig.json",
-    "docs:deploy": "bun run docs && gh-pages -d docs"
+    "docs:deploy": "bun run docs && gh-pages -d docs",
+    "size": "size-limit"
   },
   "dependencies": {
     "zod": "^3.24.1",
@@ -32,12 +45,16 @@
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@rhinestone/module-sdk": "^0.2.3",
+    "@size-limit/esbuild-why": "^11.1.6",
+    "@size-limit/preset-small-lib": "^11.1.6",
     "@types/bun": "latest",
     "@types/config": "^3.3.5",
     "@types/node": "^22.10.6",
     "config": "^3.3.12",
     "gh-pages": "^6.3.0",
     "simple-git-hooks": "^2.11.1",
+    "size-limit": "^11.1.6",
+    "tsup": "^8.3.5",
     "typedoc": "^0.27.6",
     "typescript": "^5.7.3",
     "viem": "^2.22.8",

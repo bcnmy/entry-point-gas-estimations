@@ -150,6 +150,6 @@ bun run changeset:release:canary
 
 This will publish a canary version to npm with a temporary version number. The original package.json will be restored automatically after publishing.
 
-[Canary Release](https://www.npmjs.com/package/@biconomy/gas-estimations-canary)
+[Canary Release](https://www.npmjs.com/package/@biconomy/gas-estimations)
 
 **Note:** You need to have appropriate npm permissions to publish the package.
