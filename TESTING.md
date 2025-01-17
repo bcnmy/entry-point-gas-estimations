@@ -9,6 +9,7 @@ Here's how to setup & run a E2E for a selected network.
 > 💡 For the purpose of this example we will assume we are testing Base Sepolia (84532)
 
 1. **Create a `test.json` file in the `config` directory**: You can use `test-example.json` as a reference.
+  - `bun run init:testConfig` will create and saturate the `test.json` file with API keys from environment variables.
 2. **Get a private RPC URL from one of the providers**: E2E tests require proper private RPC URLs and usually don't work with public RPC URLs because they don't support RPC features such as state overrides or trace calls. **Alchemy** is a good first choice.
 3. **Add the private RPC URL to the `test.json` file:** The config should look something like this:
   ```json
