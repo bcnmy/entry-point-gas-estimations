@@ -1,5 +1,7 @@
 # Biconomy Gas Estimations
 
+[![codecov](https://codecov.io/gh/bcnmy/entry-point-gas-estimations/graph/badge.svg?token=YFY752HCIC)](https://codecov.io/gh/bcnmy/entry-point-gas-estimations)
+
 A utility package that performs simulation and estimations of all ERC-4337 User Operation gas limits.
 
 ## Usage
