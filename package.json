@@ -16,6 +16,7 @@
     }
   },
   "scripts": {
+    "dev": "bun link && bun run build:types && bun run build:watch",
     "format": "biome format . --write",
     "lint": "biome check .",
     "lint:fix": "bun run lint --apply",
@@ -23,8 +24,8 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "tsup src/index.ts --format esm,cjs --dts --outDir dist --clean",
     "build:watch": "tsup src/index.ts --format esm,cjs --dts --outDir dist --watch",
-    "test": "vitest --run --reporter=verbose",
-    "test:coverage": "vitest --run --reporter=verbose --coverage",
+    "test": "vitest -c ./vitest.config.ts --run --reporter=verbose",
+    "test:coverage": "CI=true vitest -c ./vitest.config.ts --run --reporter=verbose --coverage",
     "changeset": "changeset",
     "changeset:release": "bun run build && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only",
@@ -32,7 +33,7 @@
     "docs": "typedoc --tsconfig ./tsconfig.json",
     "docs:deploy": "bun run docs && gh-pages -d docs",
     "size": "size-limit",
-    "init:testConfig": "bun run scripts/populate:testConfig.ts"
+    "init:tests": "bun run scripts/init:tests.ts"
   },
   "dependencies": {
     "zod": "^3.24.1",
@@ -64,7 +65,7 @@
     "vitest": "^3.0.1"
   },
   "peerDependencies": {
-    "viem": "^2.22.8"
+    "viem": "^2.22.9"
   },
   "commitlint": {
     "extends": [
