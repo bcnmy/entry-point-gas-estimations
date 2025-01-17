@@ -23,27 +23,26 @@ jobs:
 
       - name: Create test.json
         run: |
-          cat << EOF > config/test.json
-          {
-            "testChains": {
-              "84532": {
-                "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/${{ secrets.ALCHEMY_KEY }}"
-              },
-              "10": {
-                "rpcUrl": "https://opt-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_KEY }}"
-              },
-              "1": {
-                "rpcUrl": "https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_KEY }}"
-              }
-            },
-            "includeInTests": [84532, 10, 1]
-          }
-          EOF
+          # Read the template and replace environment variables
+          envsubst < config/test.template.json > config/test.json
+        env:
+          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+          QUICKNODE_BSC_KEY: ${{ secrets.QUICKNODE_BSC_KEY }}
+          QUICKNODE_BSC_TESTNET_KEY: ${{ secrets.QUICKNODE_BSC_TESTNET_KEY }}
+          INFURA_KEY: ${{ secrets.INFURA_KEY }}
+          MANTLE_KEY: ${{ secrets.MANTLE_KEY }}
+          ANKR_KEY: ${{ secrets.ANKR_KEY }}
+          NODEREAL_KEY: ${{ secrets.NODEREAL_KEY }}
+          BLAST_KEY: ${{ secrets.BLAST_KEY }}
+          QUICKNODE_BLAST_SEPOLIA_KEY: ${{ secrets.QUICKNODE_BLAST_SEPOLIA_KEY }}
+          QUICKNODE_BLAST_KEY: ${{ secrets.QUICKNODE_BLAST_KEY }}
+          GOLD_KEY: ${{ secrets.GOLD_KEY }}
+          XLAYER_KEY: ${{ secrets.XLAYER_KEY }}
+          CONDUIT_KEY: ${{ secrets.CONDUIT_KEY }}
 
       - name: Run the tests
         run: bun run test --coverage
         env:
-          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           CI: true
           
       - name: Upload results to Codecov
