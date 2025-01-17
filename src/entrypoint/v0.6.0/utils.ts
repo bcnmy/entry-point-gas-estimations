@@ -1,16 +1,16 @@
 export function getRequiredPrefundV6(userOp: {
-  paymasterAndData: string;
-  callGasLimit: bigint;
-  verificationGasLimit: bigint;
-  preVerificationGas: bigint;
-  maxFeePerGas: bigint;
+  paymasterAndData: string
+  callGasLimit: bigint
+  verificationGasLimit: bigint
+  preVerificationGas: bigint
+  maxFeePerGas: bigint
 }) {
-  const multiplier = userOp.paymasterAndData !== "0x" ? 3n : 1n;
+  const multiplier = userOp.paymasterAndData !== "0x" ? 3n : 1n
 
   const requiredGas =
     userOp.callGasLimit +
     userOp.verificationGasLimit * multiplier +
-    userOp.preVerificationGas;
+    userOp.preVerificationGas
 
-  return requiredGas * userOp.maxFeePerGas;
+  return requiredGas * userOp.maxFeePerGas
 }

@@ -1,5 +1,5 @@
-import { userOperationV7Schema } from "./UserOperationV7";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest"
+import { userOperationV7Schema } from "./UserOperationV7"
 
 describe("UserOperationV7", () => {
   describe("userOperationV7Schema", () => {
@@ -18,14 +18,14 @@ describe("UserOperationV7", () => {
       paymasterVerificationGasLimit: 1n,
       paymasterPostOpGasLimit: 1n,
       paymasterData: "0x",
-      signature: "0x",
-    };
+      signature: "0x"
+    }
 
     it("should return true for a valid UserOperation", () => {
       expect(userOperationV7Schema.parse(validUserOperation)).toEqual(
-        validUserOperation,
-      );
-    });
+        validUserOperation
+      )
+    })
 
     it("should return true with numbers instead of bigints", () => {
       const userOperation = {
@@ -43,13 +43,13 @@ describe("UserOperationV7", () => {
         paymasterVerificationGasLimit: 1,
         paymasterPostOpGasLimit: 1,
         paymasterData: "0x",
-        signature: "0x",
-      };
+        signature: "0x"
+      }
 
       expect(userOperationV7Schema.parse(userOperation)).toEqual(
-        validUserOperation,
-      );
-    });
+        validUserOperation
+      )
+    })
 
     it("should return true with hex strings instead of bigints", () => {
       const userOperation = {
@@ -67,12 +67,12 @@ describe("UserOperationV7", () => {
         paymasterVerificationGasLimit: "0x1",
         paymasterPostOpGasLimit: "0x1",
         paymasterData: "0x",
-        signature: "0x",
-      };
+        signature: "0x"
+      }
 
       expect(userOperationV7Schema.parse(userOperation)).toEqual(
-        validUserOperation,
-      );
-    });
-  });
-});
+        validUserOperation
+      )
+    })
+  })
+})

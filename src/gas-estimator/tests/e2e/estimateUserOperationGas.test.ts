@@ -1,119 +1,119 @@
-import config from "config";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import * as chains from "viem/chains";
 import {
-  Address,
+  type BiconomySmartAccountV2,
+  type UserOperationStruct,
+  createSmartAccountClient,
+  getCustomChain
+} from "@biconomy/account"
+import { type NexusClient, createNexusClient } from "@biconomy/sdk"
+import config from "config"
+import {
+  http,
+  type Address,
+  type Hex,
   createPublicClient,
   createWalletClient,
   extractChain,
   formatEther,
-  Hex,
-  http,
   parseEther,
   toHex,
-  zeroAddress,
-} from "viem";
+  zeroAddress
+} from "viem"
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
+import * as chains from "viem/chains"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { supportedChains } from "../../../chains/chains"
+import type { SupportedChain } from "../../../chains/types"
+import { StateOverrideBuilder } from "../../../entrypoint/shared/stateOverrides"
+import { EntryPointVersion } from "../../../entrypoint/shared/types"
 import {
-  BiconomySmartAccountV2,
-  createSmartAccountClient,
-  getCustomChain,
-  UserOperationStruct,
-} from "@biconomy/account";
+  type UserOperationV6,
+  userOperationV6Schema
+} from "../../../entrypoint/v0.6.0/UserOperationV6"
 import {
-  UserOperationV6,
-  userOperationV6Schema,
-} from "../../../entrypoint/v0.6.0/UserOperationV6";
-import { createNexusClient, NexusClient } from "@biconomy/sdk";
-import { EntryPointVersion } from "../../../entrypoint/shared/types";
-import { BenchmarkResults } from "../../utils";
-import {
-  UserOperationV7,
-  userOperationV7Schema,
-} from "../../../entrypoint/v0.7.0/UserOperationV7";
+  type UserOperationV7,
+  userOperationV7Schema
+} from "../../../entrypoint/v0.7.0/UserOperationV7"
+import { getPaymasterAddressFromPaymasterAndData } from "../../../paymaster/utils"
+import { getRequiredPrefund } from "../../../shared/utils"
+import { createGasEstimator } from "../../createGasEstimator"
 import {
   isEstimateUserOperationGasResultV6,
-  isEstimateUserOperationGasResultV7,
-} from "../../types";
-import { supportedChains } from "../../../chains/chains";
-import { SupportedChain } from "../../../chains/types";
-import { getRequiredPrefund } from "../../../shared/utils";
-import { createGasEstimator } from "../../createGasEstimator";
-import { describe, it, afterAll, beforeAll, expect } from "vitest";
-import { StateOverrideBuilder } from "../../../entrypoint/shared/stateOverrides";
-import { getPaymasterAddressFromPaymasterAndData } from "../../../paymaster/utils";
+  isEstimateUserOperationGasResultV7
+} from "../../types"
+import type { BenchmarkResults } from "../../utils"
 
 describe("e2e", () => {
   const benchmarkResults: BenchmarkResults = {
     [EntryPointVersion.v060]: {},
-    [EntryPointVersion.v070]: {},
-  };
+    [EntryPointVersion.v070]: {}
+  }
 
   afterAll(() => {
-    console.log(JSON.stringify(benchmarkResults, null, 2));
-  });
+    console.log(JSON.stringify(benchmarkResults, null, 2))
+  })
 
-  const privateKey = generatePrivateKey();
-  const account = privateKeyToAccount(privateKey);
+  const privateKey = generatePrivateKey()
+  const account = privateKeyToAccount(privateKey)
 
-  const testChains = filterTestChains();
+  const testChains = filterTestChains()
 
   describe.each(testChains)("On $name ($chainId)", (testChain) => {
-    const rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
+    const rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`)
 
     // This bundler URL is never called, but the format has to be correct or the createSmartAccountClient function will throw an error
-    const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
+    const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`
 
     const viemChain = extractChain({
       chains: Object.values(chains),
-      id: testChain.chainId as any,
-    });
+      id: testChain.chainId as any
+    })
 
-    const transport = http(rpcUrl);
+    const transport = http(rpcUrl)
     const viemClient = createPublicClient({
       chain:
         viemChain ||
         ({
-          id: testChain.chainId,
+          id: testChain.chainId
         } as chains.Chain),
-      transport,
-    });
+      transport
+    })
 
-    let maxFeePerGas: bigint;
-    let maxPriorityFeePerGas: bigint;
-    let baseFeePerGas: bigint;
+    let maxFeePerGas: bigint
+    let maxPriorityFeePerGas: bigint
+    let baseFeePerGas: bigint
 
     beforeAll(async () => {
       if (testChain.eip1559) {
         const [fees, latestBlock] = await Promise.all([
           viemClient.estimateFeesPerGas(),
           viemClient.getBlock({
-            blockTag: "latest",
-          }),
-        ]);
+            blockTag: "latest"
+          })
+        ])
 
-        maxFeePerGas = fees.maxFeePerGas || 1n;
-        maxPriorityFeePerGas = fees.maxPriorityFeePerGas || 1n;
+        maxFeePerGas = fees.maxFeePerGas || 1n
+        maxPriorityFeePerGas = fees.maxPriorityFeePerGas || 1n
 
         if (!latestBlock.baseFeePerGas) {
-          throw new Error(`baseFeePerGas is null`);
+          throw new Error("baseFeePerGas is null")
         }
-        baseFeePerGas = latestBlock.baseFeePerGas;
+        baseFeePerGas = latestBlock.baseFeePerGas
       } else {
-        const gasPrice = await viemClient.getGasPrice();
-        maxFeePerGas = gasPrice;
-        maxPriorityFeePerGas = gasPrice;
-        baseFeePerGas = gasPrice;
+        const gasPrice = await viemClient.getGasPrice()
+        maxFeePerGas = gasPrice
+        maxPriorityFeePerGas = gasPrice
+        baseFeePerGas = gasPrice
       }
 
       benchmarkResults[EntryPointVersion.v060][testChain.name!] = {
         smartAccountDeployment: "",
-        nativeTransfer: "",
-      };
+        nativeTransfer: ""
+      }
       benchmarkResults[EntryPointVersion.v070][testChain.name!] = {
         smartAccountDeployment: "",
-        nativeTransfer: "",
-      };
-    }, 20_000);
+        nativeTransfer: ""
+      }
+    }, 20_000)
 
     describe.runIf(testChain.smartAccountSupport.smartAccountsV2)(
       "Using EntryPoint v0.6.0",
@@ -121,37 +121,37 @@ describe("e2e", () => {
         const signer = createWalletClient({
           account,
           chain: {
-            id: testChain.chainId,
+            id: testChain.chainId
           } as chains.Chain,
-          transport,
-        });
+          transport
+        })
 
-        let smartAccount: BiconomySmartAccountV2;
-        let nativeTransferCallData: Hex;
+        let smartAccount: BiconomySmartAccountV2
+        let nativeTransferCallData: Hex
 
         const gasEstimator = createGasEstimator({
           chainId: testChain.chainId,
-          rpc: viemClient,
-        });
+          rpc: viemClient
+        })
 
         const entryPoint =
-          gasEstimator.entryPoints[EntryPointVersion.v060].contract;
+          gasEstimator.entryPoints[EntryPointVersion.v060].contract
 
-        const paymasters = testChain?.paymasters?.v060;
+        const paymasters = testChain?.paymasters?.v060
 
         const sponsorshipPaymaster = paymasters
           ? Object.values(paymasters).find(
-              (paymaster) => paymaster.type === "sponsorship",
+              (paymaster) => paymaster.type === "sponsorship"
             )
-          : undefined;
+          : undefined
 
         const tokenPaymaster = paymasters
           ? Object.values(paymasters).find(
-              (paymaster) => paymaster.type === "token",
+              (paymaster) => paymaster.type === "token"
             )
-          : undefined;
+          : undefined
 
-        let userOperation: UserOperationV6;
+        let userOperation: UserOperationV6
 
         beforeAll(async () => {
           try {
@@ -160,25 +160,25 @@ describe("e2e", () => {
                 testChain.name,
                 testChain.chainId,
                 rpcUrl,
-                "",
+                ""
               ),
               signer,
-              bundlerUrl,
-            });
+              bundlerUrl
+            })
 
             nativeTransferCallData = await smartAccount.encodeExecute(
               zeroAddress,
               1n,
-              "0x",
-            );
+              "0x"
+            )
 
-            let [sender, initCode, nonce] = await Promise.all([
+            const [sender, initCode, nonce] = await Promise.all([
               smartAccount.getAddress(),
               smartAccount.getInitCode(),
-              smartAccount.getNonce(),
-            ]);
+              smartAccount.getNonce()
+            ])
 
-            let unsignedUserOperation: Partial<UserOperationStruct> = {
+            const unsignedUserOperation: Partial<UserOperationStruct> = {
               sender,
               initCode,
               nonce,
@@ -188,19 +188,19 @@ describe("e2e", () => {
               preVerificationGas: 1n,
               verificationGasLimit: 1n,
               paymasterAndData: "0x",
-              callData: nativeTransferCallData,
-            };
+              callData: nativeTransferCallData
+            }
 
             const signedUserOperation = await smartAccount.signUserOp(
-              unsignedUserOperation,
-            );
+              unsignedUserOperation
+            )
 
-            userOperation = userOperationV6Schema.parse(signedUserOperation);
+            userOperation = userOperationV6Schema.parse(signedUserOperation)
           } catch (err: any) {
-            console.error(err);
-            throw err.message;
+            console.error(err)
+            throw err.message
           }
-        }, 20_000);
+        }, 20_000)
 
         describe("Given an undeployed smart account", () => {
           describe.runIf(testChain.stateOverrideSupport.balance)(
@@ -212,33 +212,33 @@ describe("e2e", () => {
                     const gasEstimate =
                       await gasEstimator.estimateUserOperationGas({
                         unEstimatedUserOperation: userOperation,
-                        baseFeePerGas,
-                      });
+                        baseFeePerGas
+                      })
 
                     if (!isEstimateUserOperationGasResultV6(gasEstimate)) {
                       throw new Error(
-                        "Expected EstimateUserOperationGasResultV6",
-                      );
+                        "Expected EstimateUserOperationGasResultV6"
+                      )
                     }
 
-                    expect(gasEstimate).toBeDefined();
+                    expect(gasEstimate).toBeDefined()
 
                     const {
                       callGasLimit,
                       verificationGasLimit,
-                      preVerificationGas,
-                    } = gasEstimate;
+                      preVerificationGas
+                    } = gasEstimate
 
-                    expect(callGasLimit).toBeGreaterThan(0n);
-                    expect(verificationGasLimit).toBeGreaterThan(0n);
-                    expect(preVerificationGas).toBeGreaterThan(0n);
+                    expect(callGasLimit).toBeGreaterThan(0n)
+                    expect(verificationGasLimit).toBeGreaterThan(0n)
+                    expect(preVerificationGas).toBeGreaterThan(0n)
 
                     const estimatedUserOperation = {
                       ...userOperation,
                       callGasLimit,
                       verificationGasLimit,
-                      preVerificationGas,
-                    };
+                      preVerificationGas
+                    }
 
                     // 💡 simulateHandleOp throws 'return data out of bounds' on some chains
                     // if we provide the legacy gas price as a maxFeePerGas
@@ -247,20 +247,20 @@ describe("e2e", () => {
                     //   estimatedUserOperation.maxPriorityFeePerGas = 1n;
                     // }
 
-                    var {
+                    const {
                       requiredPrefundEth,
                       nativeCurrencySymbol,
-                      requiredPrefundUsd,
+                      requiredPrefundUsd
                     } = calculateRequiredPrefundV6(
                       estimatedUserOperation,
                       viemChain,
-                      testChain,
-                    );
+                      testChain
+                    )
 
                     benchmarkResults[EntryPointVersion.v060][
                       testChain.name!
                     ].smartAccountDeployment =
-                      `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+                      `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`
 
                     const { paid } = await entryPoint.simulateHandleOp({
                       userOperation: estimatedUserOperation,
@@ -269,15 +269,15 @@ describe("e2e", () => {
                       stateOverrides: new StateOverrideBuilder()
                         .overrideBalance(
                           estimatedUserOperation.sender,
-                          parseEther("100"),
+                          parseEther("100")
                         )
-                        .build(),
-                    });
+                        .build()
+                    })
 
-                    expect(paid).toBeGreaterThan(0n);
-                  }, 20_000);
-                });
-              });
+                    expect(paid).toBeGreaterThan(0n)
+                  }, 20_000)
+                })
+              })
 
               describe.runIf(testChain.stateOverrideSupport.stateDiff)(
                 "If we can override the paymaster's deposit",
@@ -285,63 +285,63 @@ describe("e2e", () => {
                   describe.runIf(sponsorshipPaymaster)(
                     "Given a sponsorship paymaster",
                     () => {
-                      let paymasterAndData: Hex | undefined;
+                      let paymasterAndData: Hex | undefined
 
                       beforeAll(() => {
                         paymasterAndData = sponsorshipPaymaster!
-                          .dummyPaymasterAndData as Hex;
-                      });
+                          .dummyPaymasterAndData as Hex
+                      })
 
                       describe("estimateUserOperationGas", () => {
                         it("should return a gas estimate that doesn't revert", async () => {
                           const unEstimatedUserOperation = {
                             ...userOperation,
-                            paymasterAndData: paymasterAndData!,
-                          };
+                            paymasterAndData: paymasterAndData!
+                          }
 
                           const gasEstimate =
                             await gasEstimator.estimateUserOperationGas({
                               unEstimatedUserOperation,
-                              baseFeePerGas,
-                            });
+                              baseFeePerGas
+                            })
 
                           if (
                             !isEstimateUserOperationGasResultV6(gasEstimate)
                           ) {
                             throw new Error(
-                              "Expected EstimateUserOperationGasResultV6",
-                            );
+                              "Expected EstimateUserOperationGasResultV6"
+                            )
                           }
 
-                          expect(gasEstimate).toBeDefined();
+                          expect(gasEstimate).toBeDefined()
                           const {
                             callGasLimit,
                             verificationGasLimit,
                             preVerificationGas,
-                            validUntil,
-                          } = gasEstimate;
+                            validUntil
+                          } = gasEstimate
 
-                          expect(callGasLimit).toBeGreaterThan(0n);
-                          expect(verificationGasLimit).toBeGreaterThan(0n);
-                          expect(preVerificationGas).toBeGreaterThan(0n);
-                          expect(validUntil).toBeGreaterThan(0n);
+                          expect(callGasLimit).toBeGreaterThan(0n)
+                          expect(verificationGasLimit).toBeGreaterThan(0n)
+                          expect(preVerificationGas).toBeGreaterThan(0n)
+                          expect(validUntil).toBeGreaterThan(0n)
 
                           const estimatedUserOperation = {
                             ...userOperation,
                             callGasLimit,
                             verificationGasLimit,
-                            preVerificationGas,
-                          };
+                            preVerificationGas
+                          }
 
-                          var { nativeCurrencySymbol, requiredPrefundWei } =
+                          const { nativeCurrencySymbol, requiredPrefundWei } =
                             calculateRequiredPrefundV6(
                               estimatedUserOperation,
                               viemChain,
-                              testChain,
-                            );
+                              testChain
+                            )
 
                           // expect the requiredPrefundWei to be greater then 0
-                          expect(requiredPrefundWei).toBeGreaterThan(0n);
+                          expect(requiredPrefundWei).toBeGreaterThan(0n)
 
                           const { paid } = await entryPoint.simulateHandleOp({
                             userOperation: estimatedUserOperation,
@@ -350,84 +350,84 @@ describe("e2e", () => {
                             stateOverrides: new StateOverrideBuilder()
                               .overrideBalance(
                                 estimatedUserOperation.sender,
-                                parseEther("1000"),
+                                parseEther("1000")
                               )
                               .overridePaymasterDeposit(
                                 entryPoint.address,
                                 getPaymasterAddressFromPaymasterAndData(
-                                  paymasterAndData!,
-                                ),
+                                  paymasterAndData!
+                                )
                               )
-                              .build(),
-                          });
+                              .build()
+                          })
 
-                          expect(paid).toBeGreaterThan(0n);
-                        });
-                      });
-                    },
-                  );
+                          expect(paid).toBeGreaterThan(0n)
+                        })
+                      })
+                    }
+                  )
 
                   describe.runIf(tokenPaymaster)(
                     "Given a token paymaster",
                     () => {
-                      let paymasterAndData: Hex | undefined;
+                      let paymasterAndData: Hex | undefined
 
                       beforeAll(() => {
                         paymasterAndData = tokenPaymaster!
-                          .dummyPaymasterAndData as Hex;
-                      });
+                          .dummyPaymasterAndData as Hex
+                      })
 
                       describe("estimateUserOperationGas", () => {
                         it("should return a gas estimate that doesn't revert", async () => {
                           const unEstimatedUserOperation = {
                             ...userOperation,
-                            paymasterAndData: paymasterAndData!,
-                          };
+                            paymasterAndData: paymasterAndData!
+                          }
 
                           const gasEstimate =
                             await gasEstimator.estimateUserOperationGas({
                               unEstimatedUserOperation,
-                              baseFeePerGas,
-                            });
+                              baseFeePerGas
+                            })
 
                           if (
                             !isEstimateUserOperationGasResultV6(gasEstimate)
                           ) {
                             throw new Error(
-                              "Expected EstimateUserOperationGasResultV6",
-                            );
+                              "Expected EstimateUserOperationGasResultV6"
+                            )
                           }
 
-                          expect(gasEstimate).toBeDefined();
+                          expect(gasEstimate).toBeDefined()
                           const {
                             callGasLimit,
                             verificationGasLimit,
                             preVerificationGas,
-                            validUntil,
-                          } = gasEstimate;
+                            validUntil
+                          } = gasEstimate
 
-                          expect(callGasLimit).toBeGreaterThan(0n);
-                          expect(verificationGasLimit).toBeGreaterThan(0n);
-                          expect(preVerificationGas).toBeGreaterThan(0n);
-                          expect(validUntil).toBeGreaterThan(0n);
+                          expect(callGasLimit).toBeGreaterThan(0n)
+                          expect(verificationGasLimit).toBeGreaterThan(0n)
+                          expect(preVerificationGas).toBeGreaterThan(0n)
+                          expect(validUntil).toBeGreaterThan(0n)
 
                           const estimatedUserOperation = {
                             ...userOperation,
                             paymasterAndData: paymasterAndData!,
                             callGasLimit,
                             verificationGasLimit,
-                            preVerificationGas,
-                          };
+                            preVerificationGas
+                          }
 
-                          var { nativeCurrencySymbol, requiredPrefundWei } =
+                          const { nativeCurrencySymbol, requiredPrefundWei } =
                             calculateRequiredPrefundV6(
                               estimatedUserOperation,
                               viemChain,
-                              testChain,
-                            );
+                              testChain
+                            )
 
                           // expect the requiredPrefundWei to be greater then 0
-                          expect(requiredPrefundWei).toBeGreaterThan(0n);
+                          expect(requiredPrefundWei).toBeGreaterThan(0n)
 
                           const { paid } = await entryPoint.simulateHandleOp({
                             userOperation: estimatedUserOperation,
@@ -436,31 +436,31 @@ describe("e2e", () => {
                             stateOverrides: new StateOverrideBuilder()
                               .overrideBalance(
                                 estimatedUserOperation.sender,
-                                parseEther("1000"),
+                                parseEther("1000")
                               )
                               .overridePaymasterDeposit(
                                 entryPoint.address,
                                 getPaymasterAddressFromPaymasterAndData(
-                                  paymasterAndData!,
-                                ),
+                                  paymasterAndData!
+                                )
                               )
-                              .build(),
-                          });
-                        }, 20_000);
-                      });
-                    },
-                  );
-                },
-              );
-            },
-          );
-        });
+                              .build()
+                          })
+                        }, 20_000)
+                      })
+                    }
+                  )
+                }
+              )
+            }
+          )
+        })
 
-        let testSender: Address | undefined;
+        let testSender: Address | undefined
         if (config.has(`testChains.${testChain.chainId}.testAddresses.v2`)) {
           testSender = config.get<Address>(
-            `testChains.${testChain.chainId}.testAddresses.v2`,
-          );
+            `testChains.${testChain.chainId}.testAddresses.v2`
+          )
         }
 
         describe.runIf(testSender)("Given a deployed smart account", () => {
@@ -468,34 +468,34 @@ describe("e2e", () => {
             describe("estimateUserOperationGas", () => {
               it("should return a gas estimate that doesn't revert", async () => {
                 // we are using an existing deployed account so we don't get AA20 account not deployed
-                const sender = testSender!;
-                const nonce = await entryPoint.getNonce(sender);
-                const initCode: Hex = "0x";
+                const sender = testSender!
+                const nonce = await entryPoint.getNonce(sender)
+                const initCode: Hex = "0x"
 
                 const unEstimatedUserOperation = {
                   ...userOperation,
                   sender,
                   nonce,
-                  initCode,
-                };
+                  initCode
+                }
 
                 const gasEstimate = await gasEstimator.estimateUserOperationGas(
                   {
                     unEstimatedUserOperation,
-                    baseFeePerGas,
-                  },
-                );
-                expect(gasEstimate).toBeDefined();
+                    baseFeePerGas
+                  }
+                )
+                expect(gasEstimate).toBeDefined()
 
                 const {
                   callGasLimit,
                   verificationGasLimit,
-                  preVerificationGas,
-                } = gasEstimate;
+                  preVerificationGas
+                } = gasEstimate
 
-                expect(callGasLimit).toBeGreaterThan(0n);
-                expect(verificationGasLimit).toBeGreaterThan(0n);
-                expect(preVerificationGas).toBeGreaterThan(0n);
+                expect(callGasLimit).toBeGreaterThan(0n)
+                expect(verificationGasLimit).toBeGreaterThan(0n)
+                expect(preVerificationGas).toBeGreaterThan(0n)
 
                 const estimatedUserOperation = {
                   ...unEstimatedUserOperation,
@@ -503,23 +503,23 @@ describe("e2e", () => {
                   verificationGasLimit,
                   preVerificationGas,
                   maxFeePerGas,
-                  maxPriorityFeePerGas,
-                };
+                  maxPriorityFeePerGas
+                }
 
                 const {
                   requiredPrefundEth,
                   nativeCurrencySymbol,
-                  requiredPrefundUsd,
+                  requiredPrefundUsd
                 } = calculateRequiredPrefundV6(
                   estimatedUserOperation,
                   viemChain,
-                  testChain,
-                );
+                  testChain
+                )
 
                 benchmarkResults[EntryPointVersion.v060][
                   testChain.name!
                 ].nativeTransfer =
-                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`
 
                 const { paid } = await gasEstimator.entryPoints[
                   EntryPointVersion.v060
@@ -532,70 +532,69 @@ describe("e2e", () => {
                   stateOverrides: new StateOverrideBuilder()
                     .overrideBalance(
                       estimatedUserOperation.sender,
-                      1000000000000000000n,
+                      1000000000000000000n
                     )
-                    .build(),
-                });
+                    .build()
+                })
 
-                expect(paid).toBeGreaterThan(0n);
-              }, 20_000);
-            });
-          });
-        });
-      },
-    );
+                expect(paid).toBeGreaterThan(0n)
+              }, 20_000)
+            })
+          })
+        })
+      }
+    )
 
     describe.runIf(testChain.smartAccountSupport.nexus)(
       "Using EntryPoint v0.7.0",
       () => {
         const gasEstimator = createGasEstimator({
           chainId: testChain.chainId,
-          rpc: viemClient,
-        });
+          rpc: viemClient
+        })
 
         const entryPoint =
-          gasEstimator.entryPoints[EntryPointVersion.v070].contract;
+          gasEstimator.entryPoints[EntryPointVersion.v070].contract
 
-        let nexusClient: NexusClient;
-        let userOperation: UserOperationV7;
+        let nexusClient: NexusClient
+        let userOperation: UserOperationV7
 
-        const paymasters = testChain?.paymasters?.v070;
+        const paymasters = testChain?.paymasters?.v070
 
         const sponsorshipPaymaster = paymasters
           ? Object.entries(paymasters).find(
-              ([_, paymasterDetails]) =>
-                paymasterDetails.type === "sponsorship",
+              ([_, paymasterDetails]) => paymasterDetails.type === "sponsorship"
             )
-          : undefined;
+          : undefined
 
         const tokenPaymaster = paymasters
           ? Object.entries(paymasters).find(
-              ([_, paymasterDetails]) => paymasterDetails.type === "token",
+              ([_, paymasterDetails]) => paymasterDetails.type === "token"
             )
-          : undefined;
+          : undefined
 
         beforeAll(async () => {
           try {
             const chain =
               viemChain ||
-              getCustomChain(testChain.name!, testChain.chainId, rpcUrl, "");
+              getCustomChain(testChain.name!, testChain.chainId, rpcUrl, "")
 
             nexusClient = await createNexusClient({
               signer: account,
               chain,
               transport,
-              bundlerTransport: transport,
-            });
+              bundlerTransport: transport
+            })
 
             const { factory, factoryData } =
-              await nexusClient.account.getFactoryArgs();
+              await nexusClient.account.getFactoryArgs()
 
             if (!factory) {
-              throw new Error("Factory address is not defined");
+              throw new Error("Factory address is not defined")
             }
 
             if (!factoryData) {
-              throw new Error("Factory data is not defined");
+              throw new Error("Factory data is not defined")
             }
 
             const unsignedUserOperation = {
@@ -603,7 +602,7 @@ describe("e2e", () => {
               callData: await nexusClient.account.encodeExecute({
                 to: zeroAddress,
                 data: "0x",
-                value: 1n,
+                value: 1n
               }),
               callGasLimit: 1n,
               maxFeePerGas,
@@ -613,21 +612,21 @@ describe("e2e", () => {
               verificationGasLimit: 1n,
               factory,
               factoryData,
-              signature: "0x" as Hex,
-            };
+              signature: "0x" as Hex
+            }
 
             const signature = await nexusClient.account.signUserOperation(
-              unsignedUserOperation,
-            );
+              unsignedUserOperation
+            )
 
-            unsignedUserOperation.signature = signature;
+            unsignedUserOperation.signature = signature
 
-            userOperation = userOperationV7Schema.parse(unsignedUserOperation);
+            userOperation = userOperationV7Schema.parse(unsignedUserOperation)
           } catch (err: any) {
-            console.error(err);
-            throw err.message;
+            console.error(err)
+            throw err.message
           }
-        }, 20_000);
+        }, 20_000)
 
         describe("Given an undeployed smart account", () => {
           describe("Without a paymaster", () => {
@@ -635,49 +634,49 @@ describe("e2e", () => {
               it("should return a gas estimate that doesn't revert", async () => {
                 const estimate = await gasEstimator.estimateUserOperationGas({
                   unEstimatedUserOperation: userOperation,
-                  baseFeePerGas,
-                });
+                  baseFeePerGas
+                })
 
                 if (!isEstimateUserOperationGasResultV7(estimate)) {
-                  throw new Error("Expected EstimateUserOperationGasResultV7");
+                  throw new Error("Expected EstimateUserOperationGasResultV7")
                 }
 
-                expect(estimate).toBeDefined();
+                expect(estimate).toBeDefined()
                 const {
                   callGasLimit,
                   verificationGasLimit,
                   preVerificationGas,
                   paymasterPostOpGasLimit,
-                  paymasterVerificationGasLimit,
-                } = estimate;
+                  paymasterVerificationGasLimit
+                } = estimate
 
-                expect(callGasLimit).toBeGreaterThan(0n);
-                expect(verificationGasLimit).toBeGreaterThan(0n);
-                expect(preVerificationGas).toBeGreaterThan(0n);
-                expect(paymasterPostOpGasLimit).toBe(0n);
-                expect(paymasterVerificationGasLimit).toBe(0n);
+                expect(callGasLimit).toBeGreaterThan(0n)
+                expect(verificationGasLimit).toBeGreaterThan(0n)
+                expect(preVerificationGas).toBeGreaterThan(0n)
+                expect(paymasterPostOpGasLimit).toBe(0n)
+                expect(paymasterVerificationGasLimit).toBe(0n)
 
                 const estimatedUserOperation = {
                   ...userOperation,
                   callGasLimit,
                   verificationGasLimit,
-                  preVerificationGas,
-                };
+                  preVerificationGas
+                }
 
                 const {
                   requiredPrefundEth,
                   nativeCurrencySymbol,
-                  requiredPrefundUsd,
+                  requiredPrefundUsd
                 } = calculateRequiredPrefundV7(
                   estimatedUserOperation,
                   viemChain,
-                  testChain,
-                );
+                  testChain
+                )
 
                 benchmarkResults[EntryPointVersion.v070][
                   testChain.name!
                 ].smartAccountDeployment =
-                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`;
+                  `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`
 
                 const { paid } = await entryPoint.simulateHandleOp({
                   userOperation: estimatedUserOperation,
@@ -686,61 +685,59 @@ describe("e2e", () => {
                   stateOverrides: new StateOverrideBuilder()
                     .overrideBalance(
                       estimatedUserOperation.sender,
-                      1000000000000000000n,
+                      1000000000000000000n
                     )
-                    .build(),
-                });
+                    .build()
+                })
 
-                expect(paid).toBeGreaterThan(0n);
-              }, 10_000);
-            });
-          });
+                expect(paid).toBeGreaterThan(0n)
+              }, 10_000)
+            })
+          })
 
           describe.runIf(sponsorshipPaymaster)(
             "Given a sponsorship paymaster",
             () => {
-              let paymaster: Address;
-              let paymasterData: Hex;
+              let paymaster: Address
+              let paymasterData: Hex
 
               beforeAll(() => {
-                paymaster = sponsorshipPaymaster![0] as Address;
+                paymaster = sponsorshipPaymaster![0] as Address
                 paymasterData = sponsorshipPaymaster![1]
-                  .dummyPaymasterData as Hex;
-              });
+                  .dummyPaymasterData as Hex
+              })
 
               describe("estimateUserOperationGas", () => {
                 it("should return a gas estimate that doesn't revert", async () => {
                   const unEstimatedUserOperation = {
                     ...userOperation,
                     paymaster,
-                    paymasterData,
-                  };
+                    paymasterData
+                  }
 
                   const estimate = await gasEstimator.estimateUserOperationGas({
                     unEstimatedUserOperation,
-                    baseFeePerGas,
-                  });
+                    baseFeePerGas
+                  })
 
                   if (!isEstimateUserOperationGasResultV7(estimate)) {
-                    throw new Error(
-                      "Expected EstimateUserOperationGasResultV7",
-                    );
+                    throw new Error("Expected EstimateUserOperationGasResultV7")
                   }
 
-                  expect(estimate).toBeDefined();
+                  expect(estimate).toBeDefined()
                   const {
                     callGasLimit,
                     verificationGasLimit,
                     preVerificationGas,
                     paymasterPostOpGasLimit,
-                    paymasterVerificationGasLimit,
-                  } = estimate;
+                    paymasterVerificationGasLimit
+                  } = estimate
 
-                  expect(callGasLimit).toBeGreaterThan(0n);
-                  expect(verificationGasLimit).toBeGreaterThan(0n);
-                  expect(preVerificationGas).toBeGreaterThan(0n);
-                  expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
-                  expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
+                  expect(callGasLimit).toBeGreaterThan(0n)
+                  expect(verificationGasLimit).toBeGreaterThan(0n)
+                  expect(preVerificationGas).toBeGreaterThan(0n)
+                  expect(paymasterPostOpGasLimit).toBeGreaterThan(0n)
+                  expect(paymasterVerificationGasLimit).toBeGreaterThan(0n)
 
                   const estimatedUserOperation = {
                     ...userOperation,
@@ -748,8 +745,8 @@ describe("e2e", () => {
                     verificationGasLimit,
                     preVerificationGas,
                     paymasterPostOpGasLimit,
-                    paymasterVerificationGasLimit,
-                  };
+                    paymasterVerificationGasLimit
+                  }
 
                   const { paid } = await entryPoint.simulateHandleOp({
                     userOperation: estimatedUserOperation,
@@ -758,44 +755,44 @@ describe("e2e", () => {
                     stateOverrides: new StateOverrideBuilder()
                       .overrideBalance(
                         estimatedUserOperation.sender,
-                        parseEther("1000"),
+                        parseEther("1000")
                       )
                       .overridePaymasterDeposit(entryPoint.address, paymaster)
-                      .build(),
-                  });
+                      .build()
+                  })
 
-                  expect(paid).toBeGreaterThan(0n);
-                });
-              });
-            },
-          );
+                  expect(paid).toBeGreaterThan(0n)
+                })
+              })
+            }
+          )
 
           describe.runIf(tokenPaymaster)("Given a token paymaster", () => {
-            let paymaster: Address;
-            let paymasterData: Hex;
+            let paymaster: Address
+            let paymasterData: Hex
 
             beforeAll(() => {
-              paymaster = tokenPaymaster![0] as Address;
-              paymasterData = tokenPaymaster![1].dummyPaymasterData as Hex;
-            });
+              paymaster = tokenPaymaster![0] as Address
+              paymasterData = tokenPaymaster![1].dummyPaymasterData as Hex
+            })
 
             describe("estimateUserOperationGas", () => {
               it("should return a gas estimate that doesn't revert", async () => {
                 const unEstimatedUserOperation = {
                   ...userOperation,
                   paymaster,
-                  paymasterData,
-                };
+                  paymasterData
+                }
 
                 const estimate = await gasEstimator.estimateUserOperationGas({
                   unEstimatedUserOperation,
-                  baseFeePerGas,
-                });
+                  baseFeePerGas
+                })
 
-                expect(estimate).toBeDefined();
+                expect(estimate).toBeDefined()
 
                 if (!isEstimateUserOperationGasResultV7(estimate)) {
-                  throw new Error("Expected EstimateUserOperationGasResultV7");
+                  throw new Error("Expected EstimateUserOperationGasResultV7")
                 }
 
                 const {
@@ -803,14 +800,14 @@ describe("e2e", () => {
                   verificationGasLimit,
                   preVerificationGas,
                   paymasterPostOpGasLimit,
-                  paymasterVerificationGasLimit,
-                } = estimate;
+                  paymasterVerificationGasLimit
+                } = estimate
 
-                expect(callGasLimit).toBeGreaterThan(0n);
-                expect(verificationGasLimit).toBeGreaterThan(0n);
-                expect(preVerificationGas).toBeGreaterThan(0n);
-                expect(paymasterPostOpGasLimit).toBeGreaterThan(0n);
-                expect(paymasterVerificationGasLimit).toBeGreaterThan(0n);
+                expect(callGasLimit).toBeGreaterThan(0n)
+                expect(verificationGasLimit).toBeGreaterThan(0n)
+                expect(preVerificationGas).toBeGreaterThan(0n)
+                expect(paymasterPostOpGasLimit).toBeGreaterThan(0n)
+                expect(paymasterVerificationGasLimit).toBeGreaterThan(0n)
 
                 const estimatedUserOperation = {
                   ...userOperation,
@@ -818,8 +815,8 @@ describe("e2e", () => {
                   verificationGasLimit,
                   preVerificationGas,
                   paymasterPostOpGasLimit,
-                  paymasterVerificationGasLimit,
-                };
+                  paymasterVerificationGasLimit
+                }
 
                 const { paid } = await entryPoint.simulateHandleOp({
                   userOperation: estimatedUserOperation,
@@ -828,88 +825,88 @@ describe("e2e", () => {
                   stateOverrides: new StateOverrideBuilder()
                     .overrideBalance(
                       estimatedUserOperation.sender,
-                      parseEther("10"),
+                      parseEther("10")
                     )
                     .overridePaymasterDeposit(entryPoint.address, paymaster)
-                    .build(),
-                });
+                    .build()
+                })
 
-                expect(paid).toBeGreaterThan(0n);
-              });
-            });
-          });
-        });
-      },
-    );
-  });
-});
+                expect(paid).toBeGreaterThan(0n)
+              })
+            })
+          })
+        })
+      }
+    )
+  })
+})
 
 function filterTestChains() {
-  const includeChainIds = config.get<number[]>(`includeInTests`);
-  const excludeChainIds = config.get<number[]>(`excludeFromTests`);
+  const includeChainIds = config.get<number[]>("includeInTests")
+  const excludeChainIds = config.get<number[]>("excludeFromTests")
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
       chain.stateOverrideSupport.balance &&
       !excludeChainIds.includes(chain.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId)),
-  );
+      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
+  )
 
-  return testChains;
+  return testChains
 }
 
 function calculateRequiredPrefundV6(
   userOperation: UserOperationV6,
   chain: chains.Chain,
-  testChain: SupportedChain,
+  testChain: SupportedChain
 ) {
-  const requiredPrefundWei = getRequiredPrefund(userOperation);
+  const requiredPrefundWei = getRequiredPrefund(userOperation)
 
-  const requiredPrefundEth = formatEther(requiredPrefundWei);
+  const requiredPrefundEth = formatEther(requiredPrefundWei)
 
-  let ethPriceUsd = 0;
-  let requiredPrefundUsd = "0";
+  let ethPriceUsd = 0
+  let requiredPrefundUsd = "0"
 
   const nativeCurrencySymbol =
-    chain?.nativeCurrency.symbol || testChain.nativeCurrency;
+    chain?.nativeCurrency.symbol || testChain.nativeCurrency
   if (config.has(`benchmarkPricesUSD.${nativeCurrencySymbol}`)) {
     ethPriceUsd = config.get<number>(
-      `benchmarkPricesUSD.${nativeCurrencySymbol}`,
-    ); // usd
-    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4);
+      `benchmarkPricesUSD.${nativeCurrencySymbol}`
+    ) // usd
+    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4)
   }
   return {
     requiredPrefundEth,
     nativeCurrencySymbol,
     requiredPrefundUsd,
-    requiredPrefundWei,
-  };
+    requiredPrefundWei
+  }
 }
 
 function calculateRequiredPrefundV7(
   userOperation: UserOperationV7,
   chain: chains.Chain,
-  testChain: SupportedChain,
+  testChain: SupportedChain
 ) {
-  const requiredPrefundWei = getRequiredPrefund(userOperation);
+  const requiredPrefundWei = getRequiredPrefund(userOperation)
 
-  const requiredPrefundEth = formatEther(requiredPrefundWei);
+  const requiredPrefundEth = formatEther(requiredPrefundWei)
 
-  let ethPriceUsd = 0;
-  let requiredPrefundUsd = "0";
+  let ethPriceUsd = 0
+  let requiredPrefundUsd = "0"
 
   const nativeCurrencySymbol =
-    chain?.nativeCurrency.symbol || testChain.nativeCurrency;
+    chain?.nativeCurrency.symbol || testChain.nativeCurrency
   if (config.has(`benchmarkPricesUSD.${nativeCurrencySymbol}`)) {
     ethPriceUsd = config.get<number>(
-      `benchmarkPricesUSD.${nativeCurrencySymbol}`,
-    ); // usd
-    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4);
+      `benchmarkPricesUSD.${nativeCurrencySymbol}`
+    ) // usd
+    requiredPrefundUsd = (Number(requiredPrefundEth) * ethPriceUsd).toFixed(4)
   }
   return {
     requiredPrefundEth,
     nativeCurrencySymbol,
     requiredPrefundUsd,
-    requiredPrefundWei,
-  };
+    requiredPrefundWei
+  }
 }

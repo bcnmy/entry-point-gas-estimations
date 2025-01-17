@@ -1,2 +1,2 @@
 export const ENTRYPOINT_PAYMASTER_BALANCE_STATE_DIFF_VALUE =
-  "0x000000ffffffffffffffffffffffffffff00ffffffffffffffffffffffffffff";
+  "0x000000ffffffffffffffffffffffffffff00ffffffffffffffffffffffffffff"

@@ -1,11 +1,18 @@
-import { Address, concat, encodeAbiParameters, Hex, pad, toHex } from "viem";
+import {
+  type Address,
+  type Hex,
+  concat,
+  encodeAbiParameters,
+  pad,
+  toHex
+} from "viem"
+import z from "zod"
 import {
   addressSchema,
   hexData32Schema,
   hexDataSchema,
-  hexNumberSchema,
-} from "../../shared/types";
-import z from "zod";
+  hexNumberSchema
+} from "../../shared/types"
 
 export const userOperationV7Schema = z
   .object({
@@ -23,7 +30,7 @@ export const userOperationV7Schema = z
     paymasterData: z.string().optional(),
     paymasterVerificationGasLimit: z.coerce.bigint().optional(),
     paymasterPostOpGasLimit: z.coerce.bigint().optional(),
-    signature: z.string(),
+    signature: z.string()
   })
   .transform((val) => ({
     ...val,
@@ -33,10 +40,10 @@ export const userOperationV7Schema = z
     callData: val.callData as Hex,
     paymaster: val.paymaster as Hex,
     paymasterData: val.paymasterData as Hex,
-    signature: val.signature as Hex,
-  }));
+    signature: val.signature as Hex
+  }))
 
-export type UserOperationV7 = z.infer<typeof userOperationV7Schema>;
+export type UserOperationV7 = z.infer<typeof userOperationV7Schema>
 
 const packedUserOperationSchema = z
   .object({
@@ -48,12 +55,12 @@ const packedUserOperationSchema = z
     preVerificationGas: hexNumberSchema,
     gasFees: hexData32Schema,
     paymasterAndData: hexDataSchema,
-    signature: hexDataSchema,
+    signature: hexDataSchema
   })
   .strict()
-  .transform((val) => val);
+  .transform((val) => val)
 
-export type PackedUserOperation = z.infer<typeof packedUserOperationSchema>;
+export type PackedUserOperation = z.infer<typeof packedUserOperationSchema>
 
 export function toPackedUserOperation(
   unpackedUserOperation: UserOperationV7
@@ -67,35 +74,35 @@ export function toPackedUserOperation(
     preVerificationGas: unpackedUserOperation.preVerificationGas,
     gasFees: getGasLimits(unpackedUserOperation),
     paymasterAndData: getPaymasterAndData(unpackedUserOperation),
-    signature: unpackedUserOperation.signature,
-  };
+    signature: unpackedUserOperation.signature
+  }
 }
 
 export function getInitCode(unpackedUserOperation: UserOperationV7) {
   return unpackedUserOperation.factory
     ? concat([
         unpackedUserOperation.factory,
-        unpackedUserOperation.factoryData || ("0x" as Hex),
+        unpackedUserOperation.factoryData || ("0x" as Hex)
       ])
-    : "0x";
+    : "0x"
 }
 
 export function getAccountGasLimits(unpackedUserOperation: UserOperationV7) {
   return concat([
     pad(toHex(unpackedUserOperation.verificationGasLimit), {
-      size: 16,
+      size: 16
     }),
-    pad(toHex(unpackedUserOperation.callGasLimit), { size: 16 }),
-  ]);
+    pad(toHex(unpackedUserOperation.callGasLimit), { size: 16 })
+  ])
 }
 
 export function getGasLimits(unpackedUserOperation: UserOperationV7) {
   return concat([
     pad(toHex(unpackedUserOperation.maxPriorityFeePerGas), {
-      size: 16,
+      size: 16
     }),
-    pad(toHex(unpackedUserOperation.maxFeePerGas), { size: 16 }),
-  ]);
+    pad(toHex(unpackedUserOperation.maxFeePerGas), { size: 16 })
+  ])
 }
 
 export function getPaymasterAndData(unpackedUserOperation: UserOperationV7) {
@@ -103,14 +110,14 @@ export function getPaymasterAndData(unpackedUserOperation: UserOperationV7) {
     ? concat([
         unpackedUserOperation.paymaster,
         pad(toHex(unpackedUserOperation.paymasterVerificationGasLimit || 0n), {
-          size: 16,
+          size: 16
         }),
         pad(toHex(unpackedUserOperation.paymasterPostOpGasLimit || 0n), {
-          size: 16,
+          size: 16
         }),
-        unpackedUserOperation.paymasterData || ("0x" as Hex),
+        unpackedUserOperation.paymasterData || ("0x" as Hex)
       ])
-    : "0x";
+    : "0x"
 }
 
 export function packUserOpV7(op: PackedUserOperation): Hex {
@@ -119,48 +126,48 @@ export function packUserOpV7(op: PackedUserOperation): Hex {
       {
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "bytes",
         name: "initCode",
-        type: "bytes",
+        type: "bytes"
       },
       {
         internalType: "bytes",
         name: "callData",
-        type: "bytes",
+        type: "bytes"
       },
       {
         internalType: "uint256",
         name: "accountGasLimits",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "uint256",
         name: "preVerificationGas",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "gasFees",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         internalType: "bytes",
         name: "paymasterAndData",
-        type: "bytes",
+        type: "bytes"
       },
       {
         internalType: "bytes",
         name: "signature",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     [
       op.sender,
@@ -171,7 +178,7 @@ export function packUserOpV7(op: PackedUserOperation): Hex {
       op.preVerificationGas, // need non zero bytes to get better estimations for preVerificationGas
       op.gasFees, // need non zero bytes to get better estimations for preVerificationGas
       op.paymasterAndData,
-      op.signature,
+      op.signature
     ]
-  );
+  )
 }

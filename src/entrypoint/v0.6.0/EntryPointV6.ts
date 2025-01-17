@@ -1,22 +1,27 @@
-import { Address, decodeErrorResult, encodeFunctionData, Hex } from "viem";
-
 import {
+  type Address,
+  type Hex,
+  decodeErrorResult,
+  encodeFunctionData
+} from "viem"
+
+import type { StateOverrideSet } from "../../shared/types"
+import { type EntryPointRpcClient, EntryPointVersion } from "../shared/types"
+import { type UserOperationV6, userOperationV6Schema } from "./UserOperationV6"
+import { ENTRYPOINT_V6_ABI } from "./abi"
+import { ENTRYPOINT_V6_ADDRESS } from "./constants"
+import {
+  type ExecutionResultV6,
+  ParseError,
   SimulateHandleOpError,
   errorWithCauseSchema,
   errorWithNestedCauseSchema,
-  ExecutionResultV6,
-  executionResultSchema,
-  ParseError,
-} from "./types";
-import { ENTRYPOINT_V6_ABI } from "./abi";
-import { ENTRYPOINT_V6_ADDRESS } from "./constants";
-import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
-import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
-import { StateOverrideSet } from "../../shared/types";
+  executionResultSchema
+} from "./types"
 
 export class EntryPointV6 {
-  public version = EntryPointVersion.v060;
-  public abi = ENTRYPOINT_V6_ABI;
+  public version = EntryPointVersion.v060
+  public abi = ENTRYPOINT_V6_ABI
 
   constructor(
     protected client: EntryPointRpcClient,
@@ -35,9 +40,9 @@ export class EntryPointV6 {
     userOperation,
     targetAddress,
     targetCallData,
-    stateOverrides,
+    stateOverrides
   }: SimulateHandleOpParams): Promise<ExecutionResultV6> {
-    userOperation = userOperationV6Schema.parse(userOperation);
+    userOperation = userOperationV6Schema.parse(userOperation)
 
     const simulateHandleOpParams: any = [
       {
@@ -45,25 +50,25 @@ export class EntryPointV6 {
         data: encodeFunctionData({
           abi: this.abi,
           functionName: "simulateHandleOp",
-          args: [userOperation, targetAddress, targetCallData],
-        }),
+          args: [userOperation, targetAddress, targetCallData]
+        })
       },
-      "latest",
-    ];
+      "latest"
+    ]
 
     if (stateOverrides) {
-      simulateHandleOpParams.push(stateOverrides);
+      simulateHandleOpParams.push(stateOverrides)
     }
 
     try {
       await this.client.request({
         method: "eth_call",
-        params: simulateHandleOpParams,
-      });
-      throw new Error("SimulateHandleOp should always revert");
+        params: simulateHandleOpParams
+      })
+      throw new Error("SimulateHandleOp should always revert")
     } catch (err: any) {
-      const data = this.parseRpcRequestErrorData(err);
-      return this.parseSimulateHandleOpExecutionResult(data);
+      const data = this.parseRpcRequestErrorData(err)
+      return this.parseSimulateHandleOpExecutionResult(data)
     }
   }
 
@@ -72,21 +77,21 @@ export class EntryPointV6 {
       address: this.address,
       abi: this.abi,
       functionName: "getNonce",
-      args: [smartAccountAddress, key],
-    });
+      args: [smartAccountAddress, key]
+    })
   }
 
   encodeHandleOpsFunctionData(
     userOperation: UserOperationV6,
     beneficiary: Address
   ): Hex {
-    userOperation = userOperationV6Schema.parse(userOperation);
+    userOperation = userOperationV6Schema.parse(userOperation)
 
     return encodeFunctionData({
       abi: this.abi,
       functionName: "handleOps",
-      args: [[userOperation], beneficiary],
-    });
+      args: [[userOperation], beneficiary]
+    })
   }
 
   /**
@@ -96,28 +101,28 @@ export class EntryPointV6 {
    * @returns
    */
   protected parseRpcRequestErrorData(err: unknown) {
-    let data: Hex = "0x";
+    let data: Hex = "0x"
 
     // parse error.cause
-    const parseResult = errorWithCauseSchema.safeParse(err);
+    const parseResult = errorWithCauseSchema.safeParse(err)
     if (parseResult.success) {
-      const { cause } = parseResult.data;
-      data = cause.data as Hex;
+      const { cause } = parseResult.data
+      data = cause.data as Hex
     } else {
       // otherwise try to parse error.cause.cause
-      const nestedParseResult = errorWithNestedCauseSchema.safeParse(err);
+      const nestedParseResult = errorWithNestedCauseSchema.safeParse(err)
       if (nestedParseResult.success) {
-        const { cause } = nestedParseResult.data;
-        data = cause.cause.data as Hex;
+        const { cause } = nestedParseResult.data
+        data = cause.cause.data as Hex
       }
     }
 
     // If we couldn't parse the error, throw a ParseError
     if (data === "0x") {
-      throw new ParseError(err);
+      throw new ParseError(err)
     }
 
-    return data;
+    return data
   }
 
   /**
@@ -129,16 +134,16 @@ export class EntryPointV6 {
     if (data.includes("Incorrect parameters count")) {
       throw new SimulateHandleOpError(
         `RPC failed to perform a state override with message: ${data}. This is likely temporary, try again later.`
-      );
+      )
     }
 
     const decodedError = decodeErrorResult({
       abi: this.abi,
-      data: data as Hex,
-    });
+      data: data as Hex
+    })
 
     if (decodedError.args == null) {
-      throw new ParseError(decodedError);
+      throw new ParseError(decodedError)
     }
 
     if (decodedError.errorName !== "ExecutionResult") {
@@ -146,21 +151,21 @@ export class EntryPointV6 {
         decodedError.args
           ? (decodedError.args[1] as string)
           : decodedError.errorName
-      );
+      )
     }
 
-    const parseResult = executionResultSchema.safeParse(decodedError.args);
+    const parseResult = executionResultSchema.safeParse(decodedError.args)
     if (!parseResult.success) {
-      throw new ParseError(decodedError.args);
+      throw new ParseError(decodedError.args)
     }
 
-    return parseResult.data;
+    return parseResult.data
   }
 }
 
 interface SimulateHandleOpParams {
-  userOperation: UserOperationV6;
-  targetAddress: Address;
-  targetCallData: Hex;
-  stateOverrides?: StateOverrideSet;
+  userOperation: UserOperationV6
+  targetAddress: Address
+  targetCallData: Hex
+  stateOverrides?: StateOverrideSet
 }

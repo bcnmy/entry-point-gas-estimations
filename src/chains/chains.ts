@@ -1,79 +1,79 @@
-import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants";
-import { ChainStack, SupportedChain } from "./types";
+import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants"
+import { ChainStack, type SupportedChain } from "./types"
 
 // TODO: Move the constants into the files where they belong
 export const DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS =
-  "0x00000f79b7faf42eebadba19acc07cd08af44789";
+  "0x00000f79b7faf42eebadba19acc07cd08af44789"
 
 export const DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS =
-  "0x00000f7365cA6C59A2C93719ad53d567ed49c14C";
+  "0x00000f7365cA6C59A2C93719ad53d567ed49c14C"
 
 const DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS =
-  "0x00000072a5f551d6e80b2f6ad4fb256a27841bbc";
+  "0x00000072a5f551d6e80b2f6ad4fb256a27841bbc"
 const DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_DEPOSITS_STATE_KEY =
-  "0x354335c2702ea6531294c3a1571e6565fa3ef5f6c44a98e1b0c28dacf8c2a9ba";
+  "0x354335c2702ea6531294c3a1571e6565fa3ef5f6c44a98e1b0c28dacf8c2a9ba"
 
 const DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS =
-  "0x00000000301515A5410e0d768aF4f53c416edf19";
+  "0x00000000301515A5410e0d768aF4f53c416edf19"
 const DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DEPOSITS_STATE_KEY =
-  "0xca2edac642186a7c1820b405da08488d91db4bdbbbd4e0b687d2f4f822a383c5";
+  "0xca2edac642186a7c1820b405da08488d91db4bdbbbd4e0b687d2f4f822a383c5"
 
 const DEFAULT_ENTRYPOINT_V7_DEPOSITS_STATE = {
   [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-    stateKey: DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_DEPOSITS_STATE_KEY,
+    stateKey: DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_DEPOSITS_STATE_KEY
   },
   [DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS]: {
-    stateKey: DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DEPOSITS_STATE_KEY,
-  },
-};
+    stateKey: DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DEPOSITS_STATE_KEY
+  }
+}
 
 const DEFAULT_ENTRYPOINT_V070 = {
   address: ENTRYPOINT_V7_ADDRESS,
   state: {
-    deposits: DEFAULT_ENTRYPOINT_V7_DEPOSITS_STATE,
-  },
-};
+    deposits: DEFAULT_ENTRYPOINT_V7_DEPOSITS_STATE
+  }
+}
 
 const DEFAULT_ENTRYPOINTS = {
-  v070: DEFAULT_ENTRYPOINT_V070,
-};
+  v070: DEFAULT_ENTRYPOINT_V070
+}
 
 const DEFAULT_EP_V6_SPONSORSHIP_DUMMY_PAYMASTER_DATA =
-  "0x00000f79b7faf42eebadba19acc07cd08af44789000000000000000000000000d02329b31d6a7b33173f2197c7b04eaf68f8184a0000000000000000000000000000000000000000000000000000000064ec68050000000000000000000000000000000000000000000000000000000064ec60fd00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000041cf370ae2342424930fd7187a4c42861c974dbe78d7f99eb3398b24c5c338325c5cc5946685ad489c5a130e68c0154f51413b83178c868b560bbf2c25b8f0e3b71c00000000000000000000000000000000000000000000000000000000000000";
+  "0x00000f79b7faf42eebadba19acc07cd08af44789000000000000000000000000d02329b31d6a7b33173f2197c7b04eaf68f8184a0000000000000000000000000000000000000000000000000000000064ec68050000000000000000000000000000000000000000000000000000000064ec60fd00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000041cf370ae2342424930fd7187a4c42861c974dbe78d7f99eb3398b24c5c338325c5cc5946685ad489c5a130e68c0154f51413b83178c868b560bbf2c25b8f0e3b71c00000000000000000000000000000000000000000000000000000000000000"
 
 const DEFAULT_ENTRYPOINT_V6_PAYMASTERS = {
   [DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS]: {
     type: "sponsorship",
-    dummyPaymasterAndData: DEFAULT_EP_V6_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+    dummyPaymasterAndData: DEFAULT_EP_V6_SPONSORSHIP_DUMMY_PAYMASTER_DATA
   },
   [DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS]: {
     type: "token",
     dummyPaymasterAndData:
-      "0x00000f7365cA6C59A2C93719ad53d567ed49c14C010000000000000000000000000000000000000000000000000000000064c7adcb0000000000000000000000000000000000000000000000000000000064c7a6c3000000000000000000000000da5289fcaaf71d52a80a254da614a192b693e9770000000000000000000000000000065b8abb967271817555f23945eedf08015c00000000000000000000000000000000000000000000000000000000000ab5d1000000000000000000000000000000000000000000000000000000000010c8e021a75b2144ea22b77bdeea206e69faea1b18c91a08a76de6cd424dc80bea283413fa08519fcee3960203e1d6ebebe7c34ffe27ea47452fd4dca0013e1d36da7f1b",
-  },
-};
+      "0x00000f7365cA6C59A2C93719ad53d567ed49c14C010000000000000000000000000000000000000000000000000000000064c7adcb0000000000000000000000000000000000000000000000000000000064c7a6c3000000000000000000000000da5289fcaaf71d52a80a254da614a192b693e9770000000000000000000000000000065b8abb967271817555f23945eedf08015c00000000000000000000000000000000000000000000000000000000000ab5d1000000000000000000000000000000000000000000000000000000000010c8e021a75b2144ea22b77bdeea206e69faea1b18c91a08a76de6cd424dc80bea283413fa08519fcee3960203e1d6ebebe7c34ffe27ea47452fd4dca0013e1d36da7f1b"
+  }
+}
 
 const DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA =
-  "0x2a07706473244bc757e10f2a9e86fb532828afe30000111111000000999999990011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b";
+  "0x2a07706473244bc757e10f2a9e86fb532828afe30000111111000000999999990011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b"
 
 const DEFAULT_ENTRYPOINT_V7_PAYMASTERS = {
   [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
     type: "sponsorship",
     dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-    postOpGasLimit: 50000n,
+    postOpGasLimit: 50000n
   },
   [DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS]: {
     type: "token",
     dummyPaymasterData:
       "0x000000111111000000999999992a07706473244bc757e10f2a9e86fb532828afe30000000000000000000000000000000000000000000000c1f6b98af18ba800000011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b",
-    postOpGasLimit: 95000n,
-  },
-};
+    postOpGasLimit: 95000n
+  }
+}
 
 export const DEFAULT_PAYMASTERS = {
   v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-  v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS,
-};
+  v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS
+}
 
 export const supportedChains: Record<string, SupportedChain> = {
   "1": {
@@ -85,14 +85,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "11155111": {
     chainId: 11155111,
@@ -103,14 +103,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "137": {
     chainId: 137,
@@ -121,14 +121,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "80002": {
     chainId: 80002,
@@ -139,11 +139,11 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
     paymasters: {
@@ -152,10 +152,10 @@ export const supportedChains: Record<string, SupportedChain> = {
         [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
           type: "sponsorship",
           dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n,
-        },
-      },
-    },
+          postOpGasLimit: 50000n
+        }
+      }
+    }
   },
   "56": {
     chainId: 56,
@@ -166,14 +166,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "97": {
     chainId: 97,
@@ -184,14 +184,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "1101": {
     chainId: 1101,
@@ -202,15 +202,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "2442": {
     chainId: 2442,
@@ -221,15 +221,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "42161": {
     chainId: 42161,
@@ -240,14 +240,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "421614": {
     chainId: 421614,
@@ -258,14 +258,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "42170": {
     chainId: 42170,
@@ -276,15 +276,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "10": {
     chainId: 10,
@@ -295,14 +295,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "11155420": {
     chainId: 11155420,
@@ -313,14 +313,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "43114": {
     chainId: 43114,
@@ -331,15 +331,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "43113": {
     chainId: 43113,
@@ -350,15 +350,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "8453": {
     chainId: 8453,
@@ -369,14 +369,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "84532": {
     chainId: 84532,
@@ -387,14 +387,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "59144": {
     chainId: 59144,
@@ -405,15 +405,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "5000": {
     chainId: 5000,
@@ -424,15 +424,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "5001": {
     chainId: 5001,
@@ -443,15 +443,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "204": {
     chainId: 204,
@@ -462,15 +462,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "5611": {
     chainId: 5611,
@@ -481,15 +481,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "88888": {
     chainId: 88888,
@@ -499,26 +499,26 @@ export const supportedChains: Record<string, SupportedChain> = {
     eip1559: false,
     entryPoints: {
       v060: {
-        address: "0x00000061fefce24a79343c27127435286bb7a4e1",
-      },
+        address: "0x00000061fefce24a79343c27127435286bb7a4e1"
+      }
     },
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
       v060: {
         [DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS]: {
           type: "sponsorship",
-          dummyPaymasterAndData: DEFAULT_EP_V6_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-        },
-      },
-    },
+          dummyPaymasterAndData: DEFAULT_EP_V6_SPONSORSHIP_DUMMY_PAYMASTER_DATA
+        }
+      }
+    }
   },
   "88882": {
     chainId: 88882,
@@ -528,21 +528,21 @@ export const supportedChains: Record<string, SupportedChain> = {
     eip1559: false,
     entryPoints: {
       v060: {
-        address: "0x00000061fefce24a79343c27127435286bb7a4e1",
-      },
+        address: "0x00000061fefce24a79343c27127435286bb7a4e1"
+      }
     },
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "592": {
     chainId: 592,
@@ -553,15 +553,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "81": {
     chainId: 81,
@@ -572,15 +572,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1116": {
     chainId: 1116,
@@ -591,15 +591,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1115": {
     chainId: 1115,
@@ -610,15 +610,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "169": {
     chainId: 169,
@@ -629,15 +629,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "9980": {
     chainId: 9980,
@@ -649,15 +649,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1715": {
     chainId: 1715,
@@ -669,15 +669,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "81457": {
     chainId: 81457,
@@ -688,14 +688,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "168587773": {
     chainId: 168587773,
@@ -706,14 +706,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "534352": {
     chainId: 534352,
@@ -724,15 +724,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "534351": {
     chainId: 534351,
@@ -743,15 +743,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "27827": {
     chainId: 27827,
@@ -763,15 +763,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "56400": {
     chainId: 56400,
@@ -783,15 +783,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "7000": {
     chainId: 7000,
@@ -802,15 +802,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "7001": {
     chainId: 7001,
@@ -821,15 +821,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "4653": {
     chainId: 4653,
@@ -841,15 +841,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "8101902": {
     chainId: 8101902,
@@ -860,15 +860,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "666666666": {
     chainId: 666666666,
@@ -879,15 +879,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "5003": {
     chainId: 5003,
@@ -898,15 +898,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "100": {
     chainId: 100,
@@ -917,14 +917,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "10200": {
     chainId: 10200,
@@ -935,13 +935,13 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
-    paymasters: DEFAULT_PAYMASTERS,
+    paymasters: DEFAULT_PAYMASTERS
   },
   "195": {
     chainId: 195,
@@ -952,15 +952,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "196": {
     chainId: 196,
@@ -971,15 +971,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "2818": {
     chainId: 2818,
@@ -990,15 +990,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "2810": {
     chainId: 2810,
@@ -1009,15 +1009,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "5845": {
     chainId: 5845,
@@ -1028,15 +1028,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "3799": {
     chainId: 3799,
@@ -1047,15 +1047,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "167000": {
     chainId: 167000,
@@ -1066,15 +1066,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "167009": {
     chainId: 167009,
@@ -1085,15 +1085,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "80084": {
     chainId: 80084,
@@ -1104,11 +1104,11 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: true,
+      nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
     paymasters: {
@@ -1117,10 +1117,10 @@ export const supportedChains: Record<string, SupportedChain> = {
         [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
           type: "sponsorship",
           dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n,
-        },
-      },
-    },
+          postOpGasLimit: 50000n
+        }
+      }
+    }
   },
   "1328": {
     chainId: 1328,
@@ -1131,20 +1131,20 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     simulation: {
       preVerificationGas: 1000000n,
       callGasLimit: 5000000n,
-      verificationGasLimit: 2000000n,
+      verificationGasLimit: 2000000n
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1329": {
     chainId: 1329,
@@ -1155,20 +1155,20 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     simulation: {
       preVerificationGas: 1000000n,
       callGasLimit: 5000000n,
-      verificationGasLimit: 2000000n,
+      verificationGasLimit: 2000000n
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "995": {
     chainId: 995,
@@ -1179,15 +1179,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "997": {
     chainId: 995,
@@ -1198,15 +1198,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "288": {
     chainId: 288,
@@ -1217,15 +1217,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "28882": {
     chainId: 28882,
@@ -1236,15 +1236,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "920637907288165": {
     chainId: 920637907288165,
@@ -1255,20 +1255,20 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     simulation: {
       preVerificationGas: 1000000n,
       callGasLimit: 2000000n,
-      verificationGasLimit: 2000000n,
+      verificationGasLimit: 2000000n
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1750": {
     chainId: 1750,
@@ -1280,15 +1280,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1740": {
     chainId: 1740,
@@ -1300,15 +1300,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
-      stateDiff: true,
+      stateDiff: true
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "1135": {
     chainId: 1135,
@@ -1319,15 +1319,15 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
   },
   "4202": {
     chainId: 4202,
@@ -1338,14 +1338,14 @@ export const supportedChains: Record<string, SupportedChain> = {
     stateOverrideSupport: {
       balance: true,
       bytecode: false,
-      stateDiff: false,
+      stateDiff: false
     },
     smartAccountSupport: {
       smartAccountsV2: true,
-      nexus: false,
+      nexus: false
     },
     paymasters: {
-      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
-    },
-  },
-};
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
+    }
+  }
+}

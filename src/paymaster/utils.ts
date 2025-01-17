@@ -1,7 +1,7 @@
-import { Address, Hex } from "viem";
+import type { Address, Hex } from "viem"
 
 export function getPaymasterAddressFromPaymasterAndData(
-  paymasterAndData: Hex,
+  paymasterAndData: Hex
 ): Address {
-  return paymasterAndData.slice(0, 42) as Address;
+  return paymasterAndData.slice(0, 42) as Address
 }

@@ -7,8 +7,9 @@
   "author": "Nikola Divić <nikola.divic@biconomy.io>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "format": "eslint 'src' --ext .ts --fix",
+    "format": "biome format . --write",
+    "lint": "biome check .",
+    "lint:fix": "bun run lint --apply",
     "build": "tsc",
     "test": "vitest --run --reporter=verbose",
     "test:coverage": "vitest --run --reporter=verbose --coverage"
@@ -24,19 +25,26 @@
     "@babel/preset-typescript": "^7.26.0",
     "@biconomy/account": "^4.5.7",
     "@biconomy/sdk": "^0.0.24",
+    "@biomejs/biome": "1.9.4",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
     "@rhinestone/module-sdk": "^0.2.3",
     "@types/config": "^3.3.5",
     "@types/node": "^22.10.6",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
     "config": "^3.3.12",
-    "eslint": "^9.18.0",
-    "eslint-config-airbnb-typescript": "^18.0.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-tsdoc": "^0.4.0",
+    "simple-git-hooks": "^2.11.1",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "simple-git-hooks": {
+    "hooks": {
+      "pre-commit": "bun run format && bun run lint:fix",
+      "commit-msg": "npx --no -- commitlint --edit ${1}"
+    }
   }
 }

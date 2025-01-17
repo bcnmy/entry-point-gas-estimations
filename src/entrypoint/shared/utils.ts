@@ -1,38 +1,38 @@
-import { Hex } from "viem";
-import { numberToHex, getAddress, pad, toHex } from "viem";
-import { concat, keccak256 } from "viem";
-import { StateOverrideSet } from "../../shared/types";
+import type { Hex } from "viem"
+import { getAddress, numberToHex, pad, toHex } from "viem"
+import { concat, keccak256 } from "viem"
+import type { StateOverrideSet } from "../../shared/types"
 
 export function cleanUpRevertReason(revertReason: string): string {
-  const match = revertReason.match(/AA(\d+)\s(.+)/);
+  const match = revertReason.match(/AA(\d+)\s(.+)/)
 
   if (match) {
-    const errorCode = match[1]; // e.g., "25"
-    const errorMessage = match[2]; // e.g., "invalid account nonce"
+    const errorCode = match[1] // e.g., "25"
+    const errorMessage = match[2] // e.g., "invalid account nonce"
     const newMatch = `AA${errorCode} ${errorMessage}`.match(
-      // eslint-disable-next-line no-control-regex
-      /AA.*?(?=\\u|\u0000)/,
-    );
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: needed for null byte matching
+      /AA.*?(?=\\u|\u0000)/
+    )
     if (newMatch) {
-      const extractedString = newMatch[0];
-      return extractedString;
+      const extractedString = newMatch[0]
+      return extractedString
     }
-    return `AA${errorCode} ${errorMessage}`;
+    return `AA${errorCode} ${errorMessage}`
   }
-  return revertReason;
+  return revertReason
 }
 
 export function mergeStateOverrides(
   destination: StateOverrideSet,
-  source?: StateOverrideSet,
+  source?: StateOverrideSet
 ): StateOverrideSet {
-  if (!source) return destination;
+  if (!source) return destination
 
-  const merged: StateOverrideSet = { ...destination };
+  const merged: StateOverrideSet = { ...destination }
 
-  // Use Object.entries to properly type the keyss
-  Object.entries(source).forEach(([key, value]) => {
-    const hexKey = key as `0x${string}`;
+  // Use Object.entries to properly type the keys
+  for (const [key, value] of Object.entries(source)) {
+    const hexKey = key as `0x${string}`
     if (
       value &&
       typeof value === "object" &&
@@ -43,14 +43,14 @@ export function mergeStateOverrides(
     ) {
       merged[hexKey] = mergeStateOverrides(
         destination[hexKey] as StateOverrideSet,
-        value as StateOverrideSet,
-      );
+        value as StateOverrideSet
+      )
     } else {
-      merged[hexKey] = value;
+      merged[hexKey] = value
     }
-  });
+  }
 
-  return merged;
+  return merged
 }
 
 /**
@@ -62,19 +62,19 @@ export function mergeStateOverrides(
  */
 export function calculateMappingStorageKey(mappingSlot: bigint, key: Hex) {
   // Convert the slot number to padded hex
-  const paddedSlot = pad(toHex(mappingSlot), { size: 32 });
+  const paddedSlot = pad(toHex(mappingSlot), { size: 32 })
 
   // Handle different key types (address or number)
-  let paddedKey;
+  let paddedKey: Hex
   if (key.startsWith("0x")) {
     // If key is an address, ensure it's checksummed and padded
-    paddedKey = pad(getAddress(key), { size: 32 });
+    paddedKey = pad(getAddress(key), { size: 32 })
   } else {
     // If key is a number, convert to hex and pad
-    paddedKey = pad(numberToHex(BigInt(key)), { size: 32 });
+    paddedKey = pad(numberToHex(BigInt(key)), { size: 32 })
   }
 
   // Concatenate key and slot, then hash
-  const concatenated = concat([paddedKey, paddedSlot]);
-  return keccak256(concatenated);
+  const concatenated = concat([paddedKey, paddedSlot])
+  return keccak256(concatenated)
 }

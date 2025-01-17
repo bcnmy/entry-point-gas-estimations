@@ -1,11 +1,11 @@
 import {
-  Address,
+  type Address,
+  type Hex,
   encodeAbiParameters,
-  Hex,
   keccak256,
-  parseAbiParameters,
-} from "viem";
-import z from "zod";
+  parseAbiParameters
+} from "viem"
+import z from "zod"
 
 export const userOperationV6Schema = z
   .object({
@@ -19,7 +19,7 @@ export const userOperationV6Schema = z
     maxFeePerGas: z.coerce.bigint(),
     maxPriorityFeePerGas: z.coerce.bigint(),
     paymasterAndData: z.string(),
-    signature: z.string(),
+    signature: z.string()
   })
   .transform((val) => ({
     ...val,
@@ -27,10 +27,10 @@ export const userOperationV6Schema = z
     initCode: val.initCode as Hex,
     callData: val.callData as Hex,
     paymasterAndData: val.paymasterAndData as Hex,
-    signature: val.signature as Hex,
-  }));
+    signature: val.signature as Hex
+  }))
 
-export type UserOperationV6 = z.infer<typeof userOperationV6Schema>;
+export type UserOperationV6 = z.infer<typeof userOperationV6Schema>
 
 export function packUserOpV6(
   userOp: UserOperationV6,
@@ -40,52 +40,52 @@ export function packUserOpV6(
     components: [
       {
         type: "address",
-        name: "sender",
+        name: "sender"
       },
       {
         type: "uint256",
-        name: "nonce",
+        name: "nonce"
       },
       {
         type: "bytes",
-        name: "initCode",
+        name: "initCode"
       },
       {
         type: "bytes",
-        name: "callData",
+        name: "callData"
       },
       {
         type: "uint256",
-        name: "callGasLimit",
+        name: "callGasLimit"
       },
       {
         type: "uint256",
-        name: "verificationGasLimit",
+        name: "verificationGasLimit"
       },
       {
         type: "uint256",
-        name: "preVerificationGas",
+        name: "preVerificationGas"
       },
       {
         type: "uint256",
-        name: "maxFeePerGas",
+        name: "maxFeePerGas"
       },
       {
         type: "uint256",
-        name: "maxPriorityFeePerGas",
+        name: "maxPriorityFeePerGas"
       },
       {
         type: "bytes",
-        name: "paymasterAndData",
+        name: "paymasterAndData"
       },
       {
         type: "bytes",
-        name: "signature",
-      },
+        name: "signature"
+      }
     ],
     name: "userOp",
-    type: "tuple",
-  };
+    type: "tuple"
+  }
 
   if (forSignature) {
     // lighter signature scheme (must match UserOperation#pack):
@@ -95,23 +95,23 @@ export function packUserOpV6(
       [
         {
           ...userOp,
-          signature: "0x",
-        },
+          signature: "0x"
+        }
       ]
-    );
+    )
 
-    encoded = `0x${encoded.slice(66, encoded.length - 64)}`;
-    return encoded;
+    encoded = `0x${encoded.slice(66, encoded.length - 64)}`
+    return encoded
   }
 
   const typeValues = (userOpType as any).components.map(
     (c: { name: keyof typeof userOp; type: string }) => ({
       type: c.type,
-      val: userOp[c.name],
+      val: userOp[c.name]
     })
-  );
+  )
 
-  return encode(typeValues, forSignature);
+  return encode(typeValues, forSignature)
 }
 
 function encode(
@@ -124,11 +124,11 @@ function encode(
         typeValue.type === "bytes" && forSignature ? "bytes32" : typeValue.type
       )
       .toString()
-  );
+  )
   const values = typeValues.map((typeValue: any) =>
     typeValue.type === "bytes" && forSignature
       ? keccak256(typeValue.val)
       : typeValue.val
-  );
-  return encodeAbiParameters(types, values);
+  )
+  return encodeAbiParameters(types, values)
 }

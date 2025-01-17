@@ -1,148 +1,148 @@
-import { Address, Chain, createPublicClient, http } from "viem";
-import { supportedChains } from "../chains/chains";
+import { http, type Address, type Chain, createPublicClient } from "viem"
+import { supportedChains } from "../chains/chains"
 import {
   ChainStack,
-  SupportedChain,
-  SupportedChainSchema,
-} from "../chains/types";
-import { GasEstimator, GasEstimatorRpcClient } from "./GasEstimator";
-import { ENTRYPOINT_V6_ADDRESS } from "../entrypoint/v0.6.0/constants";
-import { EntryPointVersion } from "../entrypoint/shared/types";
-import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6";
-import { EntryPointV6Simulations } from "../entrypoint/v0.6.0/EntryPointV6Simulations";
-import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants";
-import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations";
-import { EntryPoints } from "./types";
-import { OptimismGasEstimator } from "./optimism/OptimismGasEstimator";
-import { ArbitrumGasEstimator } from "./arbitrum/ArbitrumGasEstimator";
-import { EVMGasEstimator } from "./evm/EVMGasEstimator";
-import { MantleGasEstimator } from "./mantle/MantleGasEstimator";
+  type SupportedChain,
+  SupportedChainSchema
+} from "../chains/types"
+import { EntryPointVersion } from "../entrypoint/shared/types"
+import { EntryPointV6 } from "../entrypoint/v0.6.0/EntryPointV6"
+import { EntryPointV6Simulations } from "../entrypoint/v0.6.0/EntryPointV6Simulations"
+import { ENTRYPOINT_V6_ADDRESS } from "../entrypoint/v0.6.0/constants"
+import { EntryPointV7Simulations } from "../entrypoint/v0.7.0/EntryPointV7Simulations"
+import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants"
+import type { GasEstimator, GasEstimatorRpcClient } from "./GasEstimator"
+import { ArbitrumGasEstimator } from "./arbitrum/ArbitrumGasEstimator"
+import { EVMGasEstimator } from "./evm/EVMGasEstimator"
+import { MantleGasEstimator } from "./mantle/MantleGasEstimator"
+import { OptimismGasEstimator } from "./optimism/OptimismGasEstimator"
+import type { EntryPoints } from "./types"
 
 export interface CreateGasEstimatorOptions {
-  chainId: number;
-  chain?: SupportedChain;
-  rpc: string | GasEstimatorRpcClient;
+  chainId: number
+  chain?: SupportedChain
+  rpc: string | GasEstimatorRpcClient
 }
 
 export function createGasEstimator({
   chainId,
   chain,
-  rpc,
+  rpc
 }: CreateGasEstimatorOptions): GasEstimator {
-  chain = mergeChainConfig(chainId, chain);
+  chain = mergeChainConfig(chainId, chain)
 
-  let rpcClient = createRpcClient(chainId, rpc);
+  const rpcClient = createRpcClient(chainId, rpc)
 
-  const entryPointContracts = createEntryPoints(chain, rpcClient);
+  const entryPointContracts = createEntryPoints(chain, rpcClient)
 
-  let gasEstimator: GasEstimator;
+  let gasEstimator: GasEstimator
   switch (chain?.stack) {
     case ChainStack.Optimism:
       gasEstimator = new OptimismGasEstimator(
         chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation,
-      );
-      break;
+        chain.simulation
+      )
+      break
     case ChainStack.Arbitrum:
       gasEstimator = new ArbitrumGasEstimator(
         chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation,
-      );
-      break;
+        chain.simulation
+      )
+      break
     case ChainStack.Mantle:
       gasEstimator = new MantleGasEstimator(
         chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation,
-      );
-      break;
+        chain.simulation
+      )
+      break
     default:
       gasEstimator = new EVMGasEstimator(
         chain,
         rpcClient,
         entryPointContracts,
-        chain?.simulation,
-      );
-      break;
+        chain?.simulation
+      )
+      break
   }
 
-  return gasEstimator;
+  return gasEstimator
 }
 
 export function mergeChainConfig(
   chainId: number,
-  chain?: Partial<SupportedChain>,
+  chain?: Partial<SupportedChain>
 ): SupportedChain {
-  const defaultChainConfig = supportedChains[chainId];
+  const defaultChainConfig = supportedChains[chainId]
   if (chain == null) {
-    return defaultChainConfig;
+    return defaultChainConfig
   }
 
   // otherwise merge the chain configs
-  const partialSchema = SupportedChainSchema.partial();
-  const clientConfig = partialSchema.parse(chain);
+  const partialSchema = SupportedChainSchema.partial()
+  const clientConfig = partialSchema.parse(chain)
 
-  const merged = { ...defaultChainConfig, ...clientConfig };
-  SupportedChainSchema.parse(merged);
+  const merged = { ...defaultChainConfig, ...clientConfig }
+  SupportedChainSchema.parse(merged)
 
-  return merged;
+  return merged
 }
 
 export function createRpcClient(
   chainId: number,
-  rpc: string | GasEstimatorRpcClient,
+  rpc: string | GasEstimatorRpcClient
 ): GasEstimatorRpcClient {
-  let rpcClient: GasEstimatorRpcClient;
+  let rpcClient: GasEstimatorRpcClient
   if (typeof rpc === "string") {
     rpcClient = createPublicClient({
       chain: {
-        id: chainId,
+        id: chainId
       } as Chain,
-      transport: http(rpc),
-    });
+      transport: http(rpc)
+    })
   } else {
-    rpcClient = rpc;
+    rpcClient = rpc
   }
-  return rpcClient;
+  return rpcClient
 }
 
 export function createEntryPoints(
   chain: SupportedChain,
-  rpcClient: GasEstimatorRpcClient,
+  rpcClient: GasEstimatorRpcClient
 ): EntryPoints {
   const entryPointV6Address =
     (chain?.entryPoints?.[EntryPointVersion.v060]?.address as Address) ||
-    ENTRYPOINT_V6_ADDRESS;
+    ENTRYPOINT_V6_ADDRESS
 
-  const entryPointV6 = new EntryPointV6(rpcClient, entryPointV6Address);
+  const entryPointV6 = new EntryPointV6(rpcClient, entryPointV6Address)
 
   const entryPointV6Simulations = new EntryPointV6Simulations(
     rpcClient,
-    entryPointV6Address,
-  );
+    entryPointV6Address
+  )
 
   const entryPointV7Address =
     (chain?.entryPoints?.[EntryPointVersion.v070]?.address as Address) ||
-    ENTRYPOINT_V7_ADDRESS;
+    ENTRYPOINT_V7_ADDRESS
 
   const entryPointV7Simulations = new EntryPointV7Simulations(
     rpcClient,
-    entryPointV7Address,
-  );
+    entryPointV7Address
+  )
 
   const entryPointContracts: EntryPoints = {
     [EntryPointVersion.v060]: {
       contract: entryPointV6,
-      simulations: entryPointV6Simulations,
+      simulations: entryPointV6Simulations
     },
     [EntryPointVersion.v070]: {
-      contract: entryPointV7Simulations,
-    },
-  };
-  return entryPointContracts;
+      contract: entryPointV7Simulations
+    }
+  }
+  return entryPointContracts
 }

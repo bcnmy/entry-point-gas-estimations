@@ -1,43 +1,43 @@
 import {
-  Address,
+  type Address,
+  type Hex,
   decodeErrorResult,
   decodeFunctionResult,
-  encodeFunctionData,
-  Hex,
-} from "viem";
+  encodeFunctionData
+} from "viem"
 
+import type { StateOverrideSet } from "../../shared/types"
+import { type EntryPointRpcClient, EntryPointVersion } from "../shared/types"
+import { mergeStateOverrides } from "../shared/utils"
 import {
-  errorWithCauseSchema,
-  errorWithNestedCauseSchema,
   ParseError,
-} from "../v0.6.0/types";
-import { ENTRYPOINT_V7_SIMULATIONS_ABI } from "./abi";
+  errorWithCauseSchema,
+  errorWithNestedCauseSchema
+} from "../v0.6.0/types"
 import {
+  type UserOperationV7,
   toPackedUserOperation,
-  UserOperationV7,
-  userOperationV7Schema,
-} from "./UserOperationV7";
-import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode";
-import { ENTRYPOINT_V7_ADDRESS } from "./constants";
-import { ExecutionResultV7 } from "./types";
-import { EntryPointRpcClient, EntryPointVersion } from "../shared/types";
-import { mergeStateOverrides } from "../shared/utils";
-import { StateOverrideSet } from "../../shared/types";
+  userOperationV7Schema
+} from "./UserOperationV7"
+import { ENTRYPOINT_V7_SIMULATIONS_ABI } from "./abi"
+import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode"
+import { ENTRYPOINT_V7_ADDRESS } from "./constants"
+import type { ExecutionResultV7 } from "./types"
 
 interface SimulateHandleOpParams {
-  userOperation: UserOperationV7;
-  targetAddress: Address;
-  targetCallData: Hex;
-  stateOverrides?: StateOverrideSet;
+  userOperation: UserOperationV7
+  targetAddress: Address
+  targetCallData: Hex
+  stateOverrides?: StateOverrideSet
 }
 
 export class EntryPointV7Simulations {
-  public version = EntryPointVersion.v070;
-  public abi = ENTRYPOINT_V7_SIMULATIONS_ABI;
+  public version = EntryPointVersion.v070
+  public abi = ENTRYPOINT_V7_SIMULATIONS_ABI
 
   constructor(
     protected client: EntryPointRpcClient,
-    public address: Address = ENTRYPOINT_V7_ADDRESS,
+    public address: Address = ENTRYPOINT_V7_ADDRESS
   ) {}
 
   /**
@@ -52,18 +52,17 @@ export class EntryPointV7Simulations {
     userOperation,
     targetAddress,
     targetCallData,
-    stateOverrides,
+    stateOverrides
   }: SimulateHandleOpParams): Promise<ExecutionResultV7> {
-    userOperation = userOperationV7Schema.parse(userOperation);
+    userOperation = userOperationV7Schema.parse(userOperation)
 
     if (userOperation.paymaster) {
       userOperation.paymasterVerificationGasLimit =
-        userOperation.verificationGasLimit;
-      userOperation.paymasterPostOpGasLimit =
-        userOperation.verificationGasLimit;
+        userOperation.verificationGasLimit
+      userOperation.paymasterPostOpGasLimit = userOperation.verificationGasLimit
     }
 
-    const packedUserOperation = toPackedUserOperation(userOperation);
+    const packedUserOperation = toPackedUserOperation(userOperation)
 
     const simulateHandleOpParams: any = [
       {
@@ -71,60 +70,60 @@ export class EntryPointV7Simulations {
         data: encodeFunctionData({
           abi: this.abi,
           functionName: "simulateHandleOp",
-          args: [packedUserOperation, targetAddress, targetCallData],
-        }),
+          args: [packedUserOperation, targetAddress, targetCallData]
+        })
       },
-      "latest",
-    ];
+      "latest"
+    ]
 
     const finalStateOverrideSet = mergeStateOverrides(
       {
         [this.address]: {
-          code: ENTRYPOINT_V7_SIMULATIONS_BYTECODE as Hex,
-        },
+          code: ENTRYPOINT_V7_SIMULATIONS_BYTECODE as Hex
+        }
       },
-      stateOverrides,
-    );
+      stateOverrides
+    )
 
     // console.log("finalStateOverrideSet", finalStateOverrideSet);
 
-    simulateHandleOpParams.push(finalStateOverrideSet);
+    simulateHandleOpParams.push(finalStateOverrideSet)
 
     try {
       const simulateHandleOpResult = await this.client.request({
         method: "eth_call",
-        params: simulateHandleOpParams,
-      });
+        params: simulateHandleOpParams
+      })
 
       const decodedResult = decodeFunctionResult({
         abi: this.abi,
         functionName: "simulateHandleOp",
-        data: simulateHandleOpResult,
-      });
+        data: simulateHandleOpResult
+      })
 
-      return decodedResult;
+      return decodedResult
     } catch (err: any) {
-      const data = this.parseRpcRequestErrorData(err);
+      const data = this.parseRpcRequestErrorData(err)
 
       const decodedError = decodeErrorResult({
         abi: this.abi,
-        data: data,
-      });
+        data: data
+      })
 
-      throw new Error(decodedError.args[1]);
+      throw new Error(decodedError.args[1])
     }
   }
 
   encodeHandleOpsFunctionData(
     userOperation: UserOperationV7,
-    beneficiary: Address,
+    beneficiary: Address
   ): Hex {
-    const packed = toPackedUserOperation(userOperation);
+    const packed = toPackedUserOperation(userOperation)
     return encodeFunctionData({
       abi: this.abi,
       functionName: "handleOps",
-      args: [[packed], beneficiary],
-    });
+      args: [[packed], beneficiary]
+    })
   }
 
   /**
@@ -134,27 +133,27 @@ export class EntryPointV7Simulations {
    * @returns
    */
   parseRpcRequestErrorData(err: unknown) {
-    let data: Hex = "0x";
+    let data: Hex = "0x"
 
     // parse error.cause
-    const parseResult = errorWithCauseSchema.safeParse(err);
+    const parseResult = errorWithCauseSchema.safeParse(err)
     if (parseResult.success) {
-      const { cause } = parseResult.data;
-      data = cause.data as Hex;
+      const { cause } = parseResult.data
+      data = cause.data as Hex
     } else {
       // otherwise try to parse error.cause.cause
-      const nestedParseResult = errorWithNestedCauseSchema.safeParse(err);
+      const nestedParseResult = errorWithNestedCauseSchema.safeParse(err)
       if (nestedParseResult.success) {
-        const { cause } = nestedParseResult.data;
-        data = cause.cause.data as Hex;
+        const { cause } = nestedParseResult.data
+        data = cause.cause.data as Hex
       }
     }
 
     // If we couldn't parse the error, throw a ParseError
     if (data === "0x") {
-      throw new ParseError(err);
+      throw new ParseError(err)
     }
 
-    return data;
+    return data
   }
 }
