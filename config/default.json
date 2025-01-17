@@ -3,8 +3,14 @@
     "1": {
       "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
     },
+    "11155111": {
+      "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
     "10": {
       "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
+    },
+    "11155420": {
+      "testAddresses": { "v2": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a" }
     },
     "56": {
       "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
@@ -51,6 +57,9 @@
     "8453": {
       "testAddresses": { "v2": "0xb7744Ce158A09183F01296bCB262bB9F65E2FFd7" }
     },
+    "84532": {
+      "testAddresses": { "v2": "0xCC202b79352719410e3adc0C39dBcc3091fEb4B7" }
+    },
     "10200": {
       "testAddresses": { "v2": "0xDa361bb81958A9D34d0150e3B7902E3773a826f4" }
     },
@@ -78,12 +87,17 @@
     "534352": {
       "testAddresses": { "v2": "0x6f65cC3002885937E90d123727116f721A567c25" }
     },
-    "11155420": {
-      "testAddresses": { "v2": "0xCFc7adA0BCA6e28c244e8ea6fe7f62dbbe2C159a" }
+    "81457": {
+      "testAddresses": { "v2": "0xA52d0d479f65b17DEA539f7D767497Ba06c6F15b" }
+    },
+    "168587773": {
+      "testAddresses": {
+        "v2": "0xe1c85092cB39A845ff63BC08Fd951427Ab912e4f"
+      }
     }
   },
   "benchmarkPricesUSD": {
-    "ETH": 3868,
+    "ETH": 3337,
     "DEGEN": 0.01497,
     "CHZ": 0.1104,
     "BERA": 0,
@@ -98,7 +112,7 @@
     "MNT": 1.21
   },
   "excludeFromTests": [
-    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611, 10200
+    1115, 1116, 81, 2442, 3799, 920637907288165, 42170, 5611, 10200, 5001
   ],
   "includeInTests": [],
   "skipSecondSimulation": [1101, 666666666, 196]

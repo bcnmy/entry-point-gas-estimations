@@ -1,4 +1,5 @@
 import { userOperationV7Schema } from "./UserOperationV7";
+import { describe, it, expect } from "vitest";
 
 describe("UserOperationV7", () => {
   describe("userOperationV7Schema", () => {
@@ -22,7 +23,7 @@ describe("UserOperationV7", () => {
 
     it("should return true for a valid UserOperation", () => {
       expect(userOperationV7Schema.parse(validUserOperation)).toEqual(
-        validUserOperation
+        validUserOperation,
       );
     });
 
@@ -46,7 +47,7 @@ describe("UserOperationV7", () => {
       };
 
       expect(userOperationV7Schema.parse(userOperation)).toEqual(
-        validUserOperation
+        validUserOperation,
       );
     });
 
@@ -70,7 +71,7 @@ describe("UserOperationV7", () => {
       };
 
       expect(userOperationV7Schema.parse(userOperation)).toEqual(
-        validUserOperation
+        validUserOperation,
       );
     });
   });

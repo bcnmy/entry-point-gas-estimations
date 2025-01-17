@@ -6,6 +6,8 @@ import { EntryPointVersion } from "../entrypoint/shared/types";
 import { ChainStack, SupportedChain } from "../chains/types";
 import { createGasEstimator, mergeChainConfig } from "./createGasEstimator";
 import { MantleGasEstimator } from "./mantle/MantleGasEstimator";
+import { describe, it, expect } from "vitest";
+import { DEFAULT_PAYMASTERS } from "../chains";
 
 describe("createGasEstimator", () => {
   const rpcUrl = "http://rpc.url";
@@ -65,6 +67,7 @@ describe("createGasEstimator", () => {
         stateOverrideSupport: {
           balance: true,
           bytecode: true,
+          stateDiff: true,
         },
         smartAccountSupport: {
           smartAccountsV2: true,
@@ -75,6 +78,7 @@ describe("createGasEstimator", () => {
           verificationGasLimit: 2n,
           callGasLimit: 3n,
         },
+        paymasters: DEFAULT_PAYMASTERS,
       };
 
       const gasEstimator = createGasEstimator({
@@ -83,15 +87,24 @@ describe("createGasEstimator", () => {
         chain: customChain,
       });
 
-      expect(gasEstimator.chainId).toBe(customChain.chainId);
+      expect(gasEstimator.chain).toEqual(customChain);
       expect(gasEstimator).toBeInstanceOf(OptimismGasEstimator);
       expect(
-        gasEstimator.entryPoints[EntryPointVersion.v060].contract.address
+        gasEstimator.entryPoints[EntryPointVersion.v060].contract.address,
       ).toBe("0x006");
       expect(
-        gasEstimator.entryPoints[EntryPointVersion.v070].contract.address
+        gasEstimator.entryPoints[EntryPointVersion.v070].contract.address,
       ).toBe("0x007");
-      expect(gasEstimator.simulationOptions).toEqual(customChain.simulation);
+      expect(gasEstimator.simulationLimits).toEqual(customChain.simulation);
+    });
+
+    it("should default to the EVM if the chain ID is not supported", () => {
+      const gasEstimator = createGasEstimator({
+        chainId: 123643,
+        rpc: rpcUrl,
+      });
+
+      expect(gasEstimator).toBeInstanceOf(EVMGasEstimator);
     });
   });
 
@@ -110,7 +123,7 @@ describe("createGasEstimator", () => {
       const merged = mergeChainConfig(chain.id, partialChain);
 
       expect(merged.entryPoints![EntryPointVersion.v060]?.address).toBe(
-        "0x006"
+        "0x006",
       );
     });
   });

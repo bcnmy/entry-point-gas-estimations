@@ -6,22 +6,24 @@ import { EntryPointV7Simulations } from "../../entrypoint/v0.7.0/EntryPointV7Sim
 import { OptimismGasEstimator } from "./OptimismGasEstimator";
 import { EntryPoints } from "../types";
 import config from "config";
-import { GasEstimatorRpcClient, SimulationOptions } from "../GasEstimator";
+import { GasEstimatorRpcClient, SimulationLimits } from "../GasEstimator";
 import { createGasEstimator } from "../createGasEstimator";
+import { describe, it, vitest, expect } from "vitest";
+import { supportedChains } from "../../chains";
 
 describe("OptimismGasEstimator", () => {
   describe("unit", () => {
     const mockRpcClient: GasEstimatorRpcClient = {
-      readContract: jest.fn().mockResolvedValue(1n),
-      estimateGas: jest.fn().mockResolvedValue(1n),
+      readContract: vitest.fn().mockResolvedValue(1n),
+      estimateGas: vitest.fn().mockResolvedValue(1n),
       chain: optimism,
-      request: jest.fn(),
+      request: vitest.fn(),
     };
 
     const mockEntryPoints: EntryPoints = {
       [EntryPointVersion.v060]: {
         contract: {
-          encodeHandleOpsFunctionData: jest.fn().mockReturnValue("0x"),
+          encodeHandleOpsFunctionData: vitest.fn().mockReturnValue("0x"),
         } as unknown as EntryPointV6,
         simulations: {} as EntryPointV6Simulations,
       },
@@ -29,12 +31,13 @@ describe("OptimismGasEstimator", () => {
         contract: {} as EntryPointV7Simulations,
       },
     };
+
     it("should take the L1 fee into account when calculating the pre-verification gas", async () => {
       const opGasEstimator = new OptimismGasEstimator(
-        10,
+        supportedChains[10],
         mockRpcClient,
         mockEntryPoints,
-        {} as SimulationOptions
+        {} as SimulationLimits,
       );
 
       const pvg = await opGasEstimator.estimatePreVerificationGas(
@@ -51,7 +54,7 @@ describe("OptimismGasEstimator", () => {
           paymasterAndData: "0x",
           signature: "0x",
         },
-        1n
+        1n,
       );
 
       expect(pvg).toBeDefined();
@@ -78,7 +81,7 @@ describe("OptimismGasEstimator", () => {
           paymasterAndData: "0x",
           signature: "0x",
         },
-        1n
+        1n,
       );
 
       expect(pvg).toBeDefined();
@@ -109,7 +112,7 @@ describe("OptimismGasEstimator", () => {
           signature:
             "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000001c5b32f37f5bea87bdd5374eb2ac54ea8e0000000000000000000000000000000000000000000000000000000000000041a0bd000c5e270e3a12206421374aa98e467135d3138d109da7f2d9c70fbb4b3c06b7edad0587c238580d65070cd0bc3c363b2c56e4689a42d8d6e534a205e1031b00000000000000000000000000000000000000000000000000000000000000",
         },
-        1975661n
+        1975661n,
       );
 
       expect(gasEstimate).toBeDefined();

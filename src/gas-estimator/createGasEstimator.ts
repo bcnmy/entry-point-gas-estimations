@@ -36,41 +36,39 @@ export function createGasEstimator({
   const entryPointContracts = createEntryPoints(chain, rpcClient);
 
   let gasEstimator: GasEstimator;
-  switch (chain.stack) {
+  switch (chain?.stack) {
     case ChainStack.Optimism:
       gasEstimator = new OptimismGasEstimator(
-        chainId,
+        chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation
+        chain.simulation,
       );
       break;
     case ChainStack.Arbitrum:
       gasEstimator = new ArbitrumGasEstimator(
-        chainId,
+        chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation
+        chain.simulation,
       );
       break;
     case ChainStack.Mantle:
       gasEstimator = new MantleGasEstimator(
-        chainId,
+        chain,
         rpcClient,
         entryPointContracts,
-        chain.simulation
-      );
-      break;
-    case ChainStack.EVM:
-      gasEstimator = new EVMGasEstimator(
-        chainId,
-        rpcClient,
-        entryPointContracts,
-        chain.simulation
+        chain.simulation,
       );
       break;
     default:
-      throw new Error(`Unsupported chain stack: ${chain.stack}`);
+      gasEstimator = new EVMGasEstimator(
+        chain,
+        rpcClient,
+        entryPointContracts,
+        chain?.simulation,
+      );
+      break;
   }
 
   return gasEstimator;
@@ -78,7 +76,7 @@ export function createGasEstimator({
 
 export function mergeChainConfig(
   chainId: number,
-  chain?: Partial<SupportedChain>
+  chain?: Partial<SupportedChain>,
 ): SupportedChain {
   const defaultChainConfig = supportedChains[chainId];
   if (chain == null) {
@@ -97,7 +95,7 @@ export function mergeChainConfig(
 
 export function createRpcClient(
   chainId: number,
-  rpc: string | GasEstimatorRpcClient
+  rpc: string | GasEstimatorRpcClient,
 ): GasEstimatorRpcClient {
   let rpcClient: GasEstimatorRpcClient;
   if (typeof rpc === "string") {
@@ -115,26 +113,26 @@ export function createRpcClient(
 
 export function createEntryPoints(
   chain: SupportedChain,
-  rpcClient: GasEstimatorRpcClient
+  rpcClient: GasEstimatorRpcClient,
 ): EntryPoints {
   const entryPointV6Address =
-    (chain.entryPoints?.[EntryPointVersion.v060]?.address as Address) ||
+    (chain?.entryPoints?.[EntryPointVersion.v060]?.address as Address) ||
     ENTRYPOINT_V6_ADDRESS;
 
   const entryPointV6 = new EntryPointV6(rpcClient, entryPointV6Address);
 
   const entryPointV6Simulations = new EntryPointV6Simulations(
     rpcClient,
-    entryPointV6Address
+    entryPointV6Address,
   );
 
   const entryPointV7Address =
-    (chain.entryPoints?.[EntryPointVersion.v070]?.address as Address) ||
+    (chain?.entryPoints?.[EntryPointVersion.v070]?.address as Address) ||
     ENTRYPOINT_V7_ADDRESS;
 
   const entryPointV7Simulations = new EntryPointV7Simulations(
     rpcClient,
-    entryPointV7Address
+    entryPointV7Address,
   );
 
   const entryPointContracts: EntryPoints = {

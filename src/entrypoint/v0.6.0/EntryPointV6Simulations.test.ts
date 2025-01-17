@@ -5,7 +5,8 @@ import {
   zeroAddress,
   Address,
   parseEther,
-  toHex,
+  extractChain,
+  Hex,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
@@ -18,71 +19,71 @@ import * as chains from "viem/chains";
 import config from "config";
 import { EntryPointV6Simulations } from "./EntryPointV6Simulations";
 import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
-import { supportedChains } from "../../chains/chains";
+import {
+  DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS,
+  DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS,
+  supportedChains,
+} from "../../chains/chains";
 import { ENTRYPOINT_V6_ADDRESS } from "./constants";
+import { describe, it, beforeAll, expect } from "vitest";
+import { StateOverrideBuilder } from "../shared/stateOverrides";
 
-describe("EntryPointV6Simulations", () => {
-  const privateKey = generatePrivateKey();
-  const account = privateKeyToAccount(privateKey);
+describe("e2e", () => {
+  describe("EntryPointV6Simulations", () => {
+    const privateKey = generatePrivateKey();
+    const account = privateKeyToAccount(privateKey);
 
-  const includeChainIds = config.get<number[]>("includeInTests");
-  const excludeChainIds = config.get<number[]>("excludeFromTests");
+    const testChains = filterTestChains();
 
-  it("mock test so jest doesn't report 'Your test suite must contain at least one test'", () => {});
-
-  const testChains = Object.values(supportedChains).filter(
-    (chain) =>
-      chain.stateOverrideSupport.balance &&
-      chain.stateOverrideSupport.bytecode &&
-      !excludeChainIds.includes(chain.chainId) &&
-      (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
-  );
-
-  for (const testChain of testChains) {
-    let rpcUrl: string;
-    if (config.has(`testChains.${testChain.chainId}.rpcUrl`)) {
-      rpcUrl = config.get<string>(`testChains.${testChain.chainId}.rpcUrl`);
-    } else {
-      console.warn(
-        `No RPC URL set in test.json. Skipping ${testChain.name} (${testChain.chainId})`
+    describe.each(testChains)("On $name ($chainId)", (testChain) => {
+      const rpcUrl = config.get<string>(
+        `testChains.${testChain.chainId}.rpcUrl`,
       );
-      continue;
-    }
 
-    let testSender: Address;
-    if (config.has(`testChains.${testChain.chainId}.testAddresses.v2`)) {
-      testSender = config.get<Address>(
-        `testChains.${testChain.chainId}.testAddresses.v2`
+      const testSender = config.get<Address>(
+        `testChains.${testChain.chainId}.testAddresses.v2`,
       );
-    } else {
-      console.warn(
-        `No V2 test sender set in test.json. Skipping ${testChain.name} (${testChain.chainId}), or binary search will throw AA20 account not deployed`
-      );
-      continue;
-    }
 
-    describe(`${testChain.name} (${testChain.chainId})`, () => {
       const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
 
       const transport = http(rpcUrl);
 
-      const viemClient = createPublicClient({
-        chain: {
+      const viemChain =
+        extractChain({
+          chains: Object.values(chains),
+          id: testChain.chainId as any,
+        }) ||
+        ({
           id: testChain.chainId,
-        } as chains.Chain,
+        } as chains.Chain);
+
+      const viemClient = createPublicClient({
+        chain: viemChain,
         transport,
       });
 
       const signer = createWalletClient({
         account,
-        chain: {
-          id: testChain.chainId,
-        } as chains.Chain,
+        chain: viemChain,
         transport,
       });
 
       let smartAccount: BiconomySmartAccountV2;
       let userOperation: UserOperationV6;
+
+      const paymasters = testChain?.paymasters?.v060;
+
+      const sponsorshipPaymaster = paymasters
+        ? Object.values(paymasters).find(
+            (paymaster) => paymaster.type === "sponsorship",
+          )
+        : undefined;
+
+      const tokenPaymaster = paymasters
+        ? Object.values(paymasters).find(
+            (paymaster) => paymaster.type === "token",
+          )
+        : undefined;
 
       const entryPointContractAddress =
         (testChain.entryPoints?.["v060"]?.address as Address) ||
@@ -90,7 +91,7 @@ describe("EntryPointV6Simulations", () => {
 
       const epv6Simulator = new EntryPointV6Simulations(
         viemClient,
-        entryPointContractAddress
+        entryPointContractAddress,
       );
 
       let maxFeePerGas: bigint, maxPriorityFeePerGas: bigint;
@@ -103,7 +104,7 @@ describe("EntryPointV6Simulations", () => {
             testChain.name,
             testChain.chainId,
             rpcUrl,
-            ""
+            "",
           ),
         });
 
@@ -114,8 +115,8 @@ describe("EntryPointV6Simulations", () => {
         ]);
 
         if (nonce === 0n) {
-          fail(
-            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`
+          throw new Error(
+            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`,
           );
         }
 
@@ -138,43 +139,181 @@ describe("EntryPointV6Simulations", () => {
         };
 
         userOperation = userOperationV6Schema.parse(
-          await smartAccount.signUserOp(unsignedUserOperation)
+          await smartAccount.signUserOp(unsignedUserOperation),
         );
       }, 10_000);
 
-      describe("estimateVerificationGasLimit", () => {
-        it("should return a value greater than 0", async () => {
-          const estimateResult =
-            await epv6Simulator.estimateVerificationGasLimit({
-              userOperation,
-              stateOverrides: {
-                [userOperation.sender]: {
-                  balance: toHex(parseEther("10000")),
-                },
-              },
+      describe("without a paymaster", () => {
+        let stateOverrides: any = undefined;
+
+        describe.runIf(testChain.stateOverrideSupport.balance)(
+          "If we can override the sender's balance",
+          () => {
+            beforeAll(() => {
+              stateOverrides = new StateOverrideBuilder()
+                .overrideBalance(userOperation.sender, parseEther("10000"))
+                .build();
             });
 
-          expect(estimateResult).toBeDefined();
+            describe("estimateVerificationGasLimit", () => {
+              it("should return a non-zero value", async () => {
+                const estimateResult =
+                  await epv6Simulator.estimateVerificationGasLimit({
+                    userOperation,
+                    stateOverrides,
+                  });
 
-          const { verificationGasLimit } = estimateResult;
-          expect(verificationGasLimit).toBeGreaterThan(0);
-        }, 10_000);
+                expect(estimateResult).toBeDefined();
+
+                const { verificationGasLimit } = estimateResult;
+                expect(verificationGasLimit).toBeGreaterThan(0);
+              }, 10_000);
+            });
+
+            describe("estimateCallGasLimit", () => {
+              it("should return a non-zero value", async () => {
+                const estimateResult = await epv6Simulator.estimateCallGasLimit(
+                  {
+                    userOperation,
+                    stateOverrides,
+                  },
+                );
+                expect(estimateResult).toBeDefined();
+                expect(estimateResult).toBeGreaterThan(0n);
+              });
+            });
+          },
+        );
       });
 
-      describe("estimateCallGasLimit", () => {
-        it("should return a value greater than 0", async () => {
-          const estimateResult = await epv6Simulator.estimateCallGasLimit({
-            userOperation,
-            stateOverrides: {
-              [userOperation.sender]: {
-                balance: toHex(parseEther("10000")),
-              },
-            },
+      describe.runIf(testChain.stateOverrideSupport.stateDiff)(
+        "If we can override the entrypoint's paymaster deposit",
+        () => {
+          let stateOverrides: any = undefined;
+
+          beforeAll(() => {
+            stateOverrides = new StateOverrideBuilder()
+              .overridePaymasterDeposit(
+                entryPointContractAddress,
+                DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS,
+              )
+              .overridePaymasterDeposit(
+                entryPointContractAddress,
+                DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS,
+              )
+              .overrideBalance(userOperation.sender, 1n)
+              .build();
           });
-          expect(estimateResult).toBeDefined();
-          expect(estimateResult).toBeGreaterThan(0n);
-        });
-      });
+
+          describe.runIf(sponsorshipPaymaster)(
+            "given a sponsorship paymaster",
+            () => {
+              const paymasterAndData = sponsorshipPaymaster!
+                .dummyPaymasterAndData as Hex;
+
+              describe("estimateVerificationGasLimit", () => {
+                it("should return a non-zero value", async () => {
+                  const sponsoredUserOperation = {
+                    ...userOperation,
+                    paymasterAndData: paymasterAndData,
+                  };
+
+                  const estimateResult =
+                    await epv6Simulator.estimateVerificationGasLimit({
+                      userOperation: sponsoredUserOperation,
+                      stateOverrides,
+                    });
+
+                  expect(estimateResult).toBeDefined();
+
+                  const { verificationGasLimit } = estimateResult;
+                  expect(verificationGasLimit).toBeGreaterThan(0);
+                });
+              });
+
+              describe("estimateCallGasLimit", () => {
+                it("should return a non-zero value", async () => {
+                  const sponsoredUserOperation = {
+                    ...userOperation,
+                    paymasterAndData,
+                  };
+
+                  const callGasLimit = await epv6Simulator.estimateCallGasLimit(
+                    {
+                      userOperation: sponsoredUserOperation,
+                      stateOverrides: new StateOverrideBuilder()
+                        .overrideBalance(userOperation.sender, 1n)
+                        .build(),
+                    },
+                  );
+
+                  expect(callGasLimit).toBeDefined();
+                  expect(callGasLimit).toBeGreaterThan(0n);
+                });
+              });
+            },
+          );
+
+          describe.runIf(tokenPaymaster)(
+            "given a token paymaster",
+            async () => {
+              const paymasterAndData = tokenPaymaster!
+                .dummyPaymasterAndData as Hex;
+
+              describe("estimateVerificationGasLimit", () => {
+                it("should return a non-zero value", async () => {
+                  const estimateResult =
+                    await epv6Simulator.estimateVerificationGasLimit({
+                      userOperation: {
+                        ...userOperation,
+                        paymasterAndData: paymasterAndData,
+                      },
+                      stateOverrides,
+                    });
+
+                  expect(estimateResult).toBeDefined();
+
+                  const { verificationGasLimit } = estimateResult;
+                  expect(verificationGasLimit).toBeGreaterThan(0);
+                });
+              });
+
+              describe("estimateCallGasLimit", () => {
+                it("should return a non-zero value", async () => {
+                  const tokenPaymasterUserOperation = {
+                    ...userOperation,
+                    paymasterAndData: paymasterAndData,
+                  };
+
+                  const callGasLimit = await epv6Simulator.estimateCallGasLimit(
+                    {
+                      userOperation: tokenPaymasterUserOperation,
+                      stateOverrides,
+                    },
+                  );
+
+                  expect(callGasLimit).toBeGreaterThan(0n);
+                });
+              });
+            },
+          );
+        },
+      );
     });
-  }
+  });
 });
+
+function filterTestChains() {
+  const includeChainIds = config.get<number[]>("includeInTests");
+  const excludeChainIds = config.get<number[]>("excludeFromTests");
+
+  const testChains = Object.values(supportedChains).filter(
+    (chain) =>
+      chain.stateOverrideSupport.bytecode &&
+      !excludeChainIds.includes(chain.chainId) &&
+      (includeChainIds.length === 0 ||
+        includeChainIds.includes(chain.chainId)) &&
+      config.has(`testChains.${chain.chainId}.testAddresses.v2`),
+  );
+  return testChains;
+}
