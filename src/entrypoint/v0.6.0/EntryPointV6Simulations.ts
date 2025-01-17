@@ -302,14 +302,13 @@ class UnknownError extends Error {
     super(`Unknown error: ${errorName} - ${errorReason}`)
   }
 }
-
-interface EstimateVerificationGasLimitParams {
+export interface EstimateVerificationGasLimitParams {
   userOperation: UserOperationV6
   stateOverrides?: StateOverrideSet
   entryPointAddress?: Address
 }
 
-interface EstimateVerificationGasLimitResult {
+export interface EstimateVerificationGasLimitResult {
   verificationGasLimit: bigint
   validAfter: number
   validUntil: number

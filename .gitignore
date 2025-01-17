@@ -177,3 +177,6 @@ dont-commit/
 
 # Config directory used for test config
 config/test.json
+
+# Docs
+docs/

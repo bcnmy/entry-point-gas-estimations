@@ -24,7 +24,7 @@ import { ENTRYPOINT_V7_SIMULATIONS_BYTECODE } from "./bytecode"
 import { ENTRYPOINT_V7_ADDRESS } from "./constants"
 import type { ExecutionResultV7 } from "./types"
 
-interface SimulateHandleOpParams {
+export interface SimulateHandleOpParams {
   userOperation: UserOperationV7
   targetAddress: Address
   targetCallData: Hex

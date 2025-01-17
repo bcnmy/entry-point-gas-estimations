@@ -114,6 +114,10 @@ await gasEstimator.estimateUserOperationGas({
 });
 ```
 
+## API Reference
+
+For detailed documentation and API reference, visit our [api documentation here](https://bcnmy.github.io/entry-point-gas-estimations).
+
 ## Building 
 
 To build the project do `bun run build`

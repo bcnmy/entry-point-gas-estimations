@@ -45,7 +45,7 @@ export const userOperationV7Schema = z
 
 export type UserOperationV7 = z.infer<typeof userOperationV7Schema>
 
-const packedUserOperationSchema = z
+export const packedUserOperationSchema = z
   .object({
     sender: addressSchema,
     nonce: hexNumberSchema,

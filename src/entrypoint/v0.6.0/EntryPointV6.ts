@@ -41,7 +41,7 @@ export class EntryPointV6 {
     targetAddress,
     targetCallData,
     stateOverrides
-  }: SimulateHandleOpParams): Promise<ExecutionResultV6> {
+  }: SimulateHandleOpParamsV6): Promise<ExecutionResultV6> {
     userOperation = userOperationV6Schema.parse(userOperation)
 
     const simulateHandleOpParams: any = [
@@ -163,7 +163,7 @@ export class EntryPointV6 {
   }
 }
 
-interface SimulateHandleOpParams {
+export interface SimulateHandleOpParamsV6 {
   userOperation: UserOperationV6
   targetAddress: Address
   targetCallData: Hex
