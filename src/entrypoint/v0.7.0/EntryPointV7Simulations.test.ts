@@ -68,7 +68,7 @@ describe("e2e", () => {
 
       beforeAll(async () => {
         nexusClient = await createNexusClient({
-          k1ValidatorAddress: "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
+          validatorAddress: "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
           factoryAddress: "0x00000024115AA990F0bAE0B6b0D5B8F68b684cd6",
           signer: account,
           chain: getCustomChain(testChain.name, testChain.chainId, rpcUrl, ""),
