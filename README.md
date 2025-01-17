@@ -113,3 +113,39 @@ await gasEstimator.estimateUserOperationGas({
     .build()
 });
 ```
+
+## Building 
+
+To build the project do `bun run build`
+
+## Publishing
+
+### Production Release
+To publish a new production version:
+
+1. Create a new changeset (documents your changes):
+```sh
+bun run changeset
+```
+
+2. Version the package (updates package.json and changelog):
+```sh
+bun run changeset:version
+```
+
+3. Publish to npm:
+```sh
+bun run changeset:release
+```
+
+### Canary Release
+To publish a canary (preview) version:
+```sh
+bun run changeset:release:canary
+```
+
+This will publish a canary version to npm with a temporary version number. The original package.json will be restored automatically after publishing.
+
+[Canary Release](https://www.npmjs.com/package/@biconomy/gas-estimations-canary)
+
+**Note:** You need to have appropriate npm permissions to publish the package.

@@ -1,6 +1,6 @@
 {
   "name": "@biconomy/gas-estimations",
-  "version": "0.2.55",
+  "version": "0.2.56",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/bcnmy/entry-point-gas-estimations",
@@ -12,7 +12,11 @@
     "lint:fix": "bun run lint --apply",
     "build": "tsc",
     "test": "vitest --run --reporter=verbose",
-    "test:coverage": "vitest --run --reporter=verbose --coverage"
+    "test:coverage": "vitest --run --reporter=verbose --coverage",
+    "changeset": "changeset",
+    "changeset:release": "bun run build && changeset publish",
+    "changeset:version": "changeset version && bun install --lockfile-only",
+    "changeset:release:canary": "original_name=$(bun run scripts/publish:canary.ts | grep ORIGINAL_NAME | cut -d'=' -f2) && npm publish && git checkout package.json && git tag -l '*-canary.*' | xargs git tag -d && git fetch --tags && git reset --hard && git clean -fd && echo \"Published canary version of $original_name as latest\""
   },
   "dependencies": {
     "zod": "^3.24.1",
@@ -25,6 +29,7 @@
     "@biconomy/account": "^4.5.7",
     "@biconomy/sdk": "^0.0.24",
     "@biomejs/biome": "1.9.4",
+    "@changesets/cli": "^2.27.11",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@rhinestone/module-sdk": "^0.2.3",
@@ -33,8 +38,8 @@
     "config": "^3.3.12",
     "simple-git-hooks": "^2.11.1",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.8",
-    "viem": "^2.22.8"
+    "viem": "^2.22.8",
+    "vitest": "^2.1.8"
   },
   "peerDependencies": {
     "viem": "^2.22.8"
