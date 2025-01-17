@@ -18,12 +18,51 @@ import { MantleGasEstimator } from "./mantle/MantleGasEstimator"
 import { OptimismGasEstimator } from "./optimism/OptimismGasEstimator"
 import type { EntryPoints } from "./types"
 
+/**
+ * Options for creating a gas estimator instance.
+ */
 export interface CreateGasEstimatorOptions {
+  /** Chain ID of the target network */
   chainId: number
+  /** Optional chain configuration to override defaults */
   chain?: SupportedChain
+  /** RPC endpoint URL or client instance */
   rpc: string | GasEstimatorRpcClient
 }
 
+/**
+ * Creates a gas estimator instance appropriate for the specified chain.
+ * Automatically selects the correct estimator implementation based on the chain type
+ * (e.g., Optimism, Arbitrum, Mantle, or standard EVM).
+ *
+ * @param options - Configuration options for the gas estimator
+ * @param options.chainId - Chain ID of the target network
+ * @param options.chain - Optional chain configuration to override defaults
+ * @param options.rpc - RPC endpoint URL or client instance
+ *
+ * @returns An instance of {@link GasEstimator} appropriate for the chain
+ * @throws Error if the chain configuration is invalid
+ *
+ * @example
+ * ```typescript
+ * // Using RPC URL
+ * const estimator = createGasEstimator({
+ *   chainId: 1,
+ *   rpc: "https://eth-mainnet.g.alchemy.com/v2/YOUR-API-KEY"
+ * });
+ *
+ * // Using custom chain config
+ * const estimator = createGasEstimator({
+ *   chainId: 10,
+ *   chain: {
+ *     name: "Optimism",
+ *     stack: ChainStack.Optimism,
+ *     // ... other chain properties
+ *   },
+ *   rpc: rpcClient
+ * });
+ * ```
+ */
 export function createGasEstimator({
   chainId,
   chain,
@@ -74,6 +113,16 @@ export function createGasEstimator({
   return gasEstimator
 }
 
+/**
+ * Merges custom chain configuration with default chain settings.
+ *
+ * @param chainId - Chain ID to look up default configuration
+ * @param chain - Optional custom chain configuration to merge
+ * @returns Complete chain configuration
+ * @throws Error if the resulting configuration is invalid
+ *
+ * @internal
+ */
 export function mergeChainConfig(
   chainId: number,
   chain?: Partial<SupportedChain>
@@ -93,6 +142,15 @@ export function mergeChainConfig(
   return merged
 }
 
+/**
+ * Creates an RPC client instance from a URL or existing client.
+ *
+ * @param chainId - Chain ID for the RPC client
+ * @param rpc - RPC endpoint URL or existing client instance
+ * @returns A configured {@link GasEstimatorRpcClient}
+ *
+ * @internal
+ */
 export function createRpcClient(
   chainId: number,
   rpc: string | GasEstimatorRpcClient
@@ -111,6 +169,15 @@ export function createRpcClient(
   return rpcClient
 }
 
+/**
+ * Creates EntryPoint contract instances for both v0.6.0 and v0.7.0.
+ *
+ * @param chain - Chain configuration containing EntryPoint addresses
+ * @param rpcClient - RPC client for contract interactions
+ * @returns Map of {@link EntryPointVersion} to contract instances
+ *
+ * @internal
+ */
 export function createEntryPoints(
   chain: SupportedChain,
   rpcClient: GasEstimatorRpcClient

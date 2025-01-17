@@ -33,7 +33,30 @@ import {
 } from "./constants"
 import { type ExecutionResultV6, SimulateHandleOpError } from "./types"
 
+/**
+ * Extension of EntryPointV6 that provides gas estimation simulations for user operations.
+ * Implements binary search algorithms for estimating verification and call gas limits.
+ *
+ * @extends EntryPointV6
+ *
+ * @example
+ * ```typescript
+ * const simulator = new EntryPointV6Simulations(rpcClient);
+ * const gasEstimate = await simulator.estimateVerificationGasLimit({
+ *   userOperation: userOp,
+ *   stateOverrides: overrides
+ * });
+ * ```
+ */
 export class EntryPointV6Simulations extends EntryPointV6 {
+  /**
+   * Creates a new EntryPointV6Simulations instance
+   *
+   * @param client - The RPC client used for blockchain interactions
+   * @param address - The EntryPoint contract address, defaults to {@link ENTRYPOINT_V6_ADDRESS}
+   * @param verificationGasEstimationSimulatorByteCode - Bytecode for verification gas estimation simulator
+   * @param callGasEstimationSimulatorByteCode - Bytecode for call gas estimation simulator
+   */
   constructor(
     client: EntryPointRpcClient,
     public address: Address = ENTRYPOINT_V6_ADDRESS,
@@ -53,6 +76,34 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     super(client, address)
   }
 
+  /**
+   * Estimates the verification gas limit for a user operation using binary search.
+   * Also returns the valid time window for the operation.
+   *
+   * @param params - The estimation parameters
+   * @param params.userOperation - The user operation to estimate gas for
+   * @param params.stateOverrides - Optional state overrides for the simulation
+   * @param params.entryPointAddress - Optional custom entry point address
+   *
+   * @returns Object containing verification gas limit and validity window
+   * @throws {Error} If initCode is not empty (unsupported for non-deployed accounts)
+   * @throws {SimulateHandleOpError} If simulation fails
+   * @throws {UnknownError} If an unexpected error occurs
+   *
+   * @example
+   * ```typescript
+   * const estimate = await simulator.estimateVerificationGasLimit({
+   *   userOperation: {
+   *     sender: '0x123...',
+   *     nonce: '0x1',
+   *     // ... other fields
+   *   },
+   *   stateOverrides: {
+   *     // Optional state modifications
+   *   }
+   * });
+   * ```
+   */
   async estimateVerificationGasLimit({
     userOperation,
     stateOverrides,
@@ -115,6 +166,28 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     }
   }
 
+  /**
+   * Estimates the call gas limit for a user operation using binary search.
+   *
+   * @param params - The estimation parameters
+   * @param params.userOperation - The user operation to estimate gas for
+   * @param params.stateOverrides - Optional state overrides for the simulation
+   * @param params.entryPointAddress - Optional custom entry point address
+   *
+   * @returns The estimated call gas limit as a bigint
+   * @throws {Error} If initCode is not empty (unsupported for non-deployed accounts)
+   * @throws {RpcError} If the user operation reverts during execution
+   *
+   * @example
+   * ```typescript
+   * const callGas = await simulator.estimateCallGasLimit({
+   *   userOperation: userOp,
+   *   stateOverrides: {
+   *     // Optional state modifications
+   *   }
+   * });
+   * ```
+   */
   async estimateCallGasLimit({
     userOperation,
     stateOverrides,
@@ -170,6 +243,15 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     return this.parseEstimateCallGasLimitResult(executionResult)
   }
 
+  /**
+   * Parses the result from call gas limit estimation.
+   *
+   * @param data - The execution result from the simulation
+   * @returns The estimated call gas limit
+   * @throws {RpcError} If the estimation fails or returns an unknown error
+   *
+   * @internal
+   */
   parseEstimateCallGasLimitResult(data: ExecutionResultV6) {
     const result = decodeErrorResult({
       abi: CALL_GAS_ESTIMATION_SIMULATOR,
@@ -200,6 +282,17 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     })
   }
 
+  /**
+   * Parses the result from verification gas limit estimation.
+   *
+   * @param data - The hex data from the simulation revert
+   * @returns Object containing verification gas limit and validity window
+   * @throws {SimulateHandleOpError} If RPC fails to perform state override
+   * @throws {RpcError} If operation validation fails
+   * @throws {UnknownError} If an unexpected error occurs
+   *
+   * @internal
+   */
   parseEstimateVerificationGasLimitResult(
     data: Hex
   ): EstimateVerificationGasLimitResult {
@@ -255,6 +348,14 @@ export class EntryPointV6Simulations extends EntryPointV6 {
     )
   }
 
+  /**
+   * Handles failed operation errors and throws appropriate exceptions.
+   *
+   * @param revertReason - The revert reason string
+   * @throws {RpcError} With appropriate error code based on the AA error type
+   *
+   * @internal
+   */
   private handleFailedOp(revertReason: string) {
     revertReason = cleanUpRevertReason(revertReason)
     if (revertReason.includes("AA1") || revertReason.includes("AA2")) {
@@ -294,6 +395,9 @@ export class EntryPointV6Simulations extends EntryPointV6 {
   }
 }
 
+/**
+ * Custom error class for unknown estimation errors
+ */
 class UnknownError extends Error {
   constructor(
     public errorName: string,
@@ -302,14 +406,27 @@ class UnknownError extends Error {
     super(`Unknown error: ${errorName} - ${errorReason}`)
   }
 }
+
+/**
+ * Parameters for gas estimation methods
+ */
 export interface EstimateVerificationGasLimitParams {
+  /** The user operation to estimate gas for */
   userOperation: UserOperationV6
+  /** Optional state overrides for the simulation */
   stateOverrides?: StateOverrideSet
+  /** Optional custom entry point address */
   entryPointAddress?: Address
 }
 
+/**
+ * Result of verification gas limit estimation
+ */
 export interface EstimateVerificationGasLimitResult {
+  /** The estimated verification gas limit */
   verificationGasLimit: bigint
+  /** Timestamp after which the operation becomes valid */
   validAfter: number
+  /** Timestamp until which the operation remains valid */
   validUntil: number
 }

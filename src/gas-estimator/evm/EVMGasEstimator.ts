@@ -42,7 +42,39 @@ import {
   defaultGasOverheads
 } from "./constants"
 
+/**
+ * Base implementation of gas estimation for EVM-compatible chains.
+ * Provides methods for estimating gas costs for user operations including verification,
+ * execution, and pre-verification gas.
+ *
+ * @implements {@link GasEstimator}
+ *
+ * @example
+ * ```typescript
+ * const estimator = new EVMGasEstimator(
+ *   chain,
+ *   rpcClient,
+ *   {
+ *     [EntryPointVersion.v060]: entryPointV6,
+ *     [EntryPointVersion.v070]: entryPointV7
+ *   }
+ * );
+ *
+ * const gasEstimate = await estimator.estimateUserOperationGas({
+ *   unEstimatedUserOperation,
+ *   baseFeePerGas: 1000000000n
+ * });
+ * ```
+ */
 export class EVMGasEstimator implements GasEstimator {
+  /**
+   * Creates a new EVMGasEstimator instance
+   *
+   * @param chain - The {@link SupportedChain} to estimate gas for
+   * @param rpcClient - The RPC client for making blockchain requests
+   * @param entryPoints - Map of {@link EntryPointVersion} to their contract instances
+   * @param simulationLimits - Optional gas limits for simulation, defaults to predefined constants
+   */
   constructor(
     public chain: SupportedChain,
     protected rpcClient: GasEstimatorRpcClient,
@@ -54,6 +86,33 @@ export class EVMGasEstimator implements GasEstimator {
     }
   ) {}
 
+  /**
+   * Estimates all gas parameters for a user operation.
+   *
+   * @param params - The estimation parameters
+   * @param params.unEstimatedUserOperation - The user operation to estimate gas for
+   * @param params.baseFeePerGas - Current base fee per gas
+   * @param params.stateOverrides - Optional state overrides for simulation
+   * @param params.options - Additional estimation options
+   *
+   * @returns Gas estimation results including all required gas limits
+   * @throws Error if simulation or estimation fails
+   *
+   * @example
+   * ```typescript
+   * const estimate = await estimator.estimateUserOperationGas({
+   *   unEstimatedUserOperation: {
+   *     sender: "0x123...",
+   *     nonce: 1n,
+   *     // ... other fields
+   *   },
+   *   baseFeePerGas: 1000000000n,
+   *   stateOverrides: {
+   *     // Optional state modifications
+   *   }
+   * });
+   * ```
+   */
   async estimateUserOperationGas({
     unEstimatedUserOperation,
     baseFeePerGas,
@@ -103,6 +162,14 @@ export class EVMGasEstimator implements GasEstimator {
     )
   }
 
+  /**
+   * Determines the EntryPoint version based on the user operation format.
+   *
+   * @param userOperation - The {@link UserOperation} to check
+   * @returns The corresponding {@link EntryPointVersion}
+   *
+   * @internal
+   */
   private determineEntryPointVersion(
     userOperation: UserOperation
   ): EntryPointVersion {
@@ -111,6 +178,14 @@ export class EVMGasEstimator implements GasEstimator {
       : EntryPointVersion.v070
   }
 
+  /**
+   * Overrides user operation gas limits for simulation purposes.
+   *
+   * @param unEstimatedUserOperation - The original user operation
+   * @returns A new user operation with simulation gas limits
+   *
+   * @internal
+   */
   private overrideUserOperationForSimulation(
     unEstimatedUserOperation: UnEstimatedUserOperation
   ): UserOperation {
@@ -124,6 +199,19 @@ export class EVMGasEstimator implements GasEstimator {
     return userOperation
   }
 
+  /**
+   * Estimates gas parameters for v0.7.0 user operations.
+   *
+   * @param userOperation - The {@link UserOperationV7} to estimate for
+   * @param stateOverrides - Optional state overrides for simulation
+   * @param baseFeePerGas - Current base fee per gas
+   * @param options - Additional estimation options
+   *
+   * @returns Gas estimation results
+   * @throws Error if simulation fails
+   *
+   * @internal
+   */
   private async estimateUserOperationGasV7(
     userOperation: UserOperationV7,
     stateOverrides: StateOverrideSet | undefined,
@@ -198,6 +286,19 @@ export class EVMGasEstimator implements GasEstimator {
     }
   }
 
+  /**
+   * Estimates gas parameters for v0.6.0 user operations.
+   *
+   * @param userOperation - The {@link UserOperationV6} to estimate for
+   * @param stateOverrides - Optional state overrides for simulation
+   * @param baseFeePerGas - Current base fee per gas
+   * @param options - Additional estimation options
+   *
+   * @returns Gas estimation results
+   * @throws Error if simulation fails
+   *
+   * @internal
+   */
   private async estimateUserOperationGasV6(
     userOperation: UserOperationV6,
     stateOverrides: StateOverrideSet | undefined,
@@ -261,6 +362,19 @@ export class EVMGasEstimator implements GasEstimator {
     }
   }
 
+  /**
+   * Uses binary search to estimate gas limits for deployed accounts.
+   *
+   * @param userOperation - The user operation to estimate for
+   * @param baseFeePerGas - Current base fee per gas
+   * @param options - Estimation options
+   * @param stateOverrides - Optional state overrides
+   *
+   * @returns Gas estimation results
+   * @throws Error if binary search fails
+   *
+   * @internal
+   */
   async useBinarySearch(
     userOperation: UserOperationV6,
     baseFeePerGas: bigint,
@@ -296,6 +410,15 @@ export class EVMGasEstimator implements GasEstimator {
     }
   }
 
+  /**
+   * Estimates verification and call gas limits from execution results.
+   *
+   * @param userOperation - The user operation being estimated
+   * @param executionResult - The simulation execution result
+   * @returns Object containing gas limits and validity window
+   *
+   * @internal
+   */
   estimateVerificationAndCallGasLimits(
     userOperation: UserOperation,
     executionResult: ExecutionResult
@@ -321,6 +444,22 @@ export class EVMGasEstimator implements GasEstimator {
     }
   }
 
+  /**
+   * Estimates pre-verification gas for a user operation.
+   * Calculates gas costs for calldata and fixed overheads.
+   *
+   * @param userOperation - The {@link UserOperation} to estimate for
+   * @param baseFeePerGas - Optional base fee per gas
+   * @returns The estimated pre-verification gas as a bigint
+   *
+   * @example
+   * ```typescript
+   * const preVerificationGas = await estimator.estimatePreVerificationGas(
+   *   userOperation,
+   *   1000000000n
+   * );
+   * ```
+   */
   async estimatePreVerificationGas(
     userOperation: UserOperation,
     baseFeePerGas?: bigint
@@ -353,6 +492,15 @@ export class EVMGasEstimator implements GasEstimator {
     return preVerificationGas
   }
 
+  /**
+   * Merges user-provided options with default estimation options.
+   *
+   * @param entryPointVersion - The {@link EntryPointVersion} being used
+   * @param options - Partial options to merge with defaults
+   * @returns Complete estimation options
+   *
+   * @internal
+   */
   mergeEstimateUserOperationGasOptions(
     entryPointVersion: EntryPointVersion,
     options?: Partial<EstimateUserOperationGasOptions>
