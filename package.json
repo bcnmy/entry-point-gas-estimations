@@ -15,7 +15,6 @@
     "test:coverage": "vitest --run --reporter=verbose --coverage"
   },
   "dependencies": {
-    "viem": "^2.22.8",
     "zod": "^3.24.1",
     "zod-validation-error": "^3.4.0"
   },
@@ -34,7 +33,11 @@
     "config": "^3.3.12",
     "simple-git-hooks": "^2.11.1",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "viem": "^2.22.8"
+  },
+  "peerDependencies": {
+    "viem": "^2.22.8"
   },
   "commitlint": {
     "extends": [
