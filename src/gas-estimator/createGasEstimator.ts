@@ -16,6 +16,7 @@ import { ArbitrumGasEstimator } from "./arbitrum/ArbitrumGasEstimator"
 import { EVMGasEstimator } from "./evm/EVMGasEstimator"
 import { MantleGasEstimator } from "./mantle/MantleGasEstimator"
 import { OptimismGasEstimator } from "./optimism/OptimismGasEstimator"
+import { SonicGasEstimator } from "./sonic/SonicGasEstimator"
 import type { EntryPoints } from "./types"
 
 /**
@@ -75,6 +76,7 @@ export function createGasEstimator({
   const entryPointContracts = createEntryPoints(chain, rpcClient)
 
   let gasEstimator: GasEstimator
+
   switch (chain?.stack) {
     case ChainStack.Optimism:
       gasEstimator = new OptimismGasEstimator(
@@ -98,6 +100,14 @@ export function createGasEstimator({
         rpcClient,
         entryPointContracts,
         chain.simulation
+      )
+      break
+    case ChainStack.Sonic:
+      gasEstimator = new SonicGasEstimator(
+        chain,
+        rpcClient,
+        entryPointContracts,
+        chain?.simulation
       )
       break
     default:

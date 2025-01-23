@@ -13,7 +13,6 @@ import {
   createWalletClient,
   extractChain,
   parseEther,
-  toHex,
   zeroAddress
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
@@ -41,6 +40,8 @@ describe("e2e", () => {
     const account = privateKeyToAccount(privateKey)
 
     const testChains = filterTestChains()
+
+    it("mock test to prevent 'No test found in suite' error", () => {})
 
     describe.each(testChains)("On $name ($chainId)", (testChain) => {
       const bundlerUrl = `https://host.com/api/v2/${testChain.chainId}/apikey`
@@ -90,7 +91,7 @@ describe("e2e", () => {
             rpcUrl,
             ""
           ),
-          signer,
+          signer: signer as any,
           bundlerUrl
         })
 
@@ -305,6 +306,7 @@ export function filterTestChains() {
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
+      chain.smartAccountSupport.smartAccountsV2 &&
       !excludeChainIds.includes(chain.chainId) &&
       (includeChainIds.length === 0 || includeChainIds.includes(chain.chainId))
   )

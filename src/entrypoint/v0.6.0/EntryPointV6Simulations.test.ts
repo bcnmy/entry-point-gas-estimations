@@ -30,6 +30,8 @@ import { ENTRYPOINT_V6_ADDRESS } from "./constants"
 
 describe("e2e", () => {
   describe("EntryPointV6Simulations", () => {
+    it("mock test to prevent 'No test found in suite' error", () => {})
+
     const privateKey = generatePrivateKey()
     const account = privateKeyToAccount(privateKey)
 
@@ -99,7 +101,7 @@ describe("e2e", () => {
 
       beforeAll(async () => {
         smartAccount = await createSmartAccountClient({
-          signer,
+          signer: signer as any,
           bundlerUrl,
           customChain: getCustomChain(
             testChain.name,
