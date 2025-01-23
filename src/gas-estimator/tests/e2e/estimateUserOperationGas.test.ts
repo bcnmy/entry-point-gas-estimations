@@ -678,19 +678,19 @@ describe("e2e", () => {
                 ].smartAccountDeployment =
                   `${requiredPrefundEth} ${nativeCurrencySymbol} ($${requiredPrefundUsd})`
 
-                // const { paid } = await entryPoint.simulateHandleOp({
-                //   userOperation: estimatedUserOperation,
-                //   targetAddress: entryPoint.address,
-                //   targetCallData: estimatedUserOperation.callData,
-                //   stateOverrides: new StateOverrideBuilder()
-                //     .overrideBalance(
-                //       estimatedUserOperation.sender,
-                //       1000000000000000000n
-                //     )
-                //     .build()
-                // })
+                const { paid } = await entryPoint.simulateHandleOp({
+                  userOperation: estimatedUserOperation,
+                  targetAddress: entryPoint.address,
+                  targetCallData: estimatedUserOperation.callData,
+                  stateOverrides: new StateOverrideBuilder()
+                    .overrideBalance(
+                      estimatedUserOperation.sender,
+                      1000000000000000000n
+                    )
+                    .build()
+                })
 
-                // expect(paid).toBeGreaterThan(0n)
+                expect(paid).toBeGreaterThan(0n)
               }, 10_000)
             })
           })
