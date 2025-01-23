@@ -1,8 +1,17 @@
 # Biconomy Gas Estimations
 
+[![codecov](https://codecov.io/gh/bcnmy/entry-point-gas-estimations/graph/badge.svg?token=YFY752HCIC)](https://codecov.io/gh/bcnmy/entry-point-gas-estimations)
+
 A utility package that performs simulation and estimations of all ERC-4337 User Operation gas limits.
 
+## Quickstart:
+
+```sh
+bun add @biconomy/gas-estimations viem
+```
+
 ## Usage
+
 ### Create a Gas Estimator
 You can create the gas estimator for you chain of choice in multiple ways.
 
@@ -113,3 +122,63 @@ await gasEstimator.estimateUserOperationGas({
     .build()
 });
 ```
+
+## API Reference
+
+For detailed documentation and API reference, visit our [api documentation here](https://bcnmy.github.io/entry-point-gas-estimations).
+
+## Building 
+
+To build the project do `bun run build`
+
+## Publishing
+
+### Production Release
+To publish a new production version:
+
+1. Create a new changeset (documents your changes):
+```sh
+bun run changeset
+```
+
+2. Version the package (updates package.json and changelog):
+```sh
+bun run changeset:version
+```
+
+3. Publish to npm:
+```sh
+bun run changeset:release
+```
+
+### Canary Release
+To publish a canary (preview) version:
+```sh
+bun run changeset:release:canary
+```
+
+This will publish a canary version to npm with a temporary version number. The original package.json will be restored automatically after publishing.
+
+[Canary Release](https://www.npmjs.com/package/@biconomy/gas-estimations)
+
+**Note:** You need to have appropriate npm permissions to publish the package.
+
+## Linking & Developing
+
+To link the package to your project, run:
+
+```sh
+bun run dev
+```
+
+Then in your linked project, update your package.json dependencies to point to the local SDK:
+
+```json
+{
+  "dependencies": {
+    "@biconomy/gas-estimations": "file:../../entry-point-gas-estimations"
+  }
+}
+```
+
+This will run the package in watch mode, and will automatically update the package in your linked project.

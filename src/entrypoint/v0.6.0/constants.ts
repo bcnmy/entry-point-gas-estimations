@@ -1,30 +1,30 @@
-import { Address } from "viem";
+import type { Address } from "viem"
 
 export const ENTRYPOINT_V6_ADDRESS: Address =
-  "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789";
+  "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789"
 
 export const ENTRYPOINT_V6_PAYMASTER_BALANCE_STATE_DIFF_KEY =
-  "0x7b1db62eb517aa7a8fe6a2f7090eb1290f2456d50cda5e14582fc6f6ff7bd478";
+  "0x7b1db62eb517aa7a8fe6a2f7090eb1290f2456d50cda5e14582fc6f6ff7bd478"
 
 // Constants for verification gas limit binary search
-export const INITIAL_VGL_LOWER_BOUND = 0n;
-export const INITIAL_VGL_UPPER_BOUND = 30_000_000n;
-export const VGL_ROUNDING = 1n;
-export const VERIFICATION_EXECUTION_AT_MAX_GAS = false;
+export const INITIAL_VGL_LOWER_BOUND = 0n
+export const INITIAL_VGL_UPPER_BOUND = 30_000_000n
+export const VGL_ROUNDING = 1n
+export const VERIFICATION_EXECUTION_AT_MAX_GAS = false
 
 // Constants for call gas limit binary search
-export const INITIAL_CGL_LOWER_BOUND = 0n;
-export const INITIAL_CGL_UPPER_BOUND = 30_000_000n;
-export const CGL_ROUNDING = 1n;
-export const CALL_DATA_EXECUTION_AT_MAX_GAS = false;
+export const INITIAL_CGL_LOWER_BOUND = 0n
+export const INITIAL_CGL_UPPER_BOUND = 30_000_000n
+export const CGL_ROUNDING = 1n
+export const CALL_DATA_EXECUTION_AT_MAX_GAS = false
 
 // Default override values for simulations
-export const MAX_FEE_PER_GAS_OVERRIDE_VALUE = 1_000_000n;
-export const MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE = 1_000_000n;
+export const MAX_FEE_PER_GAS_OVERRIDE_VALUE = 1_000_000n
+export const MAX_PRIORITY_FEE_PER_GAS_OVERRIDE_VALUE = 1_000_000n
 
-export const PRE_VERIFICATION_GAS_OVERRIDE_VALUE = 0n;
-export const VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE = 10_000_000n;
-export const CALL_GAS_LIMIT_OVERRIDE_VALUE = 10_000_000n;
+export const PRE_VERIFICATION_GAS_OVERRIDE_VALUE = 0n
+export const VERIFICATION_GAS_LIMIT_OVERRIDE_VALUE = 10_000_000n
+export const CALL_GAS_LIMIT_OVERRIDE_VALUE = 10_000_000n
 
 export const VALIDATION_ERRORS = {
   INVALID_USER_OP_FIELDS: -32602,
@@ -42,5 +42,5 @@ export const VALIDATION_ERRORS = {
   BAD_REQUEST: -32003,
   USER_OP_HASH_NOT_FOUND: -32004,
   UNABLE_TO_PROCESS_USER_OP: -32005,
-  METHOD_NOT_FOUND: -32601,
-};
+  METHOD_NOT_FOUND: -32601
+}

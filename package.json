@@ -1,42 +1,81 @@
 {
   "name": "@biconomy/gas-estimations",
-  "version": "0.2.55",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "version": "0.2.60",
   "repository": "https://github.com/bcnmy/entry-point-gas-estimations",
   "author": "Nikola Divić <nikola.divic@biconomy.io>",
   "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "lint": "eslint . --ext .ts",
-    "format": "eslint 'src' --ext .ts --fix",
-    "build": "tsc",
-    "test": "vitest --run --reporter=verbose",
-    "test:coverage": "vitest --run --reporter=verbose --coverage"
+    "dev": "bun link && bun run build:types && bun run build:watch",
+    "format": "biome format . --write",
+    "lint": "biome check .",
+    "lint:fix": "bun run lint --apply",
+    "build": "bun run build:types && bun run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "tsup src/index.ts --format esm,cjs --dts --outDir dist --clean",
+    "build:watch": "tsup src/index.ts --format esm,cjs --dts --outDir dist --watch",
+    "test": "vitest -c ./vitest.config.ts --run --reporter=verbose",
+    "test:coverage": "CI=true vitest -c ./vitest.config.ts --run --reporter=verbose --coverage",
+    "changeset": "changeset",
+    "changeset:release": "bun run build && changeset publish",
+    "changeset:version": "changeset version && bun install --lockfile-only",
+    "changeset:release:canary": "original_name=$(bun run scripts/publish:canary.ts | grep ORIGINAL_NAME | cut -d'=' -f2) && npm publish && git checkout package.json && git tag -l '*-canary.*' | xargs git tag -d && git fetch --tags && git reset --hard && git clean -fd && echo \"Published canary version of $original_name as latest\"",
+    "docs": "typedoc --tsconfig ./tsconfig.json",
+    "docs:deploy": "bun run docs && gh-pages -d docs",
+    "size": "size-limit",
+    "init:tests": "bun run scripts/init:tests.ts"
   },
   "dependencies": {
-    "viem": "^2.22.8",
     "zod": "^3.24.1",
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-typescript": "^7.26.0",
     "@biconomy/account": "^4.5.7",
-    "@biconomy/sdk": "^0.0.24",
+    "@biconomy/sdk": "^0.0.29",
+    "@biomejs/biome": "1.9.4",
+    "@changesets/cli": "^2.27.11",
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
     "@rhinestone/module-sdk": "^0.2.3",
+    "@size-limit/esbuild-why": "^11.1.6",
+    "@size-limit/preset-small-lib": "^11.1.6",
+    "@types/bun": "^1.1.17",
     "@types/config": "^3.3.5",
-    "@types/node": "^22.10.6",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
+    "@types/node": "^22.10.7",
+    "@vitest/coverage-v8": "^3.0.1",
     "config": "^3.3.12",
-    "eslint": "^9.18.0",
-    "eslint-config-airbnb-typescript": "^18.0.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-tsdoc": "^0.4.0",
+    "dotenv": "^16.4.7",
+    "gh-pages": "^6.3.0",
+    "simple-git-hooks": "^2.11.1",
+    "size-limit": "^11.1.6",
+    "tsup": "^8.3.5",
+    "typedoc": "^0.27.6",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.8"
+    "viem": "^2.22.9",
+    "vitest": "^3.0.1"
+  },
+  "peerDependencies": {
+    "viem": "^2.22.9"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "simple-git-hooks": {
+    "hooks": {
+      "pre-commit": "bun run format && bun run lint:fix",
+      "commit-msg": "npx --no -- commitlint --edit ${1}"
+    }
   }
 }

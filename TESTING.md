@@ -9,6 +9,7 @@ Here's how to setup & run a E2E for a selected network.
 > 💡 For the purpose of this example we will assume we are testing Base Sepolia (84532)
 
 1. **Create a `test.json` file in the `config` directory**: You can use `test-example.json` as a reference.
+  - `bun run init:tests` will create and saturate the `test.json` file with API keys from environment variables.
 2. **Get a private RPC URL from one of the providers**: E2E tests require proper private RPC URLs and usually don't work with public RPC URLs because they don't support RPC features such as state overrides or trace calls. **Alchemy** is a good first choice.
 3. **Add the private RPC URL to the `test.json` file:** The config should look something like this:
   ```json
@@ -18,7 +19,7 @@ Here's how to setup & run a E2E for a selected network.
     },
   }
   ```
-4. 🚀 Run the tests using: `pnpm test`
+4. 🚀 Run the tests using: `bun run test`
 
 Useful options:
 - `includeInTests`: you can specify chain IDs for chains you want to test so you don't run all tests (takes a long time). By default it's an empty array and that means it will run all of the tests for all chains in the suite.
@@ -26,9 +27,9 @@ Useful options:
 
 ## Running tests
 
-You can run **all tests** by using the `pnpm test` command.
+You can run **all tests** by using the `bun run test` command.
 
 > 💡 If you've used the `includeInTests` property, it will run only the tests for that chain.
 
 Tips:
-- You can narrow down on the test tag you want to run, for example `pnpm test -t 'EntryPoint v0.7.0'` will run just the tests for EPv0.7.0.
+- You can narrow down on the test tag you want to run, for example `bun run test -t 'EntryPoint v0.7.0'` will run just the tests for EPv0.7.0.

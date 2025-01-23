@@ -1,100 +1,101 @@
 import {
+  type BiconomySmartAccountV2,
+  type UserOperationStruct,
+  createSmartAccountClient,
+  getCustomChain
+} from "@biconomy/account"
+import config from "config"
+import {
+  http,
+  type Address,
+  type Hex,
   createPublicClient,
   createWalletClient,
-  http,
-  zeroAddress,
-  Address,
-  parseEther,
   extractChain,
-  Hex,
-} from "viem";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import {
-  BiconomySmartAccountV2,
-  createSmartAccountClient,
-  getCustomChain,
-  UserOperationStruct,
-} from "@biconomy/account";
-import * as chains from "viem/chains";
-import config from "config";
-import { EntryPointV6Simulations } from "./EntryPointV6Simulations";
-import { UserOperationV6, userOperationV6Schema } from "./UserOperationV6";
+  parseEther,
+  zeroAddress
+} from "viem"
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
+import * as chains from "viem/chains"
+import { beforeAll, describe, expect, it } from "vitest"
 import {
   DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS,
   DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS,
-  supportedChains,
-} from "../../chains/chains";
-import { ENTRYPOINT_V6_ADDRESS } from "./constants";
-import { describe, it, beforeAll, expect } from "vitest";
-import { StateOverrideBuilder } from "../shared/stateOverrides";
+  supportedChains
+} from "../../chains/chains"
+import { StateOverrideBuilder } from "../shared/stateOverrides"
+import { EntryPointV6Simulations } from "./EntryPointV6Simulations"
+import { type UserOperationV6, userOperationV6Schema } from "./UserOperationV6"
+import { ENTRYPOINT_V6_ADDRESS } from "./constants"
 
 describe("e2e", () => {
   describe("EntryPointV6Simulations", () => {
-    const privateKey = generatePrivateKey();
-    const account = privateKeyToAccount(privateKey);
+    const privateKey = generatePrivateKey()
+    const account = privateKeyToAccount(privateKey)
 
-    const testChains = filterTestChains();
+    const testChains = filterTestChains()
 
     describe.each(testChains)("On $name ($chainId)", (testChain) => {
       const rpcUrl = config.get<string>(
-        `testChains.${testChain.chainId}.rpcUrl`,
-      );
+        `testChains.${testChain.chainId}.rpcUrl`
+      )
 
       const testSender = config.get<Address>(
-        `testChains.${testChain.chainId}.testAddresses.v2`,
-      );
+        `testChains.${testChain.chainId}.testAddresses.v2`
+      )
 
-      const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`;
+      const bundlerUrl = `https://no.bundler.bro/api/v2/${testChain.chainId}/whatever`
 
-      const transport = http(rpcUrl);
+      const transport = http(rpcUrl)
 
       const viemChain =
         extractChain({
           chains: Object.values(chains),
-          id: testChain.chainId as any,
+          id: testChain.chainId as any
         }) ||
         ({
-          id: testChain.chainId,
-        } as chains.Chain);
+          id: testChain.chainId
+        } as chains.Chain)
 
       const viemClient = createPublicClient({
         chain: viemChain,
-        transport,
-      });
+        transport
+      })
 
       const signer = createWalletClient({
         account,
         chain: viemChain,
-        transport,
-      });
+        transport
+      })
 
-      let smartAccount: BiconomySmartAccountV2;
-      let userOperation: UserOperationV6;
+      let smartAccount: BiconomySmartAccountV2
+      let userOperation: UserOperationV6
 
-      const paymasters = testChain?.paymasters?.v060;
+      const paymasters = testChain?.paymasters?.v060
 
       const sponsorshipPaymaster = paymasters
         ? Object.values(paymasters).find(
-            (paymaster) => paymaster.type === "sponsorship",
+            (paymaster) => paymaster.type === "sponsorship"
           )
-        : undefined;
+        : undefined
 
       const tokenPaymaster = paymasters
         ? Object.values(paymasters).find(
-            (paymaster) => paymaster.type === "token",
+            (paymaster) => paymaster.type === "token"
           )
-        : undefined;
+        : undefined
 
       const entryPointContractAddress =
-        (testChain.entryPoints?.["v060"]?.address as Address) ||
-        ENTRYPOINT_V6_ADDRESS;
+        (testChain.entryPoints?.v060?.address as Address) ||
+        ENTRYPOINT_V6_ADDRESS
 
       const epv6Simulator = new EntryPointV6Simulations(
         viemClient,
-        entryPointContractAddress,
-      );
+        entryPointContractAddress
+      )
 
-      let maxFeePerGas: bigint, maxPriorityFeePerGas: bigint;
+      let maxFeePerGas: bigint
+      let maxPriorityFeePerGas: bigint
 
       beforeAll(async () => {
         smartAccount = await createSmartAccountClient({
@@ -104,24 +105,24 @@ describe("e2e", () => {
             testChain.name,
             testChain.chainId,
             rpcUrl,
-            "",
-          ),
-        });
+            ""
+          )
+        })
 
         const [callData, fees, nonce] = await Promise.all([
           smartAccount.encodeExecute(zeroAddress, 1n, "0x"),
           viemClient.estimateFeesPerGas(),
-          epv6Simulator.getNonce(testSender),
-        ]);
+          epv6Simulator.getNonce(testSender)
+        ])
 
         if (nonce === 0n) {
           throw new Error(
-            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`,
-          );
+            `Expected nonce for an existing smart account to be greater than 0, got ${nonce}`
+          )
         }
 
-        maxFeePerGas = fees.maxFeePerGas;
-        maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
+        maxFeePerGas = fees.maxFeePerGas
+        maxPriorityFeePerGas = fees.maxPriorityFeePerGas
 
         const unsignedUserOperation: Partial<UserOperationStruct> = {
           // We are using an existing deployed account so we don't get AA20 account not deployed
@@ -135,16 +136,16 @@ describe("e2e", () => {
           preVerificationGas: 100_000n,
           verificationGasLimit: 10_000_000n,
           paymasterAndData: "0x",
-          callData,
-        };
+          callData
+        }
 
         userOperation = userOperationV6Schema.parse(
-          await smartAccount.signUserOp(unsignedUserOperation),
-        );
-      }, 10_000);
+          await smartAccount.signUserOp(unsignedUserOperation)
+        )
+      }, 10_000)
 
       describe("without a paymaster", () => {
-        let stateOverrides: any = undefined;
+        let stateOverrides: any = undefined
 
         describe.runIf(testChain.stateOverrideSupport.balance)(
           "If we can override the sender's balance",
@@ -152,113 +153,113 @@ describe("e2e", () => {
             beforeAll(() => {
               stateOverrides = new StateOverrideBuilder()
                 .overrideBalance(userOperation.sender, parseEther("10000"))
-                .build();
-            });
+                .build()
+            })
 
             describe("estimateVerificationGasLimit", () => {
               it("should return a non-zero value", async () => {
                 const estimateResult =
                   await epv6Simulator.estimateVerificationGasLimit({
                     userOperation,
-                    stateOverrides,
-                  });
+                    stateOverrides
+                  })
 
-                expect(estimateResult).toBeDefined();
+                expect(estimateResult).toBeDefined()
 
-                const { verificationGasLimit } = estimateResult;
-                expect(verificationGasLimit).toBeGreaterThan(0);
-              }, 10_000);
-            });
+                const { verificationGasLimit } = estimateResult
+                expect(verificationGasLimit).toBeGreaterThan(0)
+              }, 10_000)
+            })
 
             describe("estimateCallGasLimit", () => {
               it("should return a non-zero value", async () => {
                 const estimateResult = await epv6Simulator.estimateCallGasLimit(
                   {
                     userOperation,
-                    stateOverrides,
-                  },
-                );
-                expect(estimateResult).toBeDefined();
-                expect(estimateResult).toBeGreaterThan(0n);
-              });
-            });
-          },
-        );
-      });
+                    stateOverrides
+                  }
+                )
+                expect(estimateResult).toBeDefined()
+                expect(estimateResult).toBeGreaterThan(0n)
+              })
+            })
+          }
+        )
+      })
 
       describe.runIf(testChain.stateOverrideSupport.stateDiff)(
         "If we can override the entrypoint's paymaster deposit",
         () => {
-          let stateOverrides: any = undefined;
+          let stateOverrides: any = undefined
 
           beforeAll(() => {
             stateOverrides = new StateOverrideBuilder()
               .overridePaymasterDeposit(
                 entryPointContractAddress,
-                DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS,
+                DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS
               )
               .overridePaymasterDeposit(
                 entryPointContractAddress,
-                DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS,
+                DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS
               )
               .overrideBalance(userOperation.sender, 1n)
-              .build();
-          });
+              .build()
+          })
 
           describe.runIf(sponsorshipPaymaster)(
             "given a sponsorship paymaster",
             () => {
               const paymasterAndData = sponsorshipPaymaster!
-                .dummyPaymasterAndData as Hex;
+                .dummyPaymasterAndData as Hex
 
               describe("estimateVerificationGasLimit", () => {
                 it("should return a non-zero value", async () => {
                   const sponsoredUserOperation = {
                     ...userOperation,
-                    paymasterAndData: paymasterAndData,
-                  };
+                    paymasterAndData: paymasterAndData
+                  }
 
                   const estimateResult =
                     await epv6Simulator.estimateVerificationGasLimit({
                       userOperation: sponsoredUserOperation,
-                      stateOverrides,
-                    });
+                      stateOverrides
+                    })
 
-                  expect(estimateResult).toBeDefined();
+                  expect(estimateResult).toBeDefined()
 
-                  const { verificationGasLimit } = estimateResult;
-                  expect(verificationGasLimit).toBeGreaterThan(0);
-                });
-              });
+                  const { verificationGasLimit } = estimateResult
+                  expect(verificationGasLimit).toBeGreaterThan(0)
+                })
+              })
 
               describe("estimateCallGasLimit", () => {
                 it("should return a non-zero value", async () => {
                   const sponsoredUserOperation = {
                     ...userOperation,
-                    paymasterAndData,
-                  };
+                    paymasterAndData
+                  }
 
                   const callGasLimit = await epv6Simulator.estimateCallGasLimit(
                     {
                       userOperation: sponsoredUserOperation,
                       stateOverrides: new StateOverrideBuilder()
                         .overrideBalance(userOperation.sender, 1n)
-                        .build(),
-                    },
-                  );
+                        .build()
+                    }
+                  )
 
-                  expect(callGasLimit).toBeDefined();
-                  expect(callGasLimit).toBeGreaterThan(0n);
-                });
-              });
-            },
-          );
+                  expect(callGasLimit).toBeDefined()
+                  expect(callGasLimit).toBeGreaterThan(0n)
+                })
+              })
+            }
+          )
 
           describe.runIf(tokenPaymaster)(
             "given a token paymaster",
             async () => {
               const paymasterAndData = tokenPaymaster!
-                .dummyPaymasterAndData as Hex;
+                .dummyPaymasterAndData as Hex
 
               describe("estimateVerificationGasLimit", () => {
                 it("should return a non-zero value", async () => {
@@ -266,46 +267,46 @@ describe("e2e", () => {
                     await epv6Simulator.estimateVerificationGasLimit({
                       userOperation: {
                         ...userOperation,
-                        paymasterAndData: paymasterAndData,
+                        paymasterAndData: paymasterAndData
                       },
-                      stateOverrides,
-                    });
+                      stateOverrides
+                    })
 
-                  expect(estimateResult).toBeDefined();
+                  expect(estimateResult).toBeDefined()
 
-                  const { verificationGasLimit } = estimateResult;
-                  expect(verificationGasLimit).toBeGreaterThan(0);
-                });
-              });
+                  const { verificationGasLimit } = estimateResult
+                  expect(verificationGasLimit).toBeGreaterThan(0)
+                })
+              })
 
               describe("estimateCallGasLimit", () => {
                 it("should return a non-zero value", async () => {
                   const tokenPaymasterUserOperation = {
                     ...userOperation,
-                    paymasterAndData: paymasterAndData,
-                  };
+                    paymasterAndData: paymasterAndData
+                  }
 
                   const callGasLimit = await epv6Simulator.estimateCallGasLimit(
                     {
                       userOperation: tokenPaymasterUserOperation,
-                      stateOverrides,
-                    },
-                  );
+                      stateOverrides
+                    }
+                  )
 
-                  expect(callGasLimit).toBeGreaterThan(0n);
-                });
-              });
-            },
-          );
-        },
-      );
-    });
-  });
-});
+                  expect(callGasLimit).toBeGreaterThan(0n)
+                })
+              })
+            }
+          )
+        }
+      )
+    })
+  })
+})
 
 function filterTestChains() {
-  const includeChainIds = config.get<number[]>("includeInTests");
-  const excludeChainIds = config.get<number[]>("excludeFromTests");
+  const includeChainIds = config.get<number[]>("includeInTests")
+  const excludeChainIds = config.get<number[]>("excludeFromTests")
 
   const testChains = Object.values(supportedChains).filter(
     (chain) =>
@@ -313,7 +314,7 @@ function filterTestChains() {
       !excludeChainIds.includes(chain.chainId) &&
       (includeChainIds.length === 0 ||
         includeChainIds.includes(chain.chainId)) &&
-      config.has(`testChains.${chain.chainId}.testAddresses.v2`),
-  );
-  return testChains;
+      config.has(`testChains.${chain.chainId}.testAddresses.v2`)
+  )
+  return testChains
 }

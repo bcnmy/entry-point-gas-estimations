@@ -1,2 +1,2 @@
 export const PAYMASTER_DEPOSIT_MAX =
-  "0x000000ffffffffffffffffffffffffffff00ffffffffffffffffffffffffffff";
+  "0x000000ffffffffffffffffffffffffffff00ffffffffffffffffffffffffffff"

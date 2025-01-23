@@ -1,0 +1,60 @@
+name: e2e-tests
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+jobs:
+  e2e-tests:
+    name: e2e-tests
+    permissions: write-all
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e-tests
+      cancel-in-progress: true
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Create test.json
+        run: |
+          # Read the template and replace environment variables
+          envsubst < config/test-example.json > config/test.json
+        env:
+          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+          QUICKNODE_BSC_KEY: ${{ secrets.QUICKNODE_BSC_KEY }}
+          QUICKNODE_BSC_TESTNET_KEY: ${{ secrets.QUICKNODE_BSC_TESTNET_KEY }}
+          INFURA_KEY: ${{ secrets.INFURA_KEY }}
+          MANTLE_KEY: ${{ secrets.MANTLE_KEY }}
+          ANKR_KEY_ONE: ${{ secrets.ANKR_KEY_ONE }}
+          ANKR_KEY_TWO: ${{ secrets.ANKR_KEY_TWO }}
+          ANKR_KEY_THREE: ${{ secrets.ANKR_KEY_THREE }}
+          NODEREAL_KEY: ${{ secrets.NODEREAL_KEY }}
+          BLAST_KEY_ONE: ${{ secrets.BLAST_KEY_ONE }}
+          BLAST_KEY_TWO: ${{ secrets.BLAST_KEY_TWO }}
+          QUICKNODE_BLAST_SEPOLIA_KEY: ${{ secrets.QUICKNODE_BLAST_SEPOLIA_KEY }}
+          QUICKNODE_BLAST_KEY: ${{ secrets.QUICKNODE_BLAST_KEY }}
+          GOLD_KEY: ${{ secrets.GOLD_KEY }}
+          XLAYER_KEY: ${{ secrets.XLAYER_KEY }}
+          CONDUIT_KEY: ${{ secrets.CONDUIT_KEY }}
+          QUICKNODE_AVAX_TESTNET_KEY: ${{ secrets.QUICKNODE_AVAX_TESTNET_KEY }}
+          QUICKNODE_AVAX_KEY: ${{ secrets.QUICKNODE_AVAX_KEY }}
+
+      - name: Run the tests
+        run: bun run test --coverage
+        env:
+          CI: true
+          
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+
+
+

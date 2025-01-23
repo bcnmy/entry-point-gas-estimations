@@ -1,5 +1,5 @@
-import { userOperationV6Schema } from "./UserOperationV6";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest"
+import { userOperationV6Schema } from "./UserOperationV6"
 
 describe("UserOperationV6", () => {
   describe("userOperationV6Schema", () => {
@@ -14,14 +14,14 @@ describe("UserOperationV6", () => {
       maxFeePerGas: 1n,
       maxPriorityFeePerGas: 1n,
       paymasterAndData: "0x",
-      signature: "0x",
-    };
+      signature: "0x"
+    }
 
     it("should return true for a valid UserOperationV6", () => {
       expect(userOperationV6Schema.parse(validUserOperation)).toEqual(
-        validUserOperation,
-      );
-    });
+        validUserOperation
+      )
+    })
 
     it("should return true with numbers instead of bigints", () => {
       const userOperation = {
@@ -35,13 +35,13 @@ describe("UserOperationV6", () => {
         maxFeePerGas: 1,
         maxPriorityFeePerGas: 1,
         paymasterAndData: "0x",
-        signature: "0x",
-      };
+        signature: "0x"
+      }
 
       expect(userOperationV6Schema.parse(userOperation)).toEqual(
-        validUserOperation,
-      );
-    });
+        validUserOperation
+      )
+    })
 
     it("should return true with hex strings instead of bigints", () => {
       const userOperation = {
@@ -55,12 +55,12 @@ describe("UserOperationV6", () => {
         maxFeePerGas: "0x1",
         maxPriorityFeePerGas: "0x1",
         paymasterAndData: "0x",
-        signature: "0x",
-      };
+        signature: "0x"
+      }
 
       expect(userOperationV6Schema.parse(userOperation)).toEqual(
-        validUserOperation,
-      );
-    });
-  });
-});
+        validUserOperation
+      )
+    })
+  })
+})
