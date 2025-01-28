@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.63
+
+### Patch Changes
+
+- Add RPCs for e2e tests for Sonic, disable Monad tests
+
 ## 0.2.62
 
 ### Patch Changes
