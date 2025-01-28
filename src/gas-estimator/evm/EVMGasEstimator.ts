@@ -212,7 +212,7 @@ export class EVMGasEstimator implements GasEstimator {
    *
    * @internal
    */
-  private async estimateUserOperationGasV7(
+  protected async estimateUserOperationGasV7(
     userOperation: UserOperationV7,
     stateOverrides: StateOverrideSet | undefined,
     baseFeePerGas: bigint,
@@ -254,8 +254,6 @@ export class EVMGasEstimator implements GasEstimator {
           data: userOperation.callData
         })
       ])
-
-    // userOperation.preVerificationGas = preVerificationGas;
 
     const { verificationGasLimit } = this.estimateVerificationAndCallGasLimits(
       constantGasFeeUserOperation,

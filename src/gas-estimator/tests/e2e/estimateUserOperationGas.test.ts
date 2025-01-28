@@ -162,7 +162,7 @@ describe("e2e", () => {
                 rpcUrl,
                 ""
               ),
-              signer,
+              signer: signer as any,
               bundlerUrl
             })
 

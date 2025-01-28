@@ -196,7 +196,13 @@
       "rpcUrl": "https://rpc.morphl2.io"
     },
     "146": {
-      "rpcUrl": "https://rpc.soniclabs.com"
+      "rpcUrl": "https://sonic-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}"
+    },
+    "57054": {
+      "rpcUrl": "https://sonic-blaze.g.alchemy.com/v2/${ALCHEMY_KEY}"
+    },
+    "10143": {
+      "rpcUrl": "https://monad-testnet.g.alchemy.com/v2/${ALCHEMY_KEY}"
     }
   },
   "includeInTests": [],

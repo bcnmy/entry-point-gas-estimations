@@ -1347,5 +1347,80 @@ export const supportedChains: Record<string, SupportedChain> = {
     paymasters: {
       v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS
     }
+  },
+  "57054": {
+    chainId: 57054,
+    name: "Sonic Blaze Testnet",
+    isTestnet: true,
+    stack: ChainStack.Sonic,
+    eip1559: true,
+    stateOverrideSupport: {
+      balance: true,
+      bytecode: true,
+      stateDiff: true
+    },
+    smartAccountSupport: {
+      smartAccountsV2: false,
+      nexus: true
+    },
+    paymasters: {
+      v070: {
+        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+          type: "sponsorship",
+          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+          postOpGasLimit: 50000n
+        }
+      }
+    }
+  },
+  "146": {
+    chainId: 146,
+    name: "Sonic Mainnet",
+    isTestnet: false,
+    stack: ChainStack.Sonic,
+    eip1559: true,
+    stateOverrideSupport: {
+      balance: true,
+      bytecode: true,
+      stateDiff: true
+    },
+    smartAccountSupport: {
+      smartAccountsV2: false,
+      nexus: true
+    },
+    paymasters: {
+      v070: {
+        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+          type: "sponsorship",
+          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+          postOpGasLimit: 50000n
+        }
+      }
+    }
+  },
+  "10143": {
+    chainId: 10143,
+    name: "Monad Testnet",
+    isTestnet: true,
+    stack: ChainStack.EVM,
+    eip1559: true,
+    stateOverrideSupport: {
+      balance: true,
+      bytecode: true,
+      stateDiff: true
+    },
+    smartAccountSupport: {
+      smartAccountsV2: false,
+      nexus: true
+    },
+    paymasters: {
+      v070: {
+        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+          type: "sponsorship",
+          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+          postOpGasLimit: 50000n
+        }
+      }
+    }
   }
 }
