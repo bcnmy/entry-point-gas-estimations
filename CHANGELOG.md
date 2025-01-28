@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.64
+
+### Patch Changes
+
+- chore: add files to npm build
+
 ## 0.2.63
 
 ### Patch Changes
