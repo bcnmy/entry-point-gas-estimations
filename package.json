@@ -15,6 +15,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "bun link && bun run build:types && bun run build:watch",
     "format": "biome format . --write",
