@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.62
+
+### Patch Changes
+
+- Add Monad testnet to supported chains
+
 ## 0.2.61
 
 ### Patch Changes
