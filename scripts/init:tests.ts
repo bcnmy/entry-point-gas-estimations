@@ -31,7 +31,8 @@ const main = async () => {
     "QUICKNODE_BLAST_KEY",
     "GOLD_KEY",
     "XLAYER_KEY",
-    "CONDUIT_KEY"
+    "CONDUIT_KEY",
+    "MONAD_XYZ_KEY"
   ]
 
   for (const varName of envVars) {
