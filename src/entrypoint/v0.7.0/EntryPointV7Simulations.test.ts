@@ -68,8 +68,9 @@ describe("e2e", () => {
 
       beforeAll(async () => {
         nexusClient = await createNexusClient({
-          validatorAddress: "0x0000002D6DB27c52E3C11c1Cf24072004AC75cBa",
-          factoryAddress: "0x00000024115AA990F0bAE0B6b0D5B8F68b684cd6",
+          bootStrapAddress: testChain.contracts?.bootStrapAddress as Hex | undefined,
+          validatorAddress: testChain.contracts?.validatorAddress as Hex | undefined,
+          factoryAddress: testChain.contracts?.factoryAddress as Hex | undefined,
           signer: account,
           chain: getCustomChain(testChain.name, testChain.chainId, rpcUrl, ""),
           transport,
@@ -154,9 +155,14 @@ describe("e2e", () => {
       describe.runIf(sponsorshipPaymaster)(
         "given a sponsorship paymaster",
         () => {
-          const paymaster = sponsorshipPaymaster![0] as Address
-          const paymasterData = sponsorshipPaymaster![1]
-            .dummyPaymasterData as Hex
+          let paymaster: Address;
+          let paymasterData: Hex;
+
+          beforeAll(() => {
+            paymaster = sponsorshipPaymaster![0] as Address
+            paymasterData = sponsorshipPaymaster![1]
+              .dummyPaymasterData as Hex
+          })
 
           describe.runIf(testChain.stateOverrideSupport.stateDiff)(
             "If we can override the paymaster deposit on the entrypoint",

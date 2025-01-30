@@ -15,7 +15,6 @@ import {
   extractChain,
   formatEther,
   parseEther,
-  toHex,
   zeroAddress
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
@@ -581,6 +580,9 @@ describe("e2e", () => {
 
             nexusClient = await createNexusClient({
               signer: account,
+              bootStrapAddress: testChain.contracts?.bootStrapAddress as Hex | undefined,
+              factoryAddress: testChain.contracts?.factoryAddress as Hex | undefined,
+              validatorAddress: testChain.contracts?.validatorAddress as Hex | undefined,
               chain,
               transport,
               bundlerTransport: transport

@@ -72,7 +72,12 @@ export const SupportedChainSchema = z.object({
         })
       )
       .optional()
-  })
+  }),
+  contracts: z.object({
+    bootStrapAddress: z.string(),
+    factoryAddress: z.string(),
+    validatorAddress: z.string()
+  }).optional()
 })
 
 export type SupportedChain = z.infer<typeof SupportedChainSchema>

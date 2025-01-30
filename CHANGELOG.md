@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.65
+
+### Patch Changes
+
+- Fix Monad Testnet gas estimation & add support for custom SA contract addresses
+
 ## 0.2.64
 
 ### Patch Changes
