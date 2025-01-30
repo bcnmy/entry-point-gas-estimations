@@ -44,17 +44,14 @@ jobs:
           CONDUIT_KEY: ${{ secrets.CONDUIT_KEY }}
           QUICKNODE_AVAX_TESTNET_KEY: ${{ secrets.QUICKNODE_AVAX_TESTNET_KEY }}
           QUICKNODE_AVAX_KEY: ${{ secrets.QUICKNODE_AVAX_KEY }}
+          MONAD_XYZ_KEY: ${{ secrets.MONAD_XYZ_KEY }}
 
       - name: Run the tests
         run: bun run test --coverage
         env:
           CI: true
-          
+
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
-
-
-
