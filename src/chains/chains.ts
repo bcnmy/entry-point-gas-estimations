@@ -1413,14 +1413,11 @@ export const supportedChains: Record<string, SupportedChain> = {
       smartAccountsV2: false,
       nexus: true
     },
-    paymasters: {
-      v070: {
-        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-          type: "sponsorship",
-          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n
-        }
-      }
+    paymasters: {},
+    contracts: {
+      bootStrapAddress: "0x7052eE73e9e9cA6884eb2146cA5c020492E5bB9D",
+      factoryAddress: "0xF8524aB72c688069DfFa8B1Cbb6005929B5Aff58",
+      validatorAddress: "0xEbc7f5Cff2cABcFdfD65a37A9342240b39A73fcd",
     }
   }
 }

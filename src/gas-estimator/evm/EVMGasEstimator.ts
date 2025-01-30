@@ -249,7 +249,6 @@ export class EVMGasEstimator implements GasEstimator {
         // use the actual user operation to estimate the preVerificationGas, because it depends on maxFeePerGas
         this.estimatePreVerificationGas(userOperation, baseFeePerGas),
         this.rpcClient.estimateGas({
-          account: options.entryPointAddress,
           to: userOperation.sender,
           data: userOperation.callData
         })
