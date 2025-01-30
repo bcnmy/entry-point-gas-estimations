@@ -1,6 +1,6 @@
 {
   "name": "@biconomy/gas-estimations",
-  "version": "0.2.63",
+  "version": "0.2.64",
   "repository": "https://github.com/bcnmy/entry-point-gas-estimations",
   "author": "Nikola Divić <nikola.divic@biconomy.io>",
   "license": "MIT",
@@ -15,6 +15,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "bun link && bun run build:types && bun run build:watch",
     "format": "biome format . --write",
