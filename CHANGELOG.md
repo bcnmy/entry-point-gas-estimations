@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.66
+
+### Patch Changes
+
+- Set sender for estimateGas to undefined for Monad only, use EP address for other chains
+
 ## 0.2.65
 
 ### Patch Changes
