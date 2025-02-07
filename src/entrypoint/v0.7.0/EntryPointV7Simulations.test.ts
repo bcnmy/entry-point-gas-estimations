@@ -181,7 +181,9 @@ describe("e2e", () => {
                   const sponsoredUserOperation = {
                     ...userOperation,
                     paymaster,
-                    paymasterData
+                    paymasterData,
+                    paymasterVerificationGasLimit: userOperation.verificationGasLimit,
+                    paymasterPostOpGasLimit: testChain.paymasters?.v070?.[paymaster]?.postOpGasLimit
                   }
 
                   const result = await epV7Simulations.simulateHandleOp({
@@ -229,7 +231,9 @@ describe("e2e", () => {
                 const sponsoredUserOperation = {
                   ...userOperation,
                   paymaster,
-                  paymasterData
+                  paymasterData,
+                  paymasterVerificationGasLimit: userOperation.verificationGasLimit,
+                  paymasterPostOpGasLimit: testChain.paymasters?.v070?.[paymaster]?.postOpGasLimit
                 }
 
                 const result = await epV7Simulations.simulateHandleOp({

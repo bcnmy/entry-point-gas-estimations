@@ -230,6 +230,11 @@ export class EVMGasEstimator implements GasEstimator {
         .build()
     }
 
+    if (userOperation.paymaster) {
+      userOperation.paymasterVerificationGasLimit = userOperation.verificationGasLimit;
+      userOperation.paymasterPostOpGasLimit = this.chain.paymasters?.v070?.[userOperation.paymaster]?.postOpGasLimit;
+    }
+
     // To avoid problems with variable fees per gas
     const constantGasFeeUserOperation = {
       ...userOperation,

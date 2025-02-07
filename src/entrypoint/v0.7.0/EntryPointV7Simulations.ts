@@ -97,13 +97,6 @@ export class EntryPointV7Simulations {
     stateOverrides
   }: SimulateHandleOpParams): Promise<ExecutionResultV7> {
     userOperation = userOperationV7Schema.parse(userOperation)
-
-    if (userOperation.paymaster) {
-      userOperation.paymasterVerificationGasLimit =
-        userOperation.verificationGasLimit
-      userOperation.paymasterPostOpGasLimit = userOperation.verificationGasLimit
-    }
-
     const packedUserOperation = toPackedUserOperation(userOperation)
 
     const simulateHandleOpParams: any = [
@@ -112,8 +105,8 @@ export class EntryPointV7Simulations {
         data: encodeFunctionData({
           abi: this.abi,
           functionName: "simulateHandleOp",
-          args: [packedUserOperation, targetAddress, targetCallData]
-        })
+          args: [packedUserOperation, targetAddress, targetCallData],
+        }),
       },
       "latest"
     ]
