@@ -1401,15 +1401,7 @@ export const supportedChains: Record<string, SupportedChain> = {
       smartAccountsV2: false,
       nexus: true
     },
-    paymasters: {
-      v070: {
-        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-          type: "sponsorship",
-          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n
-        }
-      },
-    }
+    paymasters: DEFAULT_PAYMASTERS
   },
   "10143": {
     chainId: 10143,
