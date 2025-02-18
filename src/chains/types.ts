@@ -5,8 +5,7 @@ export enum ChainStack {
   EVM = "evm",
   Optimism = "optimism",
   Arbitrum = "arbitrum",
-  Mantle = "mantle",
-  Sonic = "sonic"
+  Mantle = "mantle"
 }
 
 // TODO: Refactor this schema and move the nested types into separate files with their own schemas

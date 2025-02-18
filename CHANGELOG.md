@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.67
+
+### Patch Changes
+
+- Remove the Sonic gas estimator after they have released a fix to their RPC
+
 ## 0.2.66
 
 ### Patch Changes

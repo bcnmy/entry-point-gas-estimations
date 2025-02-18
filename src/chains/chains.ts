@@ -56,6 +56,9 @@ const DEFAULT_ENTRYPOINT_V6_PAYMASTERS = {
 const DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA =
   "0x2a07706473244bc757e10f2a9e86fb532828afe30000111111000000999999990011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b"
 
+const DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DUMMY_PAYMASTER_DATA =
+  "0x000000111111000000999999992a07706473244bc757e10f2a9e86fb532828afe30000000000000000000000000000000000000000000000c1f6b98af18ba800000011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b";
+
 const DEFAULT_ENTRYPOINT_V7_PAYMASTERS = {
   [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
     type: "sponsorship",
@@ -65,7 +68,7 @@ const DEFAULT_ENTRYPOINT_V7_PAYMASTERS = {
   [DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS]: {
     type: "token",
     dummyPaymasterData:
-      "0x000000111111000000999999992a07706473244bc757e10f2a9e86fb532828afe30000000000000000000000000000000000000000000000c1f6b98af18ba800000011170044c67319e37818affd575e3598d3c6cb2075d8bafcb35f5a9e217675c103bac93de0923dae17af2e5ac0f1757eb7dc3426f1f47fb913771b22f4abb373984f931b",
+      DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DUMMY_PAYMASTER_DATA,
     postOpGasLimit: 95000n
   }
 }
@@ -1352,12 +1355,17 @@ export const supportedChains: Record<string, SupportedChain> = {
     chainId: 57054,
     name: "Sonic Blaze Testnet",
     isTestnet: true,
-    stack: ChainStack.Sonic,
+    stack: ChainStack.EVM,
     eip1559: true,
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
       stateDiff: true
+    },
+    simulation: {
+      preVerificationGas: 5_000_000n,
+      callGasLimit: 5_000_000n,
+      verificationGasLimit: 5_000_000n
     },
     smartAccountSupport: {
       smartAccountsV2: false,
@@ -1377,26 +1385,23 @@ export const supportedChains: Record<string, SupportedChain> = {
     chainId: 146,
     name: "Sonic Mainnet",
     isTestnet: false,
-    stack: ChainStack.Sonic,
+    stack: ChainStack.EVM,
     eip1559: true,
     stateOverrideSupport: {
       balance: true,
       bytecode: true,
       stateDiff: true
     },
+    simulation: {
+      preVerificationGas: 5_000_000n,
+      callGasLimit: 5_000_000n,
+      verificationGasLimit: 5_000_000n
+    },
     smartAccountSupport: {
       smartAccountsV2: false,
       nexus: true
     },
-    paymasters: {
-      v070: {
-        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-          type: "sponsorship",
-          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n
-        }
-      }
-    }
+    paymasters: DEFAULT_PAYMASTERS
   },
   "10143": {
     chainId: 10143,
