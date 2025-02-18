@@ -246,7 +246,6 @@ export class EVMGasEstimator implements GasEstimator {
       await Promise.all([
         entryPoint.simulateHandleOp({
           userOperation: constantGasFeeUserOperation,
-          // userOperation,
           targetAddress: options.entryPointAddress,
           targetCallData: "0x",
           stateOverrides
@@ -254,10 +253,7 @@ export class EVMGasEstimator implements GasEstimator {
         // use the actual user operation to estimate the preVerificationGas, because it depends on maxFeePerGas
         this.estimatePreVerificationGas(userOperation, baseFeePerGas),
         this.rpcClient.estimateGas({
-          // for monad testnet, we don't set the sender address so it doesn't throw 'sender must be an eoa'
-          account: [10143].includes(this.chain.chainId)
-            ? undefined
-            : entryPoint.address,
+          account: entryPoint.address,
           to: userOperation.sender,
           data: userOperation.callData
         })
