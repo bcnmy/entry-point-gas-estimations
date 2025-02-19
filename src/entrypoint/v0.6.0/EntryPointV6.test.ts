@@ -138,7 +138,7 @@ describe("e2e", () => {
             try {
               await epv6.simulateHandleOp({
                 userOperation,
-                targetAddress: epv6.address,
+                targetAddress: userOperation.sender,
                 targetCallData: userOperation.callData
               })
             } catch (err: any) {
@@ -162,7 +162,7 @@ describe("e2e", () => {
 
               const executionResult = await epv6.simulateHandleOp({
                 userOperation,
-                targetAddress: epv6.address,
+                targetAddress: userOperation.sender,
                 targetCallData: userOperation.callData,
                 stateOverrides
               })
@@ -193,7 +193,7 @@ describe("e2e", () => {
                   initCode,
                   nonce
                 },
-                targetAddress: epv6.address,
+                targetAddress: userOperation.sender,
                 targetCallData: userOperation.callData,
                 stateOverrides: new StateOverrideBuilder()
                   .overrideBalance(sender, parseEther("10"))
@@ -243,7 +243,7 @@ describe("e2e", () => {
                     ...userOperation,
                     paymasterAndData
                   },
-                  targetAddress: epv6.address,
+                  targetAddress: userOperation.sender,
                   targetCallData: userOperation.callData,
                   stateOverrides
                 })
@@ -277,7 +277,7 @@ describe("e2e", () => {
                     ...userOperation,
                     paymasterAndData
                   },
-                  targetAddress: epv6.address,
+                  targetAddress: userOperation.sender,
                   targetCallData: userOperation.callData,
                   stateOverrides
                 })

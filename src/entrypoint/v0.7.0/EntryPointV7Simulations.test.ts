@@ -139,8 +139,8 @@ describe("e2e", () => {
               it("should return an ExecutionResult greater than 0", async () => {
                 const result = await epV7Simulations.simulateHandleOp({
                   userOperation,
-                  targetAddress: zeroAddress,
-                  targetCallData: "0x",
+                  targetAddress: userOperation.sender,
+                  targetCallData: userOperation.callData,
                   stateOverrides
                 })
 
@@ -188,8 +188,8 @@ describe("e2e", () => {
 
                   const result = await epV7Simulations.simulateHandleOp({
                     userOperation: sponsoredUserOperation,
-                    targetAddress: zeroAddress,
-                    targetCallData: "0x",
+                    targetAddress: userOperation.sender,
+                    targetCallData: userOperation.callData,
                     stateOverrides
                   })
 
@@ -238,8 +238,8 @@ describe("e2e", () => {
 
                 const result = await epV7Simulations.simulateHandleOp({
                   userOperation: sponsoredUserOperation,
-                  targetAddress: zeroAddress,
-                  targetCallData: "0x",
+                  targetAddress: userOperation.sender,
+                  targetCallData: userOperation.callData,
                   stateOverrides
                 })
 

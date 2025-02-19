@@ -246,8 +246,8 @@ export class EVMGasEstimator implements GasEstimator {
       await Promise.all([
         entryPoint.simulateHandleOp({
           userOperation: constantGasFeeUserOperation,
-          targetAddress: options.entryPointAddress,
-          targetCallData: "0x",
+          targetAddress: userOperation.sender,
+          targetCallData: userOperation.callData,
           stateOverrides
         }),
         // use the actual user operation to estimate the preVerificationGas, because it depends on maxFeePerGas
@@ -342,8 +342,8 @@ export class EVMGasEstimator implements GasEstimator {
     const [executionResult, preVerificationGas] = await Promise.all([
       entryPoint.simulateHandleOp({
         userOperation: constantGasFeeUserOperation,
-        targetAddress: options.entryPointAddress,
-        targetCallData: "0x",
+        targetAddress: userOperation.sender,
+        targetCallData: userOperation.callData,
         stateOverrides
       }),
       this.estimatePreVerificationGas(userOperation, baseFeePerGas)
