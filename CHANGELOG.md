@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.69
+
+### Patch Changes
+
+- Fix arguments for simulateHandleOp
+
 ## 0.2.68
 
 ### Patch Changes
