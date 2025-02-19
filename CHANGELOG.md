@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.68
+
+### Patch Changes
+
+- Revert the callGasLimit change for Monad now that their RPCs behave in the same way as other RPCs
+
 ## 0.2.67
 
 ### Patch Changes
