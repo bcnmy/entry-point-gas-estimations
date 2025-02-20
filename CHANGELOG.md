@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.70
+
+### Patch Changes
+
+- Fixed paymaster addresses for Base & Optimism.
+
 ## 0.2.69
 
 ### Patch Changes
