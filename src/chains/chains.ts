@@ -18,6 +18,11 @@ const DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS =
 const DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DEPOSITS_STATE_KEY =
   "0xca2edac642186a7c1820b405da08488d91db4bdbbbd4e0b687d2f4f822a383c5"
 
+const BASE_OPTIMISM_V7_SPONSORSHIP_PAYMASTER_ADDRESS =
+  "0x0000006087310897e0BFfcb3f0Ed3704f7146852";
+const BASE_OPTIMISM_V7_TOKEN_PAYMASTER_ADDRESS =
+  "0x00000000301515A5410e0d768aF4f53c416edf19";
+
 const DEFAULT_ENTRYPOINT_V7_DEPOSITS_STATE = {
   [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
     stateKey: DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_DEPOSITS_STATE_KEY
@@ -66,6 +71,20 @@ const DEFAULT_ENTRYPOINT_V7_PAYMASTERS = {
     postOpGasLimit: 50000n
   },
   [DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_ADDRESS]: {
+    type: "token",
+    dummyPaymasterData:
+      DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DUMMY_PAYMASTER_DATA,
+    postOpGasLimit: 95000n
+  }
+}
+
+const BASE_OPTIMISM_ENTRYPOINT_V7_PAYMASTERS = {
+  [BASE_OPTIMISM_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+    type: "sponsorship",
+    dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+    postOpGasLimit: 50000n
+  },
+  [BASE_OPTIMISM_V7_TOKEN_PAYMASTER_ADDRESS]: {
     type: "token",
     dummyPaymasterData:
       DEFAULT_ENTRYPOINT_V7_TOKEN_PAYMASTER_DUMMY_PAYMASTER_DATA,
@@ -305,7 +324,10 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS
+    paymasters: {
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
+      v070: BASE_OPTIMISM_ENTRYPOINT_V7_PAYMASTERS
+    }
   },
   "11155420": {
     chainId: 11155420,
@@ -323,7 +345,10 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS
+    paymasters: {
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
+      v070: BASE_OPTIMISM_ENTRYPOINT_V7_PAYMASTERS
+    }
   },
   "43114": {
     chainId: 43114,
@@ -379,7 +404,10 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS
+    paymasters: {
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
+      v070: BASE_OPTIMISM_ENTRYPOINT_V7_PAYMASTERS
+    }
   },
   "84532": {
     chainId: 84532,
@@ -397,7 +425,10 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     entryPoints: DEFAULT_ENTRYPOINTS,
-    paymasters: DEFAULT_PAYMASTERS
+    paymasters: {
+      v060: DEFAULT_ENTRYPOINT_V6_PAYMASTERS,
+      v070: BASE_OPTIMISM_ENTRYPOINT_V7_PAYMASTERS
+    }
   },
   "59144": {
     chainId: 59144,
