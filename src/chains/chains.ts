@@ -1403,7 +1403,13 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     paymasters: {
-      v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS
+      v070: {
+        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+          type: "sponsorship",
+          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+          postOpGasLimit: 50000n
+        }
+      }
     }
   },
   "146": {
@@ -1427,13 +1433,7 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     paymasters: {
-      v070: {
-        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-          type: "sponsorship",
-          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n
-        }
-      }
+      v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS
     }
   },
   "10143": {
