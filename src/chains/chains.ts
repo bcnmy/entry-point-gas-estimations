@@ -9,7 +9,7 @@ export const DEFAULT_ENTRYPOINT_V6_TOKEN_PAYMASTER_ADDRESS =
   "0x00000f7365cA6C59A2C93719ad53d567ed49c14C"
 
 const DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS =
-  "0x00000072a5f551d6e80b2f6ad4fb256a27841bbc"
+  "0x00000072a5F551D6E80b2f6ad4fB256A27841Bbc"
 const DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_DEPOSITS_STATE_KEY =
   "0x354335c2702ea6531294c3a1571e6565fa3ef5f6c44a98e1b0c28dacf8c2a9ba"
 
@@ -1403,13 +1403,7 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: true
     },
     paymasters: {
-      v070: {
-        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
-          type: "sponsorship",
-          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
-          postOpGasLimit: 50000n
-        }
-      }
+      v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS
     }
   },
   "146": {
@@ -1432,7 +1426,9 @@ export const supportedChains: Record<string, SupportedChain> = {
       smartAccountsV2: false,
       nexus: true
     },
-    paymasters: DEFAULT_PAYMASTERS
+    paymasters: {
+      v070: DEFAULT_ENTRYPOINT_V7_PAYMASTERS
+    }
   },
   "10143": {
     chainId: 10143,
@@ -1449,11 +1445,14 @@ export const supportedChains: Record<string, SupportedChain> = {
       smartAccountsV2: false,
       nexus: true
     },
-    paymasters: {},
-    contracts: {
-      bootStrapAddress: "0x7052eE73e9e9cA6884eb2146cA5c020492E5bB9D",
-      factoryAddress: "0xF8524aB72c688069DfFa8B1Cbb6005929B5Aff58",
-      validatorAddress: "0xEbc7f5Cff2cABcFdfD65a37A9342240b39A73fcd",
+    paymasters: {
+      v070: {
+        [DEFAULT_ENTRYPOINT_V7_SPONSORSHIP_PAYMASTER_ADDRESS]: {
+          type: "sponsorship",
+          dummyPaymasterData: DEFAULT_EP_V7_SPONSORSHIP_DUMMY_PAYMASTER_DATA,
+          postOpGasLimit: 50000n
+        }
+      }
     }
   }
 }
