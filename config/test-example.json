@@ -206,6 +206,5 @@
     }
   },
   "includeInTests": [],
-  "excludeFromTests": [4653],
   "benchmarkGasPrices": true
 }
