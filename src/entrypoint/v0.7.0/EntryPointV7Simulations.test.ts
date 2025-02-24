@@ -68,9 +68,6 @@ describe("e2e", () => {
 
       beforeAll(async () => {
         nexusClient = await createNexusClient({
-          bootStrapAddress: testChain.contracts?.bootStrapAddress as Hex | undefined,
-          validatorAddress: testChain.contracts?.validatorAddress as Hex | undefined,
-          factoryAddress: testChain.contracts?.factoryAddress as Hex | undefined,
           signer: account,
           chain: getCustomChain(testChain.name, testChain.chainId, rpcUrl, ""),
           transport,

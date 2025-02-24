@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.71
+
+### Patch Changes
+
+- Fixed the Nexus TPM flow (tpm address format). Removed custom contracts from the monad testnet chain. Ignoring gold chain in tests - their infra is down.
+
 ## 0.2.70
 
 ### Patch Changes
