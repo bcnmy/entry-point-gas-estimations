@@ -242,7 +242,7 @@ export class EVMGasEstimator implements GasEstimator {
       maxPriorityFeePerGas: 1n
     }
 
-    const [executionResult, preVerificationGas, executionGas] =
+    const [executionResult, preVerificationGas] =
       await Promise.all([
         entryPoint.simulateHandleOp({
           userOperation: constantGasFeeUserOperation,
@@ -251,12 +251,7 @@ export class EVMGasEstimator implements GasEstimator {
           stateOverrides
         }),
         // use the actual user operation to estimate the preVerificationGas, because it depends on maxFeePerGas
-        this.estimatePreVerificationGas(userOperation, baseFeePerGas),
-        this.rpcClient.estimateGas({
-          account: entryPoint.address,
-          to: userOperation.sender,
-          data: userOperation.callData
-        })
+        this.estimatePreVerificationGas(userOperation, baseFeePerGas)
       ])
 
     const { verificationGasLimit } = this.estimateVerificationAndCallGasLimits(
@@ -273,11 +268,7 @@ export class EVMGasEstimator implements GasEstimator {
           ?.postOpGasLimit || verificationGasLimit
       : 0n
 
-    let callGasLimit = executionGas
-
-    callGasLimit -= 21000n // 21000 is the gas cost of the call from EOA, we can remove it
-    callGasLimit += INNER_GAS_OVERHEAD
-    callGasLimit += paymasterPostOpGasLimit
+    let callGasLimit = executionResult.paid;
 
     return {
       callGasLimit: bumpBigIntPercent(callGasLimit, 10), // markup to cover the 63/64 problem,
