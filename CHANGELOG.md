@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.72
+
+### Patch Changes
+
+- Changed the way how we're estimating callGasLimit for EPv7.
+
 ## 0.2.71
 
 ### Patch Changes
