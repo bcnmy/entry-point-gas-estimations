@@ -88,7 +88,7 @@
       "rpcUrl": "https://sepolia.infura.io/v3/${INFURA_KEY}"
     },
     "168587773": {
-      "rpcUrl": "https://alien-convincing-waterfall.blast-sepolia.quiknode.pro/${QUICKNODE_BLAST_SEPOLIA_KEY}/"
+      "rpcUrl": "https://blast-sepolia.g.alchemy.com/v2/${ALCHEMY_BLAST_SEPOLIA_KEY}"
     },
     "84532": {
       "rpcUrl": "https://rpc.ankr.com/base_sepolia/${ANKR_KEY_THREE}"
