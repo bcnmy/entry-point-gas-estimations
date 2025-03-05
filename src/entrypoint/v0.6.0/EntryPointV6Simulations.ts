@@ -204,6 +204,7 @@ export class EntryPointV6Simulations extends EntryPointV6 {
 
     // Setting callGasLimit to 0 to make sure call data is not executed by the Entry Point code and only
     // done inside the CallGasSimulationExecutor contract
+    const actualUserOpGasLimit = userOperation.callGasLimit;
     userOperation.callGasLimit = BigInt(0)
 
     // encode the function data for eth_call of our custom call gas limit (CGL) binary search contract
@@ -239,6 +240,9 @@ export class EntryPointV6Simulations extends EntryPointV6 {
       targetCallData: estimateCallGasLimitCallData,
       stateOverrides: finalStateOverrideSet
     })
+    
+    // return callGasLimit to what it was before setting to 0
+    userOperation.callGasLimit = actualUserOpGasLimit;
 
     return this.parseEstimateCallGasLimitResult(executionResult)
   }

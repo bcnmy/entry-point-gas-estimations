@@ -299,12 +299,18 @@ export class EVMGasEstimator implements GasEstimator {
     options: EstimateUserOperationGasOptions
   ) {
     if (options.useBinarySearch && userOperation.initCode === "0x") {
-      return this.useBinarySearch(
-        userOperation,
-        baseFeePerGas,
-        options,
-        stateOverrides
-      )
+      try {
+        console.log("Attempting to perform binary search...");
+        await this.useBinarySearch(
+          userOperation,
+          baseFeePerGas,
+          options,
+          stateOverrides
+        );
+      } catch (err) {
+        console.log("Binary search failed: ", err);
+        console.log("Trying simulateHandleOp()...");
+      }
     }
 
     // To avoid problems with variable baseFeePerGas
