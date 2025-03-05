@@ -46,6 +46,7 @@ jobs:
           QUICKNODE_AVAX_KEY: ${{ secrets.QUICKNODE_AVAX_KEY }}
           QUICKNODE_POLYGON_KEY: ${{ secrets.QUICKNODE_POLYGON_KEY }}
           MONAD_XYZ_KEY: ${{ secrets.MONAD_XYZ_KEY }}
+          ALCHEMY_BLAST_SEPOLIA_KEY: ${{ secrets.ALCHEMY_BLAST_SEPOLIA_KEY }}
 
       - name: Run the tests
         run: bun run test --coverage
