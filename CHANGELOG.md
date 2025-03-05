@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.73
+
+### Patch Changes
+
+- Fallback to simulateHandleOp if binary search fails to estimate userOp for EPv6
+
 ## 0.2.72
 
 ### Patch Changes
