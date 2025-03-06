@@ -783,6 +783,46 @@ export const ENTRYPOINT_V6_ABI = [
           { internalType: "bytes", name: "signature", type: "bytes" }
         ],
         internalType: "struct UserOperation",
+        name: "op",
+        type: "tuple"
+      },
+      { internalType: "address", name: "target", type: "address" },
+      { internalType: "bytes", name: "targetCallData", type: "bytes" }
+    ],
+    name: "simulateHandleOpWithMarkers",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: "address", name: "sender", type: "address" },
+          { internalType: "uint256", name: "nonce", type: "uint256" },
+          { internalType: "bytes", name: "initCode", type: "bytes" },
+          { internalType: "bytes", name: "callData", type: "bytes" },
+          { internalType: "uint256", name: "callGasLimit", type: "uint256" },
+          {
+            internalType: "uint256",
+            name: "verificationGasLimit",
+            type: "uint256"
+          },
+          {
+            internalType: "uint256",
+            name: "preVerificationGas",
+            type: "uint256"
+          },
+          { internalType: "uint256", name: "maxFeePerGas", type: "uint256" },
+          {
+            internalType: "uint256",
+            name: "maxPriorityFeePerGas",
+            type: "uint256"
+          },
+          { internalType: "bytes", name: "paymasterAndData", type: "bytes" },
+          { internalType: "bytes", name: "signature", type: "bytes" }
+        ],
+        internalType: "struct UserOperation",
         name: "userOp",
         type: "tuple"
       }
@@ -2160,6 +2200,86 @@ export const CALL_GAS_ESTIMATION_SIMULATOR = [
       }
     ],
     name: "simulateHandleOp",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address"
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256"
+          },
+          {
+            internalType: "bytes",
+            name: "initCode",
+            type: "bytes"
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes"
+          },
+          {
+            internalType: "uint256",
+            name: "callGasLimit",
+            type: "uint256"
+          },
+          {
+            internalType: "uint256",
+            name: "verificationGasLimit",
+            type: "uint256"
+          },
+          {
+            internalType: "uint256",
+            name: "preVerificationGas",
+            type: "uint256"
+          },
+          {
+            internalType: "uint256",
+            name: "maxFeePerGas",
+            type: "uint256"
+          },
+          {
+            internalType: "uint256",
+            name: "maxPriorityFeePerGas",
+            type: "uint256"
+          },
+          {
+            internalType: "bytes",
+            name: "paymasterAndData",
+            type: "bytes"
+          },
+          {
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes"
+          }
+        ],
+        internalType: "struct UserOperation",
+        name: "op",
+        type: "tuple"
+      },
+      {
+        internalType: "address",
+        name: "target",
+        type: "address"
+      },
+      {
+        internalType: "bytes",
+        name: "targetCallData",
+        type: "bytes"
+      }
+    ],
+    name: "simulateHandleOpWithMarkers",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function"

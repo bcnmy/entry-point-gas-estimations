@@ -46,6 +46,8 @@ export interface IEntryPointV6 {
   address: Address
   /** Simulates handling a user operation */
   simulateHandleOp: typeof EntryPointV6.prototype.simulateHandleOp
+  /** Simulates handling a user operation with markers */
+  simulateHandleOpWithMarkers: typeof EntryPointV6.prototype.simulateHandleOpWithMarkers
   /** Gets the nonce for an account */
   getNonce: typeof EntryPointV6.prototype.getNonce
   /** Encodes function data for handleOps */

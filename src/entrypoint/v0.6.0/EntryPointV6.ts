@@ -91,8 +91,75 @@ export class EntryPointV6 {
         data: encodeFunctionData({
           abi: this.abi,
           functionName: "simulateHandleOp",
+          args: [userOperation, targetAddress, targetCallData],
+        }),
+      },
+      "latest"
+    ]
+
+    if (stateOverrides) {
+      simulateHandleOpParams.push(stateOverrides)
+    }
+
+    try {
+      await this.client.request({
+        method: "eth_call",
+        params: simulateHandleOpParams,
+      })
+      throw new Error("SimulateHandleOp should always revert")
+    } catch (err: any) {
+      const data = this.parseRpcRequestErrorData(err)
+      return this.parseSimulateHandleOpExecutionResult(data)
+    }
+  }
+
+  /**
+   * Simulates the execution of a user operation with markers. This method always reverts by design,
+   * and the execution result is parsed from the revert data. Markers are added immediately before and
+   * after execute() call and the gas difference is returned as the `paid` field in the response.
+   *
+   * @param params - The simulation parameters
+   * @param params.userOperation - The user operation to simulate
+   * @param params.targetAddress - The target contract address for the simulation
+   * @param params.targetCallData - The calldata to be executed on the target contract
+   * @param params.stateOverrides - Optional state overrides to modify blockchain state during simulation
+   *
+   * @returns The execution result containing validation and execution details
+   * @throws {@link ParseError} if the error data cannot be parsed
+   * @throws {@link SimulateHandleOpError} if the simulation fails with an error
+   *
+   * @example
+   * ```typescript
+   * const result = await entryPoint.simulateHandleOp({
+   *   userOperation: {
+   *     sender: '0x123...',
+   *     nonce: '0x1',
+   *     // ... other UserOperation fields
+   *   },
+   *   targetAddress: '0x456...',
+   *   targetCallData: '0x789...',
+   *   stateOverrides: {
+   *     // Optional state modifications
+   *   }
+   * });
+   * ```
+   */
+  async simulateHandleOpWithMarkers({
+    userOperation,
+    targetAddress,
+    targetCallData,
+    stateOverrides
+  }: SimulateHandleOpParamsV6): Promise<ExecutionResultV6> {
+    userOperation = userOperationV6Schema.parse(userOperation)
+
+    const simulateHandleOpParams: any = [
+      {
+        to: this.address,
+        data: encodeFunctionData({
+          abi: this.abi,
+          functionName: "simulateHandleOpWithMarkers",
           args: [userOperation, targetAddress, targetCallData]
-        })
+        }),
       },
       "latest"
     ]
