@@ -46,6 +46,8 @@ export interface IEntryPointV6 {
   address: Address
   /** Simulates handling a user operation */
   simulateHandleOp: typeof EntryPointV6.prototype.simulateHandleOp
+  /** Simulates handling a user operation with markers */
+  simulateHandleOpWithMarkers: typeof EntryPointV6.prototype.simulateHandleOpWithMarkers
   /** Gets the nonce for an account */
   getNonce: typeof EntryPointV6.prototype.getNonce
   /** Encodes function data for handleOps */
@@ -61,6 +63,8 @@ export interface IEntryPointV6Simulations extends IEntryPointV6 {
   estimateVerificationGasLimit: typeof EntryPointV6Simulations.prototype.estimateVerificationGasLimit
   /** Estimates call gas limit */
   estimateCallGasLimit: typeof EntryPointV6Simulations.prototype.estimateCallGasLimit
+  /** Estimates call gas limit with markers*/
+  estimateCallGasLimitWithMarkers: typeof EntryPointV6Simulations.prototype.estimateCallGasLimitWithMarkers
 }
 
 /**

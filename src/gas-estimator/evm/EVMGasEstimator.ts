@@ -41,6 +41,7 @@ import {
   SIMULATION_VERIFICATION_GAS_LIMIT,
   defaultGasOverheads
 } from "./constants"
+import { EPV6_MARKERS_BYTECODE } from "../../entrypoint"
 
 /**
  * Base implementation of gas estimation for EVM-compatible chains.
@@ -301,7 +302,8 @@ export class EVMGasEstimator implements GasEstimator {
     if (options.useBinarySearch && userOperation.initCode === "0x") {
       try {
         console.log("Attempting to perform binary search...");
-        await this.useBinarySearch(
+        throw new Error("binary search failed");
+        return await this.useBinarySearch(
           userOperation,
           baseFeePerGas,
           options,
@@ -309,7 +311,6 @@ export class EVMGasEstimator implements GasEstimator {
         );
       } catch (err) {
         console.log("Binary search failed: ", err);
-        console.log("Trying simulateHandleOp()...");
       }
     }
 
@@ -336,7 +337,49 @@ export class EVMGasEstimator implements GasEstimator {
         .build()
     }
 
-    const [executionResult, preVerificationGas] = await Promise.all([
+    let executionResult;
+    let preVerificationGas;
+    let estimateGasResponse;
+    if (this.chain.stateOverrideSupport.bytecode) {
+      try {
+        console.log("Attempting to estimate with markers...");
+        const newStateOverrides = new StateOverrideBuilder(stateOverrides)
+          .copy()
+          .overrideCode(
+            entryPoint.address,
+            EPV6_MARKERS_BYTECODE
+          )
+          .build();
+        
+        [executionResult, preVerificationGas] = await Promise.all([
+          entryPoint.simulateHandleOpWithMarkers({
+            userOperation: constantGasFeeUserOperation,
+            targetAddress: userOperation.sender,
+            targetCallData: userOperation.callData,
+            stateOverrides: newStateOverrides
+          }),
+          this.estimatePreVerificationGas(userOperation, baseFeePerGas)
+        ])
+        estimateGasResponse = this.estimateVerificationAndCallGasLimitsUsingMarkers(
+          constantGasFeeUserOperation,
+          executionResult
+        );
+
+        return {
+          callGasLimit: bumpBigIntPercent(estimateGasResponse.callGasLimit, 10),
+          verificationGasLimit: bumpBigIntPercent(estimateGasResponse.verificationGasLimit, 10),
+          preVerificationGas,
+          validAfter: estimateGasResponse.validAfter,
+          validUntil: estimateGasResponse.validUntil
+        }
+      } catch (err) {
+        console.log("err", err);
+        console.log("Failed to estimate using markers. Trying with normal simulateHandleOp()...");
+      }
+      
+    }
+
+    [executionResult, preVerificationGas] = await Promise.all([
       entryPoint.simulateHandleOp({
         userOperation: constantGasFeeUserOperation,
         targetAddress: userOperation.sender,
@@ -346,18 +389,18 @@ export class EVMGasEstimator implements GasEstimator {
       this.estimatePreVerificationGas(userOperation, baseFeePerGas)
     ])
 
-    const { callGasLimit, verificationGasLimit, validAfter, validUntil } =
+    estimateGasResponse =
       this.estimateVerificationAndCallGasLimits(
         constantGasFeeUserOperation,
         executionResult
       )
 
     return {
-      callGasLimit: bumpBigIntPercent(callGasLimit, 10),
-      verificationGasLimit: bumpBigIntPercent(verificationGasLimit, 10),
+      callGasLimit: bumpBigIntPercent(estimateGasResponse.callGasLimit, 10),
+      verificationGasLimit: bumpBigIntPercent(estimateGasResponse.verificationGasLimit, 10),
       preVerificationGas,
-      validAfter,
-      validUntil
+      validAfter: estimateGasResponse.validAfter,
+      validUntil: estimateGasResponse.validUntil
     }
   }
 
@@ -434,6 +477,40 @@ export class EVMGasEstimator implements GasEstimator {
     const verificationGasLimit = preOpGas - userOperation.preVerificationGas
 
     const callGasLimit = paid / userOperation.maxFeePerGas - preOpGas
+
+    return {
+      callGasLimit,
+      verificationGasLimit,
+      validAfter,
+      validUntil
+    }
+  }
+
+  /**
+   * Estimates verification and call gas limits from execution results using markers.
+   *
+   * @param userOperation - The user operation being estimated
+   * @param executionResult - The simulation execution result
+   * @returns Object containing gas limits and validity window
+   *
+   * @internal
+   */
+  estimateVerificationAndCallGasLimitsUsingMarkers(
+    userOperation: UserOperation,
+    executionResult: ExecutionResult
+  ) {
+    const { preOpGas, paid } = executionResult
+
+    let validAfter = 0
+    let validUntil = 0
+    if (isExecutionResultV6(executionResult)) {
+      validAfter = executionResult.validAfter
+      validUntil = executionResult.validUntil
+    }
+
+    const verificationGasLimit = preOpGas - userOperation.preVerificationGas
+
+    const callGasLimit = paid
 
     return {
       callGasLimit,

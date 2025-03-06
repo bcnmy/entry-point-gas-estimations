@@ -134,4 +134,12 @@ export class StateOverrideBuilder {
       ? mergeStateOverrides(this.stateOverrides, this.newStateOverrides)
       : this.newStateOverrides
   }
+
+  /**
+   * Creates a new copy of the overrides
+   * @returns a new copy of the StateOverrideBuilder with deep-cloned state overrides mapping
+   */
+  copy(): StateOverrideBuilder {
+    return new StateOverrideBuilder(structuredClone(this.stateOverrides ?? {}));
+  }
 }
