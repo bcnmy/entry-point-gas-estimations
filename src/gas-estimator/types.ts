@@ -63,8 +63,6 @@ export interface IEntryPointV6Simulations extends IEntryPointV6 {
   estimateVerificationGasLimit: typeof EntryPointV6Simulations.prototype.estimateVerificationGasLimit
   /** Estimates call gas limit */
   estimateCallGasLimit: typeof EntryPointV6Simulations.prototype.estimateCallGasLimit
-  /** Estimates call gas limit with markers*/
-  estimateCallGasLimitWithMarkers: typeof EntryPointV6Simulations.prototype.estimateCallGasLimitWithMarkers
 }
 
 /**
