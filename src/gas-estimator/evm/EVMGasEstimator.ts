@@ -302,7 +302,6 @@ export class EVMGasEstimator implements GasEstimator {
     if (options.useBinarySearch && userOperation.initCode === "0x") {
       try {
         console.log("Attempting to perform binary search...");
-        throw new Error("binary search failed");
         return await this.useBinarySearch(
           userOperation,
           baseFeePerGas,
