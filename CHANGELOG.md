@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.74
+
+### Patch Changes
+
+- Added fallback mechanism to EPv6 gas estimates: 1) try binary 2) try markers 3) try OG simulateHandleOp
+
 ## 0.2.73
 
 ### Patch Changes
