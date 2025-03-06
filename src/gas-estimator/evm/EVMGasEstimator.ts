@@ -372,7 +372,6 @@ export class EVMGasEstimator implements GasEstimator {
           validUntil: estimateGasResponse.validUntil
         }
       } catch (err) {
-        console.log("err", err);
         console.log("Failed to estimate using markers. Trying with normal simulateHandleOp()...");
       }
       
