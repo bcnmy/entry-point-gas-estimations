@@ -4,91 +4,91 @@ export const ENTRYPOINT_V7_ABI = [
       {
         internalType: "bool",
         name: "success",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "bytes",
         name: "ret",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "DelegateAndRevert",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "opIndex",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "string",
         name: "reason",
-        type: "string",
-      },
+        type: "string"
+      }
     ],
     name: "FailedOp",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "opIndex",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "string",
         name: "reason",
-        type: "string",
+        type: "string"
       },
       {
         internalType: "bytes",
         name: "inner",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "FailedOpWithRevert",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "returnData",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "PostOpReverted",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [],
     name: "ReentrancyGuardReentrantCall",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SenderAddressResult",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "aggregator",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SignatureValidationFailed",
-    type: "error",
+    type: "error"
   },
   {
     anonymous: false,
@@ -97,35 +97,35 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "factory",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "paymaster",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "AccountDeployed",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
     inputs: [],
     name: "BeforeExecution",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -134,17 +134,17 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "totalDeposit",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Deposited",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -153,29 +153,29 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bytes",
         name: "revertReason",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "PostOpRevertReason",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -184,11 +184,11 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "aggregator",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SignatureAggregatorChanged",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -197,23 +197,23 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "totalStaked",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "unstakeDelaySec",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeLocked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -222,17 +222,17 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "withdrawTime",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeUnlocked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -241,23 +241,23 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeWithdrawn",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -266,47 +266,47 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "paymaster",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bool",
         name: "success",
-        type: "bool",
+        type: "bool"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "actualGasCost",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "actualGasUsed",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "UserOperationEvent",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -315,23 +315,23 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "UserOperationPrefundTooLow",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -340,29 +340,29 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bytes",
         name: "revertReason",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "UserOperationRevertReason",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -371,133 +371,133 @@ export const ENTRYPOINT_V7_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Withdrawn",
-    type: "event",
+    type: "event"
   },
   {
     inputs: [
       {
         internalType: "uint32",
         name: "unstakeDelaySec",
-        type: "uint32",
-      },
+        type: "uint32"
+      }
     ],
     name: "addStake",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "balanceOf",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "target",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bytes",
         name: "data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "delegateAndRevert",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "depositTo",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "deposits",
     outputs: [
       {
         internalType: "uint256",
         name: "deposit",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "bool",
         name: "staked",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "uint112",
         name: "stake",
-        type: "uint112",
+        type: "uint112"
       },
       {
         internalType: "uint32",
         name: "unstakeDelaySec",
-        type: "uint32",
+        type: "uint32"
       },
       {
         internalType: "uint48",
         name: "withdrawTime",
-        type: "uint48",
-      },
+        type: "uint48"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getDepositInfo",
     outputs: [
@@ -506,73 +506,73 @@ export const ENTRYPOINT_V7_ABI = [
           {
             internalType: "uint256",
             name: "deposit",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bool",
             name: "staked",
-            type: "bool",
+            type: "bool"
           },
           {
             internalType: "uint112",
             name: "stake",
-            type: "uint112",
+            type: "uint112"
           },
           {
             internalType: "uint32",
             name: "unstakeDelaySec",
-            type: "uint32",
+            type: "uint32"
           },
           {
             internalType: "uint48",
             name: "withdrawTime",
-            type: "uint48",
-          },
+            type: "uint48"
+          }
         ],
         internalType: "struct IStakeManager.DepositInfo",
         name: "info",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint192",
         name: "key",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "getNonce",
     outputs: [
       {
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "initCode",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getSenderAddress",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -581,64 +581,64 @@ export const ENTRYPOINT_V7_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation",
         name: "userOp",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     name: "getUserOpHash",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -649,78 +649,78 @@ export const ENTRYPOINT_V7_ABI = [
               {
                 internalType: "address",
                 name: "sender",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "nonce",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "bytes",
                 name: "initCode",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes",
                 name: "callData",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes32",
                 name: "accountGasLimits",
-                type: "bytes32",
+                type: "bytes32"
               },
               {
                 internalType: "uint256",
                 name: "preVerificationGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "bytes32",
                 name: "gasFees",
-                type: "bytes32",
+                type: "bytes32"
               },
               {
                 internalType: "bytes",
                 name: "paymasterAndData",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes",
                 name: "signature",
-                type: "bytes",
-              },
+                type: "bytes"
+              }
             ],
             internalType: "struct PackedUserOperation[]",
             name: "userOps",
-            type: "tuple[]",
+            type: "tuple[]"
           },
           {
             internalType: "contract IAggregator",
             name: "aggregator",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct IEntryPoint.UserOpsPerAggregator[]",
         name: "opsPerAggregator",
-        type: "tuple[]",
+        type: "tuple[]"
       },
       {
         internalType: "address payable",
         name: "beneficiary",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "handleAggregatedOps",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -729,83 +729,83 @@ export const ENTRYPOINT_V7_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation[]",
         name: "ops",
-        type: "tuple[]",
+        type: "tuple[]"
       },
       {
         internalType: "address payable",
         name: "beneficiary",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "handleOps",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint192",
         name: "key",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "incrementNonce",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "callData",
-        type: "bytes",
+        type: "bytes"
       },
       {
         components: [
@@ -814,283 +814,283 @@ export const ENTRYPOINT_V7_ABI = [
               {
                 internalType: "address",
                 name: "sender",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "nonce",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "verificationGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "callGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "paymasterVerificationGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "paymasterPostOpGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "preVerificationGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "address",
                 name: "paymaster",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "maxFeePerGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "maxPriorityFeePerGas",
-                type: "uint256",
-              },
+                type: "uint256"
+              }
             ],
             internalType: "struct EntryPoint.MemoryUserOp",
             name: "mUserOp",
-            type: "tuple",
+            type: "tuple"
           },
           {
             internalType: "bytes32",
             name: "userOpHash",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "prefund",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "contextOffset",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "preOpGas",
-            type: "uint256",
-          },
+            type: "uint256"
+          }
         ],
         internalType: "struct EntryPoint.UserOpInfo",
         name: "opInfo",
-        type: "tuple",
+        type: "tuple"
       },
       {
         internalType: "bytes",
         name: "context",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "innerHandleOp",
     outputs: [
       {
         internalType: "uint256",
         name: "actualGasCost",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint192",
         name: "",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "nonceSequenceNumber",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes4",
         name: "interfaceId",
-        type: "bytes4",
-      },
+        type: "bytes4"
+      }
     ],
     name: "supportsInterface",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
     name: "unlockStake",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address payable",
         name: "withdrawAddress",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "withdrawStake",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address payable",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "withdrawAmount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "withdrawTo",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     stateMutability: "payable",
-    type: "receive",
-  },
-] as const;
+    type: "receive"
+  }
+] as const
 
 export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
   {
     inputs: [],
     stateMutability: "nonpayable",
-    type: "constructor",
+    type: "constructor"
   },
   {
     inputs: [
       {
         internalType: "bool",
         name: "success",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "bytes",
         name: "ret",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "DelegateAndRevert",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "opIndex",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "string",
         name: "reason",
-        type: "string",
-      },
+        type: "string"
+      }
     ],
     name: "FailedOp",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "opIndex",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "string",
         name: "reason",
-        type: "string",
+        type: "string"
       },
       {
         internalType: "bytes",
         name: "inner",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "FailedOpWithRevert",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "returnData",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "PostOpReverted",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [],
     name: "ReentrancyGuardReentrantCall",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "sender",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SenderAddressResult",
-    type: "error",
+    type: "error"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "aggregator",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SignatureValidationFailed",
-    type: "error",
+    type: "error"
   },
   {
     anonymous: false,
@@ -1099,35 +1099,35 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "factory",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "paymaster",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "AccountDeployed",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
     inputs: [],
     name: "BeforeExecution",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1136,17 +1136,17 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "totalDeposit",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Deposited",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1155,29 +1155,29 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bytes",
         name: "revertReason",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "PostOpRevertReason",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1186,11 +1186,11 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "aggregator",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "SignatureAggregatorChanged",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1199,23 +1199,23 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "totalStaked",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "unstakeDelaySec",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeLocked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1224,17 +1224,17 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "withdrawTime",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeUnlocked",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1243,23 +1243,23 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "StakeWithdrawn",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1268,47 +1268,47 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "paymaster",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bool",
         name: "success",
-        type: "bool",
+        type: "bool"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "actualGasCost",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "actualGasUsed",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "UserOperationEvent",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1317,23 +1317,23 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "UserOperationPrefundTooLow",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1342,29 +1342,29 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "bytes32",
         name: "userOpHash",
-        type: "bytes32",
+        type: "bytes32"
       },
       {
         indexed: true,
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
+        type: "uint256"
       },
       {
         indexed: false,
         internalType: "bytes",
         name: "revertReason",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "UserOperationRevertReason",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -1373,156 +1373,156 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "address",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "uint256",
         name: "amount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "Withdrawn",
-    type: "event",
+    type: "event"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "initCode",
-        type: "bytes",
+        type: "bytes"
       },
       {
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bytes",
         name: "paymasterAndData",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "_validateSenderAndPaymaster",
     outputs: [],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint32",
         name: "unstakeDelaySec",
-        type: "uint32",
-      },
+        type: "uint32"
+      }
     ],
     name: "addStake",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "balanceOf",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "target",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bytes",
         name: "data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "delegateAndRevert",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "depositTo",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "deposits",
     outputs: [
       {
         internalType: "uint256",
         name: "deposit",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "bool",
         name: "staked",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "uint112",
         name: "stake",
-        type: "uint112",
+        type: "uint112"
       },
       {
         internalType: "uint32",
         name: "unstakeDelaySec",
-        type: "uint32",
+        type: "uint32"
       },
       {
         internalType: "uint48",
         name: "withdrawTime",
-        type: "uint48",
-      },
+        type: "uint48"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "account",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "getDepositInfo",
     outputs: [
@@ -1531,73 +1531,73 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "uint256",
             name: "deposit",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bool",
             name: "staked",
-            type: "bool",
+            type: "bool"
           },
           {
             internalType: "uint112",
             name: "stake",
-            type: "uint112",
+            type: "uint112"
           },
           {
             internalType: "uint32",
             name: "unstakeDelaySec",
-            type: "uint32",
+            type: "uint32"
           },
           {
             internalType: "uint48",
             name: "withdrawTime",
-            type: "uint48",
-          },
+            type: "uint48"
+          }
         ],
         internalType: "struct IStakeManager.DepositInfo",
         name: "info",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "sender",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint192",
         name: "key",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "getNonce",
     outputs: [
       {
         internalType: "uint256",
         name: "nonce",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "initCode",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getSenderAddress",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -1606,64 +1606,64 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation",
         name: "userOp",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     name: "getUserOpHash",
     outputs: [
       {
         internalType: "bytes32",
         name: "",
-        type: "bytes32",
-      },
+        type: "bytes32"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -1674,78 +1674,78 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
               {
                 internalType: "address",
                 name: "sender",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "nonce",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "bytes",
                 name: "initCode",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes",
                 name: "callData",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes32",
                 name: "accountGasLimits",
-                type: "bytes32",
+                type: "bytes32"
               },
               {
                 internalType: "uint256",
                 name: "preVerificationGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "bytes32",
                 name: "gasFees",
-                type: "bytes32",
+                type: "bytes32"
               },
               {
                 internalType: "bytes",
                 name: "paymasterAndData",
-                type: "bytes",
+                type: "bytes"
               },
               {
                 internalType: "bytes",
                 name: "signature",
-                type: "bytes",
-              },
+                type: "bytes"
+              }
             ],
             internalType: "struct PackedUserOperation[]",
             name: "userOps",
-            type: "tuple[]",
+            type: "tuple[]"
           },
           {
             internalType: "contract IAggregator",
             name: "aggregator",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct IEntryPoint.UserOpsPerAggregator[]",
         name: "opsPerAggregator",
-        type: "tuple[]",
+        type: "tuple[]"
       },
       {
         internalType: "address payable",
         name: "beneficiary",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "handleAggregatedOps",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -1754,83 +1754,83 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation[]",
         name: "ops",
-        type: "tuple[]",
+        type: "tuple[]"
       },
       {
         internalType: "address payable",
         name: "beneficiary",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "handleOps",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint192",
         name: "key",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "incrementNonce",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "callData",
-        type: "bytes",
+        type: "bytes"
       },
       {
         components: [
@@ -1839,123 +1839,123 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
               {
                 internalType: "address",
                 name: "sender",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "nonce",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "verificationGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "callGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "paymasterVerificationGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "paymasterPostOpGasLimit",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "preVerificationGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "address",
                 name: "paymaster",
-                type: "address",
+                type: "address"
               },
               {
                 internalType: "uint256",
                 name: "maxFeePerGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "maxPriorityFeePerGas",
-                type: "uint256",
-              },
+                type: "uint256"
+              }
             ],
             internalType: "struct EntryPoint.MemoryUserOp",
             name: "mUserOp",
-            type: "tuple",
+            type: "tuple"
           },
           {
             internalType: "bytes32",
             name: "userOpHash",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "prefund",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "contextOffset",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "preOpGas",
-            type: "uint256",
-          },
+            type: "uint256"
+          }
         ],
         internalType: "struct EntryPoint.UserOpInfo",
         name: "opInfo",
-        type: "tuple",
+        type: "tuple"
       },
       {
         internalType: "bytes",
         name: "context",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "innerHandleOp",
     outputs: [
       {
         internalType: "uint256",
         name: "actualGasCost",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint192",
         name: "",
-        type: "uint192",
-      },
+        type: "uint192"
+      }
     ],
     name: "nonceSequenceNumber",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -1964,63 +1964,63 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation",
         name: "op",
-        type: "tuple",
+        type: "tuple"
       },
       {
         internalType: "address",
         name: "target",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bytes",
         name: "targetCallData",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "simulateHandleOp",
     outputs: [
@@ -2029,41 +2029,41 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "uint256",
             name: "preOpGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "paid",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "accountValidationData",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "uint256",
             name: "paymasterValidationData",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bool",
             name: "targetSuccess",
-            type: "bool",
+            type: "bool"
           },
           {
             internalType: "bytes",
             name: "targetResult",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct IEntryPointSimulations.ExecutionResult",
         name: "",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
@@ -2072,53 +2072,53 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
           {
             internalType: "address",
             name: "sender",
-            type: "address",
+            type: "address"
           },
           {
             internalType: "uint256",
             name: "nonce",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes",
             name: "initCode",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "callData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes32",
             name: "accountGasLimits",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "uint256",
             name: "preVerificationGas",
-            type: "uint256",
+            type: "uint256"
           },
           {
             internalType: "bytes32",
             name: "gasFees",
-            type: "bytes32",
+            type: "bytes32"
           },
           {
             internalType: "bytes",
             name: "paymasterAndData",
-            type: "bytes",
+            type: "bytes"
           },
           {
             internalType: "bytes",
             name: "signature",
-            type: "bytes",
-          },
+            type: "bytes"
+          }
         ],
         internalType: "struct PackedUserOperation",
         name: "userOp",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     name: "simulateValidation",
     outputs: [
@@ -2129,181 +2129,181 @@ export const ENTRYPOINT_V7_SIMULATIONS_ABI = [
               {
                 internalType: "uint256",
                 name: "preOpGas",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "prefund",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "accountValidationData",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "paymasterValidationData",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "bytes",
                 name: "paymasterContext",
-                type: "bytes",
-              },
+                type: "bytes"
+              }
             ],
             internalType: "struct IEntryPoint.ReturnInfo",
             name: "returnInfo",
-            type: "tuple",
+            type: "tuple"
           },
           {
             components: [
               {
                 internalType: "uint256",
                 name: "stake",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "unstakeDelaySec",
-                type: "uint256",
-              },
+                type: "uint256"
+              }
             ],
             internalType: "struct IStakeManager.StakeInfo",
             name: "senderInfo",
-            type: "tuple",
+            type: "tuple"
           },
           {
             components: [
               {
                 internalType: "uint256",
                 name: "stake",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "unstakeDelaySec",
-                type: "uint256",
-              },
+                type: "uint256"
+              }
             ],
             internalType: "struct IStakeManager.StakeInfo",
             name: "factoryInfo",
-            type: "tuple",
+            type: "tuple"
           },
           {
             components: [
               {
                 internalType: "uint256",
                 name: "stake",
-                type: "uint256",
+                type: "uint256"
               },
               {
                 internalType: "uint256",
                 name: "unstakeDelaySec",
-                type: "uint256",
-              },
+                type: "uint256"
+              }
             ],
             internalType: "struct IStakeManager.StakeInfo",
             name: "paymasterInfo",
-            type: "tuple",
+            type: "tuple"
           },
           {
             components: [
               {
                 internalType: "address",
                 name: "aggregator",
-                type: "address",
+                type: "address"
               },
               {
                 components: [
                   {
                     internalType: "uint256",
                     name: "stake",
-                    type: "uint256",
+                    type: "uint256"
                   },
                   {
                     internalType: "uint256",
                     name: "unstakeDelaySec",
-                    type: "uint256",
-                  },
+                    type: "uint256"
+                  }
                 ],
                 internalType: "struct IStakeManager.StakeInfo",
                 name: "stakeInfo",
-                type: "tuple",
-              },
+                type: "tuple"
+              }
             ],
             internalType: "struct IEntryPoint.AggregatorStakeInfo",
             name: "aggregatorInfo",
-            type: "tuple",
-          },
+            type: "tuple"
+          }
         ],
         internalType: "struct IEntryPointSimulations.ValidationResult",
         name: "",
-        type: "tuple",
-      },
+        type: "tuple"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes4",
         name: "interfaceId",
-        type: "bytes4",
-      },
+        type: "bytes4"
+      }
     ],
     name: "supportsInterface",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
     name: "unlockStake",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address payable",
         name: "withdrawAddress",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "withdrawStake",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address payable",
         name: "withdrawAddress",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "uint256",
         name: "withdrawAmount",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "withdrawTo",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     stateMutability: "payable",
-    type: "receive",
-  },
-] as const;
+    type: "receive"
+  }
+] as const

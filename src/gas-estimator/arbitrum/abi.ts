@@ -4,38 +4,38 @@ export const ARBITRUM_L1_FEE_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "address",
         name: "to",
-        type: "address",
+        type: "address"
       },
       {
         internalType: "bool",
         name: "contractCreation",
-        type: "bool",
+        type: "bool"
       },
       {
         internalType: "bytes",
         name: "data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "gasEstimateL1Component",
     outputs: [
       {
         internalType: "uint64",
         name: "gasEstimateForL1",
-        type: "uint64",
+        type: "uint64"
       },
       {
         internalType: "uint256",
         name: "baseFee",
-        type: "uint256",
+        type: "uint256"
       },
       {
         internalType: "uint256",
         name: "l1BaseFeeEstimate",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-] as const;
+    type: "function"
+  }
+] as const

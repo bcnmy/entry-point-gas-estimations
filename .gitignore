@@ -71,9 +71,6 @@ web_modules/
 
 .npm
 
-# Optional eslint cache
-
-.eslintcache
 
 # Optional stylelint cache
 
@@ -180,3 +177,6 @@ dont-commit/
 
 # Config directory used for test config
 config/test.json
+
+# Docs
+docs/

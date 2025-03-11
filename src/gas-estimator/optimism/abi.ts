@@ -6,11 +6,11 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -19,49 +19,49 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "_data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getL1Fee",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "_data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getL1GasUsed",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -70,11 +70,11 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -83,11 +83,11 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -96,10 +96,10 @@ export const OPTIMISM_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
-  },
-] as const;
+    type: "function"
+  }
+] as const

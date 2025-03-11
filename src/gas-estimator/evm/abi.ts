@@ -7,12 +7,12 @@ export const SCROLL_L1_GAS_PRICE_ORACLE_ABI = [
       {
         name: "data",
         internalType: "bytes",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
-    outputs: [{ name: "", internalType: "uint256", type: "uint256" }],
-  },
-] as const;
+    outputs: [{ name: "", internalType: "uint256", type: "uint256" }]
+  }
+] as const
 
 export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
   {
@@ -20,11 +20,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "address",
         name: "owner_",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "nonpayable",
-    type: "constructor",
+    type: "constructor"
   },
   {
     anonymous: false,
@@ -33,17 +33,17 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: true,
         internalType: "address",
         name: "user",
-        type: "address",
+        type: "address"
       },
       {
         indexed: false,
         internalType: "bool",
         name: "val",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     name: "AllowListAddressSet",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -52,11 +52,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: false,
         internalType: "bool",
         name: "isEnabled",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     name: "AllowListEnabledUpdated",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -65,11 +65,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: false,
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "L1BaseFeeUpdated",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -78,11 +78,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: false,
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "OverheadUpdated",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -91,17 +91,17 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: true,
         internalType: "address",
         name: "previousOwner",
-        type: "address",
+        type: "address"
       },
       {
         indexed: true,
         internalType: "address",
         name: "newOwner",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "OwnershipTransferred",
-    type: "event",
+    type: "event"
   },
   {
     anonymous: false,
@@ -110,11 +110,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
         indexed: false,
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "ScalarUpdated",
-    type: "event",
+    type: "event"
   },
   {
     inputs: [],
@@ -123,68 +123,68 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "_data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getL1Fee",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bytes",
         name: "_data",
-        type: "bytes",
-      },
+        type: "bytes"
+      }
     ],
     name: "getL1GasUsed",
     outputs: [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "isAllowed",
     outputs: [
       {
         internalType: "bool",
         name: "",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -193,11 +193,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -206,11 +206,11 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -219,18 +219,18 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "address",
         name: "",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
     name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [],
@@ -239,93 +239,93 @@ export const MORPH_L1_GAS_PRICE_ORACLE_ABI = [
       {
         internalType: "uint256",
         name: "",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     stateMutability: "view",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address[]",
         name: "user",
-        type: "address[]",
+        type: "address[]"
       },
       {
         internalType: "bool[]",
         name: "val",
-        type: "bool[]",
-      },
+        type: "bool[]"
+      }
     ],
     name: "setAllowList",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "bool",
         name: "_allowListEnabled",
-        type: "bool",
-      },
+        type: "bool"
+      }
     ],
     name: "setAllowListEnabled",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "_baseFee",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "setL1BaseFee",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "_overhead",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "setOverhead",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "uint256",
         name: "_scalar",
-        type: "uint256",
-      },
+        type: "uint256"
+      }
     ],
     name: "setScalar",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
+    type: "function"
   },
   {
     inputs: [
       {
         internalType: "address",
         name: "newOwner",
-        type: "address",
-      },
+        type: "address"
+      }
     ],
     name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-] as const;
+    type: "function"
+  }
+] as const
