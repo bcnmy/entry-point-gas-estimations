@@ -2,9 +2,8 @@ import {
   type Address,
   type Hex,
   decodeErrorResult,
-  encodeFunctionData
+  encodeFunctionData,
 } from "viem"
-
 import type { StateOverrideSet } from "../../shared/types"
 import { type EntryPointRpcClient, EntryPointVersion } from "../shared/types"
 import { type UserOperationV6, userOperationV6Schema } from "./UserOperationV6"
@@ -16,7 +15,7 @@ import {
   SimulateHandleOpError,
   errorWithCauseSchema,
   errorWithNestedCauseSchema,
-  executionResultSchema
+  executionResultSchema,
 } from "./types"
 
 /**
@@ -44,7 +43,7 @@ export class EntryPointV6 {
    */
   constructor(
     protected client: EntryPointRpcClient,
-    public address: Address = ENTRYPOINT_V6_ADDRESS
+    public address: Address = ENTRYPOINT_V6_ADDRESS,
   ) {}
 
   /**
@@ -81,7 +80,7 @@ export class EntryPointV6 {
     userOperation,
     targetAddress,
     targetCallData,
-    stateOverrides
+    stateOverrides,
   }: SimulateHandleOpParamsV6): Promise<ExecutionResultV6> {
     userOperation = userOperationV6Schema.parse(userOperation)
 
@@ -94,21 +93,44 @@ export class EntryPointV6 {
           args: [userOperation, targetAddress, targetCallData],
         }),
       },
-      "latest"
+      "latest",
     ]
 
     if (stateOverrides) {
-      simulateHandleOpParams.push(stateOverrides)
+      // TODO: verify (VeChain does not support state override)
+      simulateHandleOpParams.from = "0x74edaa00be7bb4ff027efa256367bb4ed9b9bc02"
+      // simulateHandleOpParams.push(stateOverrides)
     }
 
     try {
-      await this.client.request({
-        method: "eth_call",
-        params: simulateHandleOpParams,
-      })
+      const data = await this.client.request(
+        {
+          method: "eth_call",
+          params: simulateHandleOpParams,
+        },
+        {},
+      )
+
+      // TODO: verify (VeChain always returns data, even on revert)
+      if (data && data !== "0x") {
+        console.log(
+          "decodeErrorResult",
+          decodeErrorResult({
+            abi: this.abi,
+            data,
+          }),
+        )
+
+        return this.parseSimulateHandleOpExecutionResult(data)
+      }
+
       throw new Error("SimulateHandleOp should always revert")
     } catch (err: any) {
+      // TODO: remove
+      console.log("err", err)
+
       const data = this.parseRpcRequestErrorData(err)
+
       return this.parseSimulateHandleOpExecutionResult(data)
     }
   }
@@ -148,7 +170,7 @@ export class EntryPointV6 {
     userOperation,
     targetAddress,
     targetCallData,
-    stateOverrides
+    stateOverrides,
   }: SimulateHandleOpParamsV6): Promise<ExecutionResultV6> {
     userOperation = userOperationV6Schema.parse(userOperation)
 
@@ -158,10 +180,10 @@ export class EntryPointV6 {
         data: encodeFunctionData({
           abi: this.abi,
           functionName: "simulateHandleOpWithMarkers",
-          args: [userOperation, targetAddress, targetCallData]
+          args: [userOperation, targetAddress, targetCallData],
         }),
       },
-      "latest"
+      "latest",
     ]
 
     if (stateOverrides) {
@@ -171,7 +193,7 @@ export class EntryPointV6 {
     try {
       await this.client.request({
         method: "eth_call",
-        params: simulateHandleOpParams
+        params: simulateHandleOpParams,
       })
       throw new Error("SimulateHandleOp should always revert")
     } catch (err: any) {
@@ -198,7 +220,7 @@ export class EntryPointV6 {
       address: this.address,
       abi: this.abi,
       functionName: "getNonce",
-      args: [smartAccountAddress, key]
+      args: [smartAccountAddress, key],
     })
   }
 
@@ -219,14 +241,14 @@ export class EntryPointV6 {
    */
   encodeHandleOpsFunctionData(
     userOperation: UserOperationV6,
-    beneficiary: Address
+    beneficiary: Address,
   ): Hex {
     userOperation = userOperationV6Schema.parse(userOperation)
 
     return encodeFunctionData({
       abi: this.abi,
       functionName: "handleOps",
-      args: [[userOperation], beneficiary]
+      args: [[userOperation], beneficiary],
     })
   }
 
@@ -288,13 +310,13 @@ export class EntryPointV6 {
   protected parseSimulateHandleOpExecutionResult(data: Hex): ExecutionResultV6 {
     if (data.includes("Incorrect parameters count")) {
       throw new SimulateHandleOpError(
-        `RPC failed to perform a state override with message: ${data}. This is likely temporary, try again later.`
+        `RPC failed to perform a state override with message: ${data}. This is likely temporary, try again later.`,
       )
     }
 
     const decodedError = decodeErrorResult({
       abi: this.abi,
-      data: data as Hex
+      data: data as Hex,
     })
 
     if (decodedError.args == null) {
@@ -305,7 +327,7 @@ export class EntryPointV6 {
       throw new SimulateHandleOpError(
         decodedError.args
           ? (decodedError.args[1] as string)
-          : decodedError.errorName
+          : decodedError.errorName,
       )
     }
 

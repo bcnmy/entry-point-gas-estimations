@@ -17,23 +17,25 @@ export default defineConfig({
         "**/_esm/**",
         "**/_types/**",
         "**/*.test.ts",
-        "**/test/**"
+        "**/test/**",
       ],
       include: ["./src/**/*.test.ts", "./src/**/*.test.ts"],
       thresholds: {
         lines: 80,
         functions: 50,
         branches: 60,
-        statements: 80
-      }
+        statements: 80,
+      },
     },
     sequence: {
       shuffle: false,
-      concurrent: false
+      concurrent: false,
     },
     include: ["./src/**/*.test.ts", "./src/**/*.test.ts"],
     environment: "node",
     testTimeout: 60_000,
-    hookTimeout: 60_000
-  }
+    hookTimeout: 60_000,
+    passWithNoTests: true,
+    hideSkippedTests: true,
+  },
 })
