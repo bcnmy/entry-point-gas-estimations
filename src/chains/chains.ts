@@ -1,5 +1,6 @@
 import { ENTRYPOINT_V7_ADDRESS } from "../entrypoint/v0.7.0/constants"
 import { ChainStack, type SupportedChain } from "./types"
+import { ADDRESS_ZERO } from "@biconomy/sdk"
 
 // TODO: Move the constants into the files where they belong
 export const DEFAULT_ENTRYPOINT_V6_SPONSORSHIP_PAYMASTER_ADDRESS =
@@ -1394,7 +1395,6 @@ export const supportedChains: Record<string, SupportedChain> = {
         address: "0x606eb8EeB7a1B1a8326BF429Bf80c835c7aa44af",
       },
     },
-    // TODO: verify
     stateOverrideSupport: {
       balance: false,
       bytecode: false,
@@ -1405,6 +1405,11 @@ export const supportedChains: Record<string, SupportedChain> = {
       nexus: false,
     },
     paymasters: {},
+    contracts: {
+      factoryAddress: "0x9CB89703d9f3A29B1bbfBad690D8D119E952c9df",
+      bootStrapAddress: ADDRESS_ZERO,
+      validatorAddress: ADDRESS_ZERO,
+    },
   },
   "57054": {
     chainId: 57054,

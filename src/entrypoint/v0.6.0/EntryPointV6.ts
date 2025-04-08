@@ -97,38 +97,22 @@ export class EntryPointV6 {
     ]
 
     if (stateOverrides) {
-      // TODO: verify (VeChain does not support state override)
-      simulateHandleOpParams.from = "0x74edaa00be7bb4ff027efa256367bb4ed9b9bc02"
-      // simulateHandleOpParams.push(stateOverrides)
+      simulateHandleOpParams.push(stateOverrides)
     }
 
     try {
-      const data = await this.client.request(
-        {
-          method: "eth_call",
-          params: simulateHandleOpParams,
-        },
-        {},
-      )
+      const data = await this.client.request({
+        method: "eth_call",
+        params: simulateHandleOpParams,
+      })
 
-      // TODO: verify (VeChain always returns data, even on revert)
+      // TODO: FIX - VeChain always returns data, even on revert
       if (data && data !== "0x") {
-        console.log(
-          "decodeErrorResult",
-          decodeErrorResult({
-            abi: this.abi,
-            data,
-          }),
-        )
-
         return this.parseSimulateHandleOpExecutionResult(data)
       }
 
       throw new Error("SimulateHandleOp should always revert")
     } catch (err: any) {
-      // TODO: remove
-      console.log("err", err)
-
       const data = this.parseRpcRequestErrorData(err)
 
       return this.parseSimulateHandleOpExecutionResult(data)
@@ -271,7 +255,6 @@ export class EntryPointV6 {
    */
   protected parseRpcRequestErrorData(err: unknown) {
     let data: Hex = "0x"
-
     // parse error.cause
     const parseResult = errorWithCauseSchema.safeParse(err)
     if (parseResult.success) {
