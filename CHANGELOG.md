@@ -1,5 +1,11 @@
 # @biconomy/gas-estimations
 
+## 0.2.75
+
+### Patch Changes
+
+- Increased the default verificationGasLimit
+
 ## 0.2.74
 
 ### Patch Changes
