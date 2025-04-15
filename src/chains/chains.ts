@@ -1396,7 +1396,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     simulation: {
       preVerificationGas: 5_000_000n,
       callGasLimit: 5_000_000n,
-      verificationGasLimit: 5_000_000n
+      verificationGasLimit: 10_000_000n
     },
     smartAccountSupport: {
       smartAccountsV2: false,
@@ -1426,7 +1426,7 @@ export const supportedChains: Record<string, SupportedChain> = {
     simulation: {
       preVerificationGas: 5_000_000n,
       callGasLimit: 5_000_000n,
-      verificationGasLimit: 5_000_000n
+      verificationGasLimit: 10_000_000n
     },
     smartAccountSupport: {
       smartAccountsV2: false,
